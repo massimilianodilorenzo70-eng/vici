@@ -141,8 +141,8 @@
           <div><span>Risultato</span><b id="mio-risultato">—</b></div>
         </div>
         <form id="mio-form" class="mio-form" hidden>
-          <label>Numero certificati <input id="mio-qta" type="number" min="0" step="1" inputmode="numeric"></label>
-          <label>Prezzo medio di carico (EUR) <input id="mio-carico" type="number" min="0" step="0.01" inputmode="decimal"></label>
+          <label>Numero certificati <input id="mio-qta" type="text" inputmode="numeric" autocomplete="off"></label>
+          <label>Prezzo medio di carico (EUR) <input id="mio-carico" type="text" inputmode="decimal" autocomplete="off"></label>
           <div class="mio-azioni"><button type="submit" class="primario">Salva</button><button type="button" id="mio-annulla" class="link">Annulla</button></div>
           <p class="nota">Resta salvato solo su questo dispositivo.</p>
         </form>
@@ -190,7 +190,7 @@
         <div class="metriche" id="rischio-metriche"></div>
         <h3>Per posizione</h3>
         <div class="tabella-box">
-          <table class="tabella compatta">
+          <table class="tabella compatta schede-mobile">
             <thead><tr><th>Posizione</th><th>Peso</th><th>Volatilità</th><th>Rend. 1 anno</th><th>Quota di rischio</th></tr></thead>
             <tbody id="rischio-posizioni"></tbody>
           </table>
@@ -225,7 +225,7 @@
         <h2>Simulatore di ribilanciamento</h2>
         <div class="sim-comandi">
           <label>Patrimonio del certificato (EUR)
-            <input id="sim-patrimonio" type="number" min="0" step="1000" inputmode="decimal" placeholder="es. 5000000">
+            <input id="sim-patrimonio" type="text" inputmode="decimal" autocomplete="off" placeholder="es. 5.000.000">
           </label>
           <div class="sim-bottoni">
             <button type="button" id="sim-obiettivo" class="secondario">Pesi obiettivo</button>
