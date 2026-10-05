@@ -87,8 +87,8 @@ Il numero di versione è nel menu e in fondo alla pagina; le novità di ogni
 versione sono nel menu → «Novità della versione». A ogni apertura l'app legge
 `versione.json` dal sito e, se è cambiata, si aggiorna e si ricarica da sola.
 Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
-funzioni nuove → versione successiva (1.9 → 1.10), correzioni → terzo numero
-(1.9 → 1.9.1).
+funzioni nuove → numero intero successivo (2, 3, …), correzioni → un punto in
+più sulla versione in corso (1.9 → 1.9.1; 2 → 2.1).
 
 - **1.9.1** — correzioni (variazione giornaliera, dettaglio posizione).
 - **1.9** — dettaglio posizione; storico del certificato dall'emissione.
