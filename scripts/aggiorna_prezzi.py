@@ -92,6 +92,17 @@ def yahoo_grafico(simbolo, dal):
     )
     j = json.loads(scarica(url))
     res = (j.get("chart") or {}).get("result") or []
+    if res and len(res[0].get("timestamp") or []) < 10:
+        # per alcuni listini Yahoo risponde solo con "range"
+        url2 = (f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(simbolo)}"
+                "?range=2y&interval=1d&includePrePost=false")
+        try:
+            j2 = json.loads(scarica(url2))
+            r2 = (j2.get("chart") or {}).get("result") or []
+            if r2 and len(r2[0].get("timestamp") or []) > len(res[0].get("timestamp") or []):
+                res = r2
+        except Exception:
+            pass
     if not res:
         raise RuntimeError(f"nessun dato per {simbolo}")
     r = res[0]
@@ -340,7 +351,22 @@ def scarica_strumenti(port, cache, dal_storia):
                 g = ft_nav(pos["isin"])
             except Exception as e:
                 log("  FT:", e)
-        dati[k] = g if g and g.get("prezzo") else None
+        g = g if g and g.get("prezzo") else None
+        proxy = pos.get("storico_proxy")
+        if g and proxy and len(g["chiusure"]) < STORIA_MINIMA // 2:
+            # Storico troppo corto per il rischio: si usa quello di uno strumento
+            # equivalente, riportato al prezzo attuale (il prezzo resta quello vero)
+            try:
+                gp = yahoo_grafico(proxy["yahoo"], dal_storia)
+                if gp["chiusure"]:
+                    f = g["prezzo"] / gp["chiusure"][-1][1]
+                    proprie = {d for d, _ in g["chiusure"]}
+                    g["chiusure"] = sorted([(d, c * f) for d, c in gp["chiusure"] if d not in proprie] + g["chiusure"])
+                    g["storico_da"] = proxy.get("nome", proxy["yahoo"])
+                    log(f"  storico da {proxy['yahoo']}: {len(gp['chiusure'])} prezzi")
+            except Exception as e:
+                log(f"  storico da {proxy['yahoo']} non disponibile: {e}")
+        dati[k] = g
     return dati
 
 
@@ -565,6 +591,7 @@ def main():
             "fonte": g.get("fonte") if ok else None,
             "aggiornato": g.get("ora") if ok else None,
             "storia": len(g["chiusure"]) if ok else 0,
+            "storico_da": g.get("storico_da") if ok else None,
             "mancante": not ok,
         })
     nav = sum(r["valore"] for r in righe)

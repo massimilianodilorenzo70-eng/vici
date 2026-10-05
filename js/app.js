@@ -319,7 +319,8 @@ function mostraRischio() {
   const re = dati.realizzato || {};
   $("rischio-nota").textContent = `Pesi di oggi applicati ai prezzi dell'ultimo anno (dal ${dataIt(r.dal)}, ${r.giorni} giorni di borsa): ` +
     "mostra come si sarebbe comportato il portafoglio attuale." +
-    (r.senza_storia && r.senza_storia.length ? ` Storico incompleto per: ${r.senza_storia.join(", ")}.` : "");
+    (r.senza_storia && r.senza_storia.length ? ` Storico incompleto per: ${r.senza_storia.join(", ")}.` : "") +
+    dati.posizioni.filter((p) => p.storico_da).map((p) => ` Per ${breve(p.nome)} lo storico è quello di ${p.storico_da}.`).join("");
   const met = [
     ["Volatilità annua", fmt(r.vol) + "%", b.vol != null ? `benchmark ${fmt(b.vol)}%` : ""],
     ["Perdita massima", fmt(r.max_drawdown) + "%", b.max_drawdown != null ? `benchmark ${fmt(b.max_drawdown)}%` : ""],

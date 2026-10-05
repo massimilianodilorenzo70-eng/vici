@@ -66,7 +66,11 @@
      "classe": "Obbligazioni",
      "area": "Europa",
      "peso": 9.47,
-     "prezzo_carico": 24.5345
+     "prezzo_carico": 24.5345,
+     "storico_proxy": {
+      "yahoo": "IEAC.AS",
+      "nome": "iShares Core EUR Corp Bond"
+     }
     },
     {
      "nome": "T. Rowe Price Global Value Equity A EUR",
@@ -102,7 +106,11 @@
      "classe": "Oro",
      "area": "Globale",
      "peso": 7.34,
-     "prezzo_carico": 349.73
+     "prezzo_carico": 349.73,
+     "storico_proxy": {
+      "yahoo": "4GLD.DE",
+      "nome": "Xetra-Gold"
+     }
     },
     {
      "nome": "iShares EUR Floating Rate Bond Advanced",
@@ -166,6 +174,7 @@
   "ribilanciamenti": "Per un nuovo ribilanciamento aggiungi in fondo un elemento con data, pesi (%) e prezzi di esecuzione. La curva resta continua: il paniere riparte dal valore raggiunto quel giorno.",
   "certificato_al_ribilanciamento": "Prezzo del certificato il giorno dell'ultimo ribilanciamento: serve per calcolare premio/sconto rispetto al paniere. Se è null si usa la prima quotazione registrata dall'app.",
   "soglia_scostamento": "Punti percentuali di scostamento dal peso obiettivo oltre i quali arriva l'avviso (issue GitHub, che ti arriva anche per email).",
-  "benchmark": "Indice di confronto, ribasato a 1000 al primo ribilanciamento. 'yahoo' è facoltativo: se manca si cerca dall'ISIN."
+  "benchmark": "Indice di confronto, ribasato a 1000 al primo ribilanciamento. 'yahoo' è facoltativo: se manca si cerca dall'ISIN.",
+  "storico_proxy": "Facoltativo, per posizione: strumento equivalente (simbolo Yahoo) da cui prendere lo storico quando quello della posizione è troppo corto. Serve solo per rischio e correlazioni; il prezzo resta quello vero."
  }
 }
