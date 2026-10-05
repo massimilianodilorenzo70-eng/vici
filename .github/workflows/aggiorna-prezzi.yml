@@ -1,0 +1,46 @@
+name: Aggiorna prezzi
+
+# Legge i prezzi delle posizioni e la quotazione del certificato, ricalcola
+# l'andamento e salva i risultati in data/. L'app li legge da lì.
+on:
+  schedule:
+    # Giorni feriali, ogni ora dalle 8 alle 19 (ora italiana, circa)
+    - cron: "23 6-17 * * 1-5"
+    # Una volta dopo la chiusura, per i NAV dei fondi che escono la sera
+    - cron: "41 21 * * 1-5"
+  workflow_dispatch: {}   # avviabile a mano: GitHub → Actions → Run workflow
+  push:
+    paths:
+      - "scripts/aggiorna_prezzi.py"
+      - "data/portafoglio.json"
+      - ".github/workflows/aggiorna-prezzi.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aggiorna-prezzi-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Scarica i prezzi e calcola
+        run: python scripts/aggiorna_prezzi.py
+
+      - name: Salva i risultati
+        run: |
+          git config user.name "vici-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/prezzi.json data/storico.json data/simboli.json
+          git add debug/ 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "Aggiorna prezzi [bot]"
+          git pull --rebase
+          git push

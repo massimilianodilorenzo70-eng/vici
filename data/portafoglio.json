@@ -1,0 +1,25 @@
+{
+  "nome": "VICI Balanced Growth AMC",
+  "indice": "VICIGROW Index",
+  "isin_certificato": "CH1453363652",
+  "emittente": "Leonteq Securities",
+  "data_esecuzione": "2026-09-02",
+  "base": 1000,
+  "nota": "Pesi dallo screenshot della composizione; prezzi di carico dal file VICIGROW_Execution_2ndSep.xlsx. 'yahoo' è il simbolo usato per i prezzi: se è vuoto lo script lo cerca da solo partendo dall'ISIN.",
+  "posizioni": [
+    {"nome": "iShares S&P 500 EUR Hedged", "isin": "IE00B3ZW0K18", "bloomberg": "IUSE LN", "classe": "Azioni", "area": "USA", "peso": 17.21, "prezzo_carico": 157.58, "yahoo": ""},
+    {"nome": "Amundi Euro Government Bond 3-5Y", "isin": "LU1650488494", "bloomberg": "EM35 IM", "classe": "Obbligazioni", "area": "Europa", "peso": 9.98, "prezzo_carico": 150.95, "yahoo": ""},
+    {"nome": "PIMCO GIS Capital Securities EUR Hdg Acc", "isin": "IE00BFRSV973", "bloomberg": "PIMEEHA ID", "classe": "Obbligazioni", "area": "Globale", "peso": 9.87, "prezzo_carico": 14.44, "yahoo": ""},
+    {"nome": "Schroder ISF EURO Corporate Bond A Acc", "isin": "LU0113257694", "bloomberg": "SCHEHIA LX", "classe": "Obbligazioni", "area": "Europa", "peso": 9.47, "prezzo_carico": 24.5345, "yahoo": ""},
+    {"nome": "T. Rowe Price Global Value Equity A EUR", "isin": "LU1493953001", "bloomberg": "TRPGVAE LX", "classe": "Azioni", "area": "Globale", "peso": 9.16, "prezzo_carico": 28.02, "yahoo": ""},
+    {"nome": "iShares Core EURO STOXX 50", "isin": "IE00B53L3W79", "bloomberg": "CSSX5E IM", "classe": "Azioni", "area": "Europa", "peso": 8.95, "prezzo_carico": 248.15, "yahoo": ""},
+    {"nome": "Muzinich Enhancedyield Short-Term H EUR R Acc", "isin": "IE00B65YMK29", "bloomberg": "MUZHEAR ID", "classe": "Obbligazioni", "area": "Globale", "peso": 7.99, "prezzo_carico": 158.8, "yahoo": ""},
+    {"nome": "WisdomTree Physical Gold", "isin": "JE00B1VS3770", "bloomberg": "PHAU IM", "classe": "Oro", "area": "Globale", "peso": 7.34, "prezzo_carico": 349.73, "yahoo": ""},
+    {"nome": "iShares EUR Floating Rate Bond Advanced", "isin": "IE000NVM56L3", "bloomberg": "EFRB GY", "classe": "Obbligazioni", "area": "Europa", "peso": 5.05, "prezzo_carico": 5.2018, "yahoo": ""},
+    {"nome": "Amundi MSCI Emerging Markets", "isin": "LU1437017350", "bloomberg": "AEME IM", "classe": "Azioni", "area": "Emergenti", "peso": 4.11, "prezzo_carico": 101.29, "yahoo": ""},
+    {"nome": "iShares S&P 500 Health Care EUR Hdg", "isin": "IE00BMBKBZ46", "bloomberg": "IUHE NA", "classe": "Azioni", "area": "USA", "peso": 3.98, "prezzo_carico": 7.83, "yahoo": ""},
+    {"nome": "iShares MSCI USA Small Cap ESG Enhanced", "isin": "IE00B3VWM098", "bloomberg": "CSUSS IM", "classe": "Azioni", "area": "USA", "peso": 2.96, "prezzo_carico": 599.8, "yahoo": ""},
+    {"nome": "Liquidità EUR", "isin": "", "bloomberg": "CASH_EUR", "classe": "Liquidità", "area": "Europa", "peso": 2.02, "prezzo_carico": 1, "yahoo": "", "liquidita": true},
+    {"nome": "iShares MSCI China EUR Hdg Acc", "isin": "IE00099GAJC6", "bloomberg": "CNYE IM", "classe": "Azioni", "area": "Emergenti", "peso": 1.92, "prezzo_carico": 5.235, "yahoo": ""}
+  ]
+}

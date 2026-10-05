@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="VICI">
+  <circle cx="60" cy="60" r="56" fill="none" stroke="#4FB8EA" stroke-width="2.4"/>
+  <circle cx="60" cy="60" r="47" fill="none" stroke="#4FB8EA" stroke-width="1.4" stroke-dasharray="230 65" transform="rotate(200 60 60)"/>
+  <g fill="#A9CFEA">
+    <path d="M24 46c2-8 11-12 18-10 3-6 12-9 19-6 6-4 16-3 21 2 8-1 15 4 15 11 3 3 2 8-3 9-5 3-12 2-16 0-5 3-12 3-17 0-6 3-14 3-19 0-6 2-14 1-17-3-3-1-3-2-1-3z"/>
+    <path d="M57 54c-1 6 2 11 0 17-2 6-5 9-4 14 1 4 4 6 3 9h7c-1-4-3-6-2-10 1-5 5-9 6-15 1-5-1-10 1-15l-3-1c-1 5 0 10-2 14 0-5 0-9-2-14z"/>
+    <path d="M58 56l-9-6-2 2 10 6zM63 55l8-6 2 2-9 6z"/>
+    <path d="M40 98c5-4 13-6 20-5 8 0 15 2 20 5-6 2-13 3-20 3s-14-1-20-3z"/>
+  </g>
+</svg>
