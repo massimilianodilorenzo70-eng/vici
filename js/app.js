@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.1.1";
+const VERSIONE = "3.1.2";
 const NOVITA = [
+  { v: "3.1.2", voci: ["Menu: tolto il link al book di Borsa Italiana."] },
   { v: "3.1.1", voci: ["Menu: i link portano alla quotazione su Euronext e al book di Borsa Italiana (la scheda mostrava solo l'ultimo contratto, vuoto nei giorni senza scambi)."] },
   { v: "3.1", voci: [
     "In cima il prezzo corrente del certificato (ultimo contratto di oggi o medio tra denaro e lettera, come su Euronext) con l'ora; il prezzo di riferimento resta come informazione.",
