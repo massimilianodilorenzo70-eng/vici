@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>VICI Balanced Growth</title>
+  <meta name="description" content="Posizioni e andamento del certificato VICI Balanced Growth AMC.">
+  <meta name="theme-color" content="#0A2283">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="testata">
+    <div class="marchio">
+      <img src="icons/logo.svg" alt="" class="marchio-icona">
+      <div>
+        <div class="marchio-nome">V I C I</div>
+        <div class="marchio-righe"><i></i><i></i><i></i><i></i></div>
+        <div class="marchio-sotto">Balanced Growth AMC</div>
+      </div>
+    </div>
+    <button id="aggiorna" class="bottone-icona" aria-label="Ricarica i dati" title="Ricarica i dati">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <p id="stato" class="stato">Caricamento dati…</p>
+
+    <section class="riquadri">
+      <article class="riquadro principale">
+        <h2>Certificato</h2>
+        <div id="cert-prezzo" class="cifra">—</div>
+        <div id="cert-perf" class="sotto">—</div>
+        <div id="cert-fonte" class="nota"></div>
+      </article>
+      <article class="riquadro">
+        <h2>Paniere stimato</h2>
+        <div id="nav" class="cifra">—</div>
+        <div id="nav-perf" class="sotto">—</div>
+        <div id="nav-oggi" class="nota"></div>
+      </article>
+    </section>
+
+    <section class="riquadro" id="mio">
+      <div class="titolo-riga">
+        <h2>Il mio investimento</h2>
+        <button id="modifica-mio" class="link">Modifica</button>
+      </div>
+      <div id="mio-vuoto" class="nota">Inserisci quanti certificati hai e a che prezzo li hai presi per vedere guadagno o perdita.</div>
+      <div id="mio-dati" class="mio-griglia" hidden>
+        <div><span>Investito</span><b id="mio-investito">—</b></div>
+        <div><span>Valore oggi</span><b id="mio-valore">—</b></div>
+        <div><span>Risultato</span><b id="mio-risultato">—</b></div>
+      </div>
+      <form id="mio-form" class="mio-form" hidden>
+        <label>Numero certificati <input id="mio-qta" type="number" min="0" step="1" inputmode="numeric"></label>
+        <label>Prezzo medio di carico (EUR) <input id="mio-carico" type="number" min="0" step="0.01" inputmode="decimal"></label>
+        <div class="mio-azioni"><button type="submit">Salva</button><button type="button" id="mio-annulla" class="link">Annulla</button></div>
+        <p class="nota">Resta salvato solo su questo dispositivo.</p>
+      </form>
+    </section>
+
+    <section class="riquadro">
+      <div class="titolo-riga">
+        <h2>Andamento dal <span id="data-esecuzione">—</span></h2>
+      </div>
+      <div id="grafico" class="grafico" role="img" aria-label="Andamento del paniere stimato"></div>
+      <div class="legenda"><span class="l-nav"></span>Paniere stimato (base 1000)<span class="l-cert"></span>Quotazione certificato</div>
+    </section>
+
+    <section class="riquadro">
+      <h2>Allocazione</h2>
+      <div id="classi-barra" class="barra"></div>
+      <ul id="classi-elenco" class="classi"></ul>
+    </section>
+
+    <section class="riquadro">
+      <div class="titolo-riga">
+        <h2>Posizioni</h2>
+        <label class="ordina">Ordina
+          <select id="ordina">
+            <option value="peso_attuale">Peso</option>
+            <option value="var_carico">Var. dal carico</option>
+            <option value="var_giorno">Var. oggi</option>
+            <option value="contributo">Contributo</option>
+          </select>
+        </label>
+      </div>
+      <div id="posizioni" class="posizioni"></div>
+    </section>
+
+    <p class="avvertenza">
+      Il paniere stimato ricalcola il valore con i pesi e i prezzi di carico della data di esecuzione
+      e i prezzi di mercato più recenti, senza commissioni né ribilanciamenti successivi.
+      Per il valore reale fa fede la quotazione del certificato.
+      <span id="aggiornato"></span>
+    </p>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+name: Diagnostica fonti
+
+# Salva nel repository una copia delle pagine delle fonti (Leonteq, Euronext,
+# Borsa Italiana) così si può capire dove sono i dati e adattare lo script.
+on:
+  workflow_dispatch: {}
+  push:
+    paths:
+      - ".github/workflows/diagnostica.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  salva:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scarica le pagine
+        run: |
+          mkdir -p debug/fonti
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+          get() { curl -sSL --max-time 40 -A "$UA" -o "debug/fonti/$1" -w "$1 %{http_code} %{size_download}\n" "$2" || echo "$1 errore"; }
+          get leonteq_index.html "https://indices.leonteq.com/index-details/VICIGROW%20Index"
+          get leonteq_home.html  "https://indices.leonteq.com/"
+          get euronext_pagina.html "https://live.euronext.com/en/product/structured-products/CH1453363652-SEDX"
+          get euronext_quote.html  "https://live.euronext.com/en/ajax/getDetailedQuote/CH1453363652-SEDX"
+          get euronext_grafico.json "https://live.euronext.com/en/intraday_chart/getChartData/CH1453363652-SEDX/max"
+          get borsaitaliana.html "https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/CH1453363652-SEDX.html?lang=it"
+          get yahoo_cerca.json "https://query2.finance.yahoo.com/v1/finance/search?q=IE00BFRSV973&quotesCount=10&newsCount=0"
+          ls -la debug/fonti | tee debug/fonti/elenco.txt
+          # i file JS dell'app Leonteq contengono gli indirizzi delle API
+          grep -oE '(src|href)="[^"]+\.js[^"]*"' debug/fonti/leonteq_index.html | head -20 > debug/fonti/leonteq_script.txt || true
+
+      - name: Salva la copia nel repository
+        run: |
+          git config user.name "vici-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add debug/fonti
+          git diff --cached --quiet || git commit -m "Diagnostica fonti [bot]"
+          git pull --rebase
+          git push
