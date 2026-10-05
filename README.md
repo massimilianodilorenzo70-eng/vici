@@ -80,6 +80,7 @@ versione sono nel menu → «Novità della versione». A ogni apertura l'app leg
 `versione.json` dal sito e, se è cambiata, si aggiorna e si ricarica da sola.
 Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`.
 
+- **1.5** — numero di versione nella fascia blu in alto.
 - **1.4** — controllo completo e correzioni.
 - **1.3** — aggiornamento automatico all'apertura.
 - **1.2** — ribilanciamento di ottobre (7/10/2026) con prezzi di carico
