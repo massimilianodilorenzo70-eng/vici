@@ -3,14 +3,14 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3";
+const VERSIONE = "3.0";
 const NOVITA = [
-  { v: "3", voci: [
+  { v: "3.0", voci: [
     "Certificato: book del market maker da Borsa Italiana (denaro, lettera, spread), data ufficiale della quotazione e performance a 1 settimana, 1 mese, 6 mesi e 1 anno.",
     "Il mio investimento: quanto incasseresti vendendo ora al prezzo denaro.",
     "Indice e certificato: scomposizione della differenza tra commissione di gestione (2,5% annuo) e di performance (15%) dal KID.",
   ] },
-  { v: "2", voci: ["Indice VICIGROW (Leonteq): rendimenti mensili, andamento dall'avvio e confronto con il certificato, con la differenza tra i due."] },
+  { v: "2.0", voci: ["Indice VICIGROW (Leonteq): rendimenti mensili, andamento dall'avvio e confronto con il certificato, con la differenza tra i due."] },
   { v: "1.9.2", voci: ["Certificato vs paniere: il prezzo del certificato è confrontato con il paniere alla stessa data (prima con il valore di adesso)."] },
   { v: "1.9.1", voci: [
     "Correzioni: variazione giornaliera calcolata correttamente (prima risultava quasi sempre zero); link e testi del dettaglio posizione; il grafico del dettaglio mantiene il periodo scelto.",

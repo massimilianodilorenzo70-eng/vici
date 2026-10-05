@@ -90,11 +90,11 @@ Il numero di versione è nel menu e in fondo alla pagina; le novità di ogni
 versione sono nel menu → «Novità della versione». A ogni apertura l'app legge
 `versione.json` dal sito e, se è cambiata, si aggiorna e si ricarica da sola.
 Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
-funzioni nuove → numero intero successivo (2, 3, …), correzioni → un punto in
-più sulla versione in corso (1.9 → 1.9.1; 2 → 2.1).
+funzioni nuove → numero intero successivo con «.0» (3.0, 4.0, …), correzioni →
+sale il numero dopo il punto (3.0 → 3.1 → 3.2).
 
-- **3** — book denaro/lettera e performance da Borsa Italiana, costi del KID e scomposizione della differenza con l'indice.
-- **2** — indice VICIGROW (Leonteq) e confronto con il certificato.
+- **3.0** — book denaro/lettera e performance da Borsa Italiana, costi del KID e scomposizione della differenza con l'indice.
+- **2.0** — indice VICIGROW (Leonteq) e confronto con il certificato.
 - **1.9.2** — premio/sconto confrontato alla stessa data.
 - **1.9.1** — correzioni (variazione giornaliera, dettaglio posizione).
 - **1.9** — dettaglio posizione; storico del certificato dall'emissione.
