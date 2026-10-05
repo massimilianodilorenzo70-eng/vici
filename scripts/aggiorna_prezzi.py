@@ -925,10 +925,16 @@ def main():
                 ancora_data, ancora_prezzo = dopo[0], cert_storico[dopo[0]]
                 ancora_nav = valore_al(serie_nav, ancora_data, nav)
         if ancora_prezzo:
-            implicito = ancora_prezzo * nav / ancora_nav
+            # Paniere alla stessa data della quotazione: il prezzo di riferimento
+            # è della seduta precedente, quindi si confronta con la chiusura del
+            # paniere di quel giorno e non con il valore di adesso
+            data_cert = cert.get("data") or oggi.isoformat()
+            nav_cert = nav if data_cert >= oggi.isoformat() else valore_al(serie_nav, data_cert, nav)
+            implicito = ancora_prezzo * nav_cert / ancora_nav
             premio = {"data": ancora_data, "prezzo_riferimento": ancora_prezzo,
                       "da_configurazione": bool(port.get("certificato_al_ribilanciamento")),
-                      "valore_implicito": implicito, "premio": (cert["prezzo"] / implicito - 1) * 100}
+                      "data_confronto": data_cert, "valore_implicito": implicito,
+                      "premio": (cert["prezzo"] / implicito - 1) * 100}
 
     emissione = port.get("emissione", {"prezzo": base})
     adesso = datetime.now(timezone.utc).isoformat(timespec="seconds")
