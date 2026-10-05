@@ -1,5 +1,5 @@
 {
- "aggiornato": "2026-10-05T11:07:17+00:00",
+ "aggiornato": "2026-10-05T11:08:09+00:00",
  "nome": "VICI Balanced Growth AMC",
  "indice": "VICIGROW Index",
  "isin_certificato": "CH1453363652",
@@ -39,7 +39,7 @@
   "min_anno": 1013.76,
   "fonte": "Borsa Italiana",
   "url": "https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/CH1453363652-SEDX.html?lang=it",
-  "ora": "2026-10-05T11:06:55+00:00",
+  "ora": "2026-10-05T11:07:47+00:00",
   "data": "2026-10-02"
  },
  "premio": {
@@ -63,12 +63,12 @@
     "simbolo": "IEAG.AS"
    }
   ],
-  "valore": 1013.0146785339673,
-  "perf": 1.3014678533967317,
-  "perf_giorno": 0.21483673706084172,
-  "vol": 7.15498797567581,
+  "valore": 1013.1093232213506,
+  "perf": 1.310932322135061,
+  "perf_giorno": 0.22419968322060502,
+  "vol": 7.155229525888,
   "max_drawdown": -4.636092410121528,
-  "rend_1a": 8.759389008377116
+  "rend_1a": 8.769544679311458
  },
  "rischio": {
   "dal": "2025-10-06",
@@ -855,7 +855,7 @@
    },
    {
     "mese": "2026-10",
-    "rend": 0.7803804716673746
+    "rend": 0.7897962558669924
    }
   ]
  },
