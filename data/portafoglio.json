@@ -2,6 +2,7 @@
  "nome": "VICI Balanced Growth AMC",
  "indice": "VICIGROW Index",
  "isin_certificato": "CH1453363652",
+ "codice_certificato": "LQ636B",
  "emittente": "Leonteq Securities",
  "base": 1000,
  "emissione": {

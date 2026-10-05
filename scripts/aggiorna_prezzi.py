@@ -264,6 +264,46 @@ def quotazione_certificato(isin):
     }
 
 
+def storico_certificato(isin, codice=None):
+    """Chiusure storiche del certificato dal servizio grafici di Borsa
+    Italiana (lo stesso usato dalle loro pagine). Restituisce [(data, prezzo)]."""
+    url = "https://charts.borsaitaliana.it/charts/services/ChartWService.asmx/GetPricesWithVolume"
+    chiavi = [f"{isin}.SEDX"] + ([f"{codice}.SEDX"] if codice else []) + [isin]
+    for k in chiavi:
+        corpo = {"request": {"SampleTime": "1d", "TimeFrame": "5y", "RequestedDataSetType": "ohlc",
+                             "ChartPriceType": "price", "Key": k, "OffSet": 0, "FromDate": None,
+                             "ToDate": None, "UseDelay": True, "KeyType": "Topic", "KeyType2": "Topic",
+                             "Language": "it-IT"}}
+        try:
+            req = urllib.request.Request(url, data=json.dumps(corpo).encode(), method="POST", headers={
+                "User-Agent": UA, "Content-Type": "application/json; charset=UTF-8",
+                "Accept": "application/json", "Origin": "https://www.borsaitaliana.it",
+                "Referer": f"https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/{isin}-SEDX.html"})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                testo = r.read().decode("utf-8", "replace")
+        except Exception as e:
+            log(f"  storico certificato ({k}): {e}")
+            continue
+        try:
+            dati = json.loads(testo)
+        except ValueError:
+            log(f"  storico certificato ({k}): risposta non JSON: {testo[:200]}")
+            continue
+        righe = dati.get("d") if isinstance(dati, dict) else dati
+        out = []
+        for r in righe or []:
+            if isinstance(r, list) and len(r) >= 2 and isinstance(r[0], (int, float)):
+                chiusura = r[4] if len(r) >= 5 else r[1]
+                if chiusura:
+                    giorno = datetime.fromtimestamp(r[0] / 1000, timezone.utc).date().isoformat()
+                    out.append((giorno, float(chiusura)))
+        if out:
+            log(f"  storico certificato ({k}): {len(out)} giorni dal {out[0][0]}")
+            return sorted(out)
+        log(f"  storico certificato ({k}): nessun dato: {testo[:300]}")
+    return []
+
+
 # ---------------------------------------------------------------- calcolo
 
 # Finestra per volatilità, drawdown e correlazioni del portafoglio attuale
@@ -847,6 +887,8 @@ def main():
     st_file = DATA / "storico.json"
     vecchio = json.loads(st_file.read_text(encoding="utf-8")) if st_file.exists() else {}
     cert_storico = {p["data"]: p["prezzo"] for p in vecchio.get("certificato", [])}
+    for giorno, prezzo in storico_certificato(port["isin_certificato"], port.get("codice_certificato")):
+        cert_storico.setdefault(giorno, round(prezzo, 4))
     if cert:
         # Il prezzo di riferimento è quello della seduta precedente: va
         # registrato con quella data, non con oggi
