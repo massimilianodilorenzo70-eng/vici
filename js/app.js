@@ -66,7 +66,8 @@ const decPrezzo = (v) => v < 10 ? 4 : 2;
 const breve = (nome) => nome.replace(/^(iShares|Amundi|WisdomTree|PIMCO GIS|Schroder ISF|T\. Rowe Price|Muzinich)\s+/, "");
 // Accetta sia "9,5" sia "9.5" (e "5.000.000" come migliaia)
 const numero = (v) => {
-  let t = String(v ?? "").trim().replace(/\s/g, "");
+  // il meno tipografico (−) e i segni + vanno accettati come numeri
+  let t = String(v ?? "").trim().replace(/\s/g, "").replace(/[\u2212\u2012\u2013]/g, "-").replace(/^\+/, "");
   if (/,/.test(t)) t = t.replace(/\./g, "").replace(",", ".");
   else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, "");
   const n = parseFloat(t);
@@ -360,7 +361,7 @@ function mostraStress() {
     $("stress-scenari").querySelectorAll("tr").forEach((x) => x.classList.toggle("scelto", x === tr));
     dettaglioStress(st.scenari[Number(tr.dataset.i)]);
   }));
-  const senza = att.filter((p) => !p.liquidita && !st.beta[p.chiave]).map((p) => breve(p.nome));
+  const senza = [...new Set(att.concat(prog || []).filter((p) => !p.liquidita && !st.beta[p.chiave]).map((p) => breve(p.nome)))];
   $("stress-metodo").textContent = `Metodo: per ogni posizione si stima quanto si muove con azioni (S&P 500 coperto dal cambio), tassi euro, oro e dollaro, ` +
     `sui rendimenti settimanali dell'ultimo anno (${st.settimane} settimane dal ${dataIt(st.dal)}); ` +
     `+1 punto di tassi corrisponde a −${fmt(st.duration_tassi, 1)}% sull'indice obbligazionario. È una stima lineare: negli shock forti le correlazioni cambiano.` +
