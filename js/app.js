@@ -3,8 +3,13 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "2";
+const VERSIONE = "3";
 const NOVITA = [
+  { v: "3", voci: [
+    "Certificato: book del market maker da Borsa Italiana (denaro, lettera, spread), data ufficiale della quotazione e performance a 1 settimana, 1 mese, 6 mesi e 1 anno.",
+    "Il mio investimento: quanto incasseresti vendendo ora al prezzo denaro.",
+    "Indice e certificato: scomposizione della differenza tra commissione di gestione (2,5% annuo) e di performance (15%) dal KID.",
+  ] },
   { v: "2", voci: ["Indice VICIGROW (Leonteq): rendimenti mensili, andamento dall'avvio e confronto con il certificato, con la differenza tra i due."] },
   { v: "1.9.2", voci: ["Certificato vs paniere: il prezzo del certificato è confrontato con il paniere alla stessa data (prima con il valore di adesso)."] },
   { v: "1.9.1", voci: [
@@ -148,8 +153,14 @@ function mostraPortafoglio() {
     const pc = (c.prezzo / emis - 1) * 100;
     $("cert-perf").innerHTML = `${colorato(pc)} dall'emissione a ${fmt(emis, 0)}`;
     const range = c.min_oggi && c.max_oggi ? ` · oggi ${fmt(c.min_oggi)}–${fmt(c.max_oggi)}` : "";
-    const quando = c.tipo === "ultimo contratto" ? `ultimo contratto, letto ${oraIt(c.ora)}` : `prezzo di riferimento del ${dataIt(c.data || c.ora)}`;
-    $("cert-fonte").textContent = `${quando[0].toUpperCase() + quando.slice(1)}${range} · ${c.fonte}`;
+    const quando = c.tipo === "ultimo contratto" ? `ultimo contratto, letto ${oraIt(c.ora)}` : `prezzo di riferimento del ${dataIt(c.data_riferimento || c.data || c.ora)}`;
+    $("cert-fonte").textContent = `${quando[0].toUpperCase() + quando.slice(1)}${c.denaro ? "" : range} · ${c.fonte}`;
+    $("cert-book").hidden = !(c.denaro && c.lettera);
+    if (c.denaro && c.lettera) {
+      $("cert-book").innerHTML = `<div>Denaro<b>${fmt(c.denaro)}</b></div><div>Lettera<b>${fmt(c.lettera)}</b></div>
+        <div>Spread<b>${fmt(c.spread)}%</b></div>
+        <span class="nota">Book del market maker (ritardo 15 min): denaro = a quanto si vende, lettera = a quanto si compra. Medio ${fmt(c.medio)}.</span>`;
+    }
   } else {
     $("cert-prezzo").textContent = "—";
     $("cert-perf").textContent = "Quotazione non disponibile";
@@ -240,6 +251,13 @@ function mostraMio() {
   $("mio-investito").textContent = eur(investito, 0);
   $("mio-valore").textContent = eur(valore, 0);
   $("mio-risultato").innerHTML = `<span class="${segno(diff)}">${diff > 0 ? "+" : ""}${eur(diff, 0)}<br>${perc(diff / investito * 100)}</span>`;
+  const c = dati.certificato;
+  $("mio-vendita").hidden = !(c && c.denaro);
+  if (c && c.denaro) {
+    const incasso = mio.qta * c.denaro, d2 = incasso - investito;
+    $("mio-vendita").innerHTML = `Valore al prezzo di riferimento. Vendendo ora al denaro (${fmt(c.denaro)}) incasseresti ${eur(incasso, 0)}: ` +
+      `<span class="${segno(d2)}">${d2 > 0 ? "+" : ""}${eur(d2, 0)} (${perc(d2 / investito * 100)})</span>.`;
+  }
 }
 
 function apriFormMio(aperto) {
@@ -312,6 +330,10 @@ function mostraStoriaCertificato() {
     ["Ultimo scambio", ultimoSc ? fmt(ultimoSc.v) : "—", ultimoSc ? dataIt(ultimoSc.d) : ""],
     ["Massimo – minimo", vals.length ? `${fmt(Math.max(...vals), 0)} – ${fmt(Math.min(...vals), 0)}` : "—", "prezzi degli scambi"],
   ];
+  const pf = (c && c.performance) || {};
+  [["settimana", "1 settimana"], ["mese", "1 mese"], ["sei_mesi", "6 mesi"], ["anno", "1 anno"]].forEach(([k, n]) => {
+    if (pf[k] != null) met.push([n, perc(pf[k]), "Borsa Italiana"]);
+  });
   $("cert-storia-metriche").innerHTML = met.map(([a, v, x]) => `<div><span>${a}</span><b>${v}</b><small>${x}</small></div>`).join("");
   if (box.offsetParent === null) return;
   if (scambi.length + rif.length < 2) { box.innerHTML = `<div class="vuoto">Storico non ancora disponibile.</div>`; return; }
@@ -389,6 +411,29 @@ function mostraIndice() {
     ["Differenza", rendCert == null ? "—" : `${fmt(rendCert - rendIndice)} punti`, "costi della struttura e altre differenze"],
   ];
   $("indice-metriche").innerHTML = met.map(([a, v, x]) => `<div><span>${a}</span><b class="${a === "Differenza" ? segno(rendCert - rendIndice) : ""}">${v}</b><small>${x}</small></div>`).join("");
+
+  // Quanto della differenza spiegano le commissioni del KID: gestione annua
+  // per gli anni dall'emissione, performance sulla parte positiva (stima)
+  const costi = dati.costi;
+  if (costi && rendCert != null) {
+    const scambi0 = (storico.certificato_scambi || [])[0];
+    const dal = new Date((dati.emissione && dati.emissione.data) || (scambi0 && scambi0.data) || dati.data_inizio);
+    const anni = Math.max(0, (Date.now() - dal.getTime()) / (365.25 * 86400000));
+    const lordo = 1 + rendIndice / 100;
+    const dopoGestione = lordo * Math.pow(1 - costi.commissione_gestione / 100, anni);
+    const perfFee = Math.max(0, dopoGestione - 1) * costi.commissione_performance / 100;
+    const atteso = (dopoGestione - perfFee) * emis;
+    const gestionePt = (dopoGestione - lordo) * 100, perfPt = -perfFee * 100;
+    const resto = rendCert - rendIndice - gestionePt - perfPt;
+    $("indice-costi").innerHTML = `<h4>Da dove viene la differenza (stima)</h4><table>
+      <tr><td>Indice dall'avvio</td><td>${perc(rendIndice)}</td></tr>
+      <tr><td>Commissione di gestione (${fmt(costi.commissione_gestione, 1)}% annuo per ${fmt(anni, 1)} anni)</td><td class="giu">${fmt(gestionePt)} punti</td></tr>
+      <tr><td>Commissione di performance (${fmt(costi.commissione_performance, 0)}% della performance positiva)</td><td class="${perfPt < 0 ? "giu" : ""}">${fmt(perfPt)} punti</td></tr>
+      <tr><td>Valore atteso del certificato</td><td>${fmt(atteso)}</td></tr>
+      <tr><td>Prezzo attuale${c && c.medio ? ` (medio del book ${fmt(c.medio)})` : ""}</td><td>${fmt(c.prezzo)}</td></tr>
+      <tr class="totale"><td>Differenza non spiegata dalle commissioni</td><td class="${segno(resto)}">${fmt(resto)} punti</td></tr>
+    </table><p class="nota">${esc(costi.fonte || "")}. Stima semplificata: la commissione di performance reale dipende dai massimi raggiunti (high watermark).</p>`;
+  } else $("indice-costi").innerHTML = "";
 
   // tabella: righe = mesi, colonne = anni (si legge bene anche sul telefono)
   const anni = Object.keys(indice.mensili).sort();

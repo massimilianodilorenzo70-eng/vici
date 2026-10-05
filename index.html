@@ -96,6 +96,7 @@
           <div id="cert-prezzo" class="cifra">—</div>
           <div id="cert-perf" class="sotto">—</div>
           <div id="cert-fonte" class="nota"></div>
+          <div id="cert-book" class="cert-book" hidden></div>
         </article>
         <article class="riquadro">
           <h2>Paniere stimato</h2>
@@ -146,6 +147,7 @@
           <div><span>Valore oggi</span><b id="mio-valore">—</b></div>
           <div><span>Risultato</span><b id="mio-risultato">—</b></div>
         </div>
+        <p id="mio-vendita" class="nota" hidden></p>
         <form id="mio-form" class="mio-form" hidden>
           <label>Numero certificati <input id="mio-qta" type="text" inputmode="numeric" autocomplete="off"></label>
           <label>Prezzo medio di carico (EUR) <input id="mio-carico" type="text" inputmode="decimal" autocomplete="off"></label>
@@ -190,6 +192,7 @@
       <div class="riquadro" id="indice-riquadro" hidden>
         <h2>Indice VICIGROW e certificato</h2>
         <div id="indice-metriche" class="metriche"></div>
+        <div id="indice-costi" class="indice-costi"></div>
         <div id="indice-grafico" class="grafico" role="img" aria-label="Indice VICIGROW e certificato dall'avvio"></div>
         <div class="legenda">
           <span class="l-indice"></span>Indice VICIGROW (fine mese)

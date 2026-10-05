@@ -93,6 +93,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → numero intero successivo (2, 3, …), correzioni → un punto in
 più sulla versione in corso (1.9 → 1.9.1; 2 → 2.1).
 
+- **3** — book denaro/lettera e performance da Borsa Italiana, costi del KID e scomposizione della differenza con l'indice.
 - **2** — indice VICIGROW (Leonteq) e confronto con il certificato.
 - **1.9.2** — premio/sconto confrontato alla stessa data.
 - **1.9.1** — correzioni (variazione giornaliera, dettaglio posizione).
