@@ -3,7 +3,7 @@
   "indice": "VICIGROW Index",
   "isin_certificato": "CH1453363652",
   "emittente": "Leonteq Securities",
-  "data_esecuzione": "2025-09-02",
+  "data_esecuzione": "2026-09-02",
   "base": 1000,
   "nota": "Pesi dallo screenshot della composizione; prezzi di carico dal file VICIGROW_Execution_2ndSep.xlsx. 'yahoo' è il simbolo usato per i prezzi: se è vuoto lo script lo cerca da solo partendo dall'ISIN.",
   "posizioni": [

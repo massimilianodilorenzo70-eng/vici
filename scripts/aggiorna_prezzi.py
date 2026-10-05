@@ -38,6 +38,8 @@ BORSA_YAHOO = {"LN": ".L", "IM": ".MI", "GY": ".DE", "NA": ".AS", "FP": ".PA", "
 # Scarto massimo accettato tra prezzo trovato e prezzo di carico per dire
 # "è lo strumento giusto nella valuta giusta"
 SCARTO_MAX = 0.45
+# Un prezzo più vecchio di così vuol dire che su quella borsa non tratta più
+GIORNI_MAX = 10
 
 
 def log(*a):
@@ -152,6 +154,9 @@ def trova_prezzi(pos, cache, dal):
         if g["valuta"] != "EUR" or not g["prezzo"]:
             log(f"  {s}: scartato (valuta {g['valuta']})")
             continue
+        if g["ora"] and (datetime.now(timezone.utc) - datetime.fromisoformat(g["ora"])).days > GIORNI_MAX:
+            log(f"  {s}: scartato (ultimo prezzo del {g['ora'][:10]})")
+            continue
         scarto = abs(g["prezzo"] / p0 - 1)
         if scarto > SCARTO_MAX:
             log(f"  {s}: scartato (prezzo {g['prezzo']} lontano dal carico {p0})")
@@ -186,36 +191,53 @@ def ft_nav(isin):
 
 # ---------------------------------------------------------------- certificato
 
+def testo_pagina(html_):
+    import html as h
+    t = re.sub(r"<script.*?</script>|<style.*?</style>", " ", html_, flags=re.S)
+    t = h.unescape(re.sub(r"<[^>]+>", " ", t))
+    return re.sub(r"\s+", " ", t)
+
+
 def quotazione_certificato(isin):
-    """Ultimo prezzo del certificato: prova Euronext, poi Borsa Italiana."""
-    fonti = [
-        ("Euronext", f"https://live.euronext.com/en/ajax/getDetailedQuote/{isin}-SEDX",
-         [r'id="header-instrument-price"[^>]*>\s*([\d.,]+)', r'"lastPrice"\s*:\s*"?([\d.,]+)']),
-        ("Borsa Italiana", f"https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/{isin}-SEDX.html?lang=it",
-         [r"Prezzo ultimo contratto[^0-9]{0,200}?([\d.]+,\d+)",
-          r"Ultimo[^0-9]{0,120}?([\d.]+,\d+)",
-          r"Chiusura di riferimento[^0-9]{0,200}?([\d.]+,\d+)"]),
-    ]
-    for nome, url, schemi in fonti:
-        try:
-            html = scarica(url)
-        except Exception as e:
-            log(f"  {nome}: {e}")
-            continue
-        for schema in schemi:
-            m = re.search(schema, html, re.S)
-            if m:
-                try:
-                    v = numero(m.group(1))
-                except ValueError:
-                    continue
-                if 100 < v < 100000:
-                    log(f"  {nome}: {v}")
-                    return {"prezzo": v, "fonte": nome, "url": url,
-                            "ora": datetime.now(timezone.utc).isoformat()}
-        salva_debug(f"certificato_{nome.replace(' ', '_').lower()}.html", html)
-        log(f"  {nome}: prezzo non trovato nella pagina (copia in debug/)")
-    return None
+    """Quotazione del certificato dalla scheda SeDeX di Borsa Italiana.
+
+    Euronext cifra le risposte e Leonteq blocca le richieste automatiche,
+    quindi si usa solo Borsa Italiana: ultimo contratto se c'è, altrimenti
+    il prezzo di riferimento (quello del giorno prima).
+    """
+    url = f"https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/{isin}-SEDX.html?lang=it"
+    try:
+        pagina = scarica(url)
+    except Exception as e:
+        log(f"  Borsa Italiana: {e}")
+        return None
+    t = testo_pagina(pagina)
+    num = r"(\d{1,3}(?:\.\d{3})*,\d+)"
+
+    def cerca(etichetta):
+        m = re.search(etichetta + r":? " + num, t)
+        return numero(m.group(1)) if m else None
+
+    ultimo = cerca("Ultimo Contratto")
+    rif = cerca("Prezzo di riferimento")
+    prezzo = ultimo or rif
+    if not prezzo:
+        salva_debug("certificato_borsa_italiana.html", pagina)
+        log("  Borsa Italiana: prezzo non trovato (copia in debug/)")
+        return None
+    log(f"  Borsa Italiana: ultimo {ultimo}, riferimento {rif}")
+    return {
+        "prezzo": prezzo,
+        "tipo": "ultimo contratto" if ultimo else "prezzo di riferimento",
+        "riferimento": rif,
+        "min_oggi": cerca("Min Oggi"),
+        "max_oggi": cerca("Max Oggi"),
+        "max_anno": cerca("Max Anno"),
+        "min_anno": cerca("Min Anno"),
+        "fonte": "Borsa Italiana",
+        "url": url,
+        "ora": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    }
 
 
 # ---------------------------------------------------------------- calcolo

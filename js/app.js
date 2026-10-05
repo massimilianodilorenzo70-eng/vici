@@ -66,7 +66,8 @@ function mostra() {
     $("cert-prezzo").textContent = eur(c.prezzo);
     const pc = (c.prezzo / base - 1) * 100;
     $("cert-perf").innerHTML = `<span class="${segno(pc)}">${perc(pc)}</span> dall'emissione a ${fmt(base, 0)}`;
-    $("cert-fonte").textContent = `Fonte: ${c.fonte} · ${oraIt(c.ora)}`;
+    const range = c.min_oggi && c.max_oggi ? ` · oggi ${fmt(c.min_oggi)}–${fmt(c.max_oggi)}` : "";
+    $("cert-fonte").textContent = `${c.tipo === "ultimo contratto" ? "Ultimo contratto" : "Prezzo di riferimento"}${range} · ${c.fonte}, ${oraIt(c.ora)}`;
   } else {
     $("cert-prezzo").textContent = "—";
     $("cert-perf").textContent = "Quotazione non disponibile";
@@ -121,7 +122,17 @@ function apriForm(aperto) {
 function mostraGrafico() {
   const box = $("grafico");
   const nav = (storico.nav || []).map((p) => ({ t: new Date(p.data).getTime(), v: p.nav }));
-  const cert = (storico.certificato || []).map((p) => ({ t: new Date(p.data).getTime(), v: p.prezzo }));
+  // La quotazione del certificato ha una base diversa (emissione a 1000 nel
+  // 2025): la riporto sulla scala del paniere dal primo giorno in comune, così
+  // si confronta l'andamento; nel suggerimento resta il prezzo vero.
+  const certVero = (storico.certificato || []).map((p) => ({ t: new Date(p.data).getTime(), v: p.prezzo }));
+  let fattore = 1;
+  if (certVero.length && nav.length) {
+    const primo = certVero[0];
+    const navAllora = nav.reduce((a, p) => p.t <= primo.t ? p : a, nav[0]);
+    fattore = navAllora.v / primo.v;
+  }
+  const cert = certVero.map((p) => ({ t: p.t, v: p.v * fattore, vero: p.v }));
   if (nav.length < 2 && cert.length < 2) {
     box.innerHTML = `<div class="vuoto">Il grafico compare dopo i primi aggiornamenti.</div>`;
     return;
@@ -172,7 +183,7 @@ function mostraGrafico() {
     sugg.style.left = Math.min(Math.max(xs, 70), r.width - 70) + "px";
     sugg.style.top = (y(p.v) * r.height / H) + "px";
     sugg.textContent = `${dataIt(p.t)} · ${fmt(p.v)}` +
-      (pc && Math.abs(pc.t - p.t) < 86400000 * 1.5 && nav.length ? ` · cert. ${fmt(pc.v)}` : "");
+      (pc && Math.abs(pc.t - p.t) < 86400000 * 1.5 && nav.length ? ` · cert. ${fmt(pc.vero)}` : "");
   };
   box.onmousemove = muovi;
   box.ontouchmove = muovi;
