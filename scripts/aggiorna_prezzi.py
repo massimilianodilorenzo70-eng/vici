@@ -524,6 +524,104 @@ def calcola_benchmark(port, cache, dal_storia, inizio, base):
     }, serie
 
 
+# ---------------------------------------------------------------- stress test
+
+# Fattori di rischio: per ogni posizione si stima quanto reagisce a ciascuno
+FATTORI = [
+    {"id": "azioni", "nome": "Azioni mondo", "simbolo": "IWDA.AS", "nota": "iShares Core MSCI World (EUR)"},
+    {"id": "obbligazioni", "nome": "Tassi euro", "simbolo": "IEAG.AS", "nota": "iShares Core Euro Aggregate Bond"},
+    {"id": "oro", "nome": "Oro", "simbolo": "4GLD.DE", "nota": "Xetra-Gold (EUR)"},
+    {"id": "dollaro", "nome": "Dollaro", "simbolo": "EURUSD=X", "nota": "valore del dollaro in euro", "inverti": True},
+]
+# Duration del fattore tassi: +1 punto di tassi ≈ -6,5% sull'indice obbligazionario
+DURATION_TASSI = 6.5
+SCENARI = [
+    {"nome": "Azioni −10%", "shock": {"azioni": -10}},
+    {"nome": "Crollo azionario con fuga verso la qualità", "shock": {"azioni": -20, "tassi": -0.5, "oro": 5, "dollaro": 5}},
+    {"nome": "Tassi +1 punto", "shock": {"tassi": 1}},
+    {"nome": "Tassi −1 punto", "shock": {"tassi": -1}},
+    {"nome": "Stagflazione", "shock": {"azioni": -10, "tassi": 1, "oro": 10}},
+    {"nome": "Dollaro −10%", "shock": {"dollaro": -10}},
+    {"nome": "Oro −10%", "shock": {"oro": -10}},
+    {"nome": "Rialzo azionario +10%", "shock": {"azioni": 10}},
+]
+
+
+def risolvi(a, b):
+    """Sistema lineare a·x = b (eliminazione di Gauss con pivot)."""
+    n = len(b)
+    m = [row[:] + [b[i]] for i, row in enumerate(a)]
+    for c in range(n):
+        piv = max(range(c, n), key=lambda r: abs(m[r][c]))
+        if abs(m[piv][c]) < 1e-14:
+            return None
+        m[c], m[piv] = m[piv], m[c]
+        for r in range(n):
+            if r != c:
+                f = m[r][c] / m[c][c]
+                for k in range(c, n + 1):
+                    m[r][k] -= f * m[c][k]
+    return [m[i][n] / m[i][i] for i in range(n)]
+
+
+def regressione(y, colonne):
+    """Minimi quadrati con intercetta: coefficienti per colonna e R²."""
+    righe = [[1.0] + [c[t] for c in colonne] for t in range(len(y))]
+    k = len(righe[0])
+    xtx = [[sum(r[i] * r[j] for r in righe) for j in range(k)] for i in range(k)]
+    xty = [sum(r[i] * yy for r, yy in zip(righe, y)) for i in range(k)]
+    coef = risolvi(xtx, xty)
+    if coef is None:
+        return None, None
+    stima = [sum(c * x for c, x in zip(coef, r)) for r in righe]
+    my = media(y)
+    tot = sum((v - my) ** 2 for v in y)
+    res = sum((v - e) ** 2 for v, e in zip(y, stima))
+    return coef[1:], (1 - res / tot) if tot else None
+
+
+def calcola_stress(dati, dal_storia, oggi):
+    """Sensibilità di ogni strumento ai fattori, sui rendimenti settimanali
+    dell'ultimo anno (i settimanali evitano gli sfasamenti tra borse e NAV)."""
+    venerdi = []
+    d = oggi - timedelta(days=GIORNI_RISCHIO)
+    while d <= oggi:
+        if d.weekday() == 4:
+            venerdi.append(d.isoformat())
+        d += timedelta(days=1)
+    serie_f = {}
+    for f in FATTORI:
+        try:
+            g = yahoo_grafico(f["simbolo"], dal_storia)
+        except Exception as e:
+            log(f"Stress test: fattore {f['simbolo']} non disponibile ({e})")
+            return None
+        ch = [(dd, 1 / c if f.get("inverti") else c) for dd, c in g["chiusure"] if c]
+        if len(ch) < 100:
+            log(f"Stress test: storico corto per {f['simbolo']}")
+            return None
+        serie_f[f["id"]] = rendimenti(serie_allineata(ch, venerdi, ch[0][1]))
+    colonne = [serie_f[f["id"]] for f in FATTORI]
+    beta = {}
+    for k, g in dati.items():
+        if not g or g.get("liquidita"):
+            continue
+        ch = [(dd, c) for dd, c in g["chiusure"] if dd >= venerdi[0]]
+        if len(ch) < 120:
+            continue
+        y = rendimenti(serie_allineata(g["chiusure"], venerdi, ch[0][1]))
+        coef, r2 = regressione(y, colonne)
+        if coef is None:
+            continue
+        beta[k] = {f["id"]: round(c, 4) for f, c in zip(FATTORI, coef)}
+        beta[k]["r2"] = round(r2, 3) if r2 is not None else None
+    return {
+        "dal": venerdi[0], "settimane": len(venerdi) - 1, "duration_tassi": DURATION_TASSI,
+        "fattori": [{k: v for k, v in f.items() if k != "inverti"} for f in FATTORI],
+        "beta": beta, "scenari": SCENARI,
+    }
+
+
 # ---------------------------------------------------------------- avvisi
 
 def api_github(metodo, percorso, corpo=None):
@@ -669,6 +767,70 @@ def main():
             "posizioni": len(p["rib"]["posizioni"]), "nota": p["rib"].get("nota", ""),
         })
 
+    # Attribuzione della performance: variazione di valore di ogni posizione
+    # nel periodo, divisa per il valore iniziale. Si somma esattamente alla
+    # performance anche quando c'è un ribilanciamento in mezzo.
+    meta = {}
+    for rib in ribs:
+        for p in rib["posizioni"]:
+            meta[chiave(p)] = p
+
+    def prezzo_ora(k, ripiego):
+        g = dati.get(k)
+        return g["prezzo"] if g and g.get("prezzo") else ripiego
+
+    def attribuzione(t0, t1):
+        """t0, t1 date AAAA-MM-GG; t1 None = adesso."""
+        delta, v0 = {}, None
+        for i, p in enumerate(periodi):
+            fine_p = periodi[i + 1]["data"] if i + 1 < len(periodi) else None
+            s0 = max(t0, p["data"])
+            if fine_p is not None and s0 >= fine_p:
+                continue
+            e = t1 if fine_p is None else (fine_p if t1 is None else min(t1, fine_p))
+            if e is not None and e < s0:
+                continue
+            for k, (q, p0) in p["quote"].items():
+                ps = p0 if s0 == p["data"] else prezzo_di(k, s0, p0)
+                pe = prezzo_ora(k, p0) if e is None else prezzo_di(k, e, p0)
+                delta[k] = delta.get(k, 0.0) + q * (pe - ps)
+            if v0 is None:
+                v0 = sum(q * (p0 if s0 == p["data"] else prezzo_di(k, s0, p0)) for k, (q, p0) in p["quote"].items())
+        if not v0:
+            return None
+        pos = {k: d / v0 * 100 for k, d in delta.items()}
+        per_classe, per_area = {}, {}
+        for k, c in pos.items():
+            m = meta.get(k, {})
+            per_classe[m.get("classe", "Altro")] = per_classe.get(m.get("classe", "Altro"), 0) + c
+            per_area[m.get("area", "Altro")] = per_area.get(m.get("area", "Altro"), 0) + c
+        return {
+            "rend": sum(pos.values()),
+            "classi": per_classe, "aree": per_area,
+            "posizioni": sorted(({"nome": meta.get(k, {}).get("nome", k), "classe": meta.get(k, {}).get("classe"),
+                                  "contributo": c} for k, c in pos.items()), key=lambda x: -x["contributo"]),
+        }
+
+    attrib = []
+    a_rib = attribuzione(att["data"], None)
+    if a_rib:
+        attrib.append({"id": "ribilanciamento", "etichetta": f"Dal ribilanciamento del {att['data']}", **a_rib})
+    if len(periodi) > 1:
+        a_ini = attribuzione(inizio, None)
+        if a_ini:
+            attrib.append({"id": "inizio", "etichetta": f"Dall'inizio ({inizio})", **a_ini})
+    mesi = sorted({d[:7] for d, _ in serie_nav})
+    for i, mese in enumerate(mesi):
+        prec = [d for d, _ in serie_nav if d[:7] < mese]
+        t0 = prec[-1] if prec else inizio
+        dentro = [d for d, _ in serie_nav if d[:7] == mese]
+        t1 = None if mese == oggi.isoformat()[:7] else dentro[-1]
+        a_m = attribuzione(t0, t1)
+        if a_m:
+            attrib.append({"id": mese, "etichetta": mese, "mese": True, **a_m})
+
+    stress = calcola_stress(dati, dal_storia, oggi)
+
     bench, serie_bench = calcola_benchmark(port, cache, dal_storia, inizio, base)
     rischio = calcola_rischio(righe, dati, oggi)
     r_nav = rendimenti([v for _, v in serie_nav])
@@ -736,6 +898,8 @@ def main():
         "premio": premio,
         "benchmark": bench,
         "rischio": rischio,
+        "attribuzione": attrib,
+        "stress": stress,
         "realizzato": realizzato,
         "mensili": {
             "paniere": mensili(serie_nav, base),
@@ -744,7 +908,7 @@ def main():
         "periodi": riepilogo_periodi,
         "programmati": [{
             "data": r["data"], "nota": r.get("nota", ""),
-            "posizioni": [{"nome": p["nome"], "isin": p.get("isin"), "classe": p.get("classe"),
+            "posizioni": [{"nome": p["nome"], "isin": p.get("isin"), "chiave": chiave(p), "classe": p.get("classe"),
                            "peso": p["peso"], "liquidita": bool(p.get("liquidita"))} for p in r["posizioni"]],
         } for r in programmati],
         "mancanti": [r["nome"] for r in righe if r["mancante"]],

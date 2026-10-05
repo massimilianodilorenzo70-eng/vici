@@ -19,6 +19,11 @@ L'app ha un menu (☰) e quattro sezioni.
 - Paniere contro un benchmark bilanciato 60/40 (MSCI World + Euro Aggregate Bond).
 - Premio/sconto del certificato rispetto al paniere.
 - Grafico, rendimenti mensili.
+- Attribuzione della performance per classe, area e posizione (dal ribilanciamento,
+  dall'inizio, per mese).
+- Stress test: sensibilità di ogni posizione ad azioni mondo, tassi euro, oro e
+  dollaro (regressione sui rendimenti settimanali dell'ultimo anno) e impatto di
+  scenari pronti o liberi, sul portafoglio attuale e su quello programmato.
 - Rischio del portafoglio attuale sull'ultimo anno: volatilità, perdita massima,
   VaR 95%, quota di rischio per posizione, matrice delle correlazioni.
 
@@ -80,6 +85,7 @@ versione sono nel menu → «Novità della versione». A ogni apertura l'app leg
 `versione.json` dal sito e, se è cambiata, si aggiorna e si ricarica da sola.
 Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`.
 
+- **1.7** — attribuzione della performance e stress test.
 - **1.6** — avviso del ribilanciamento programmato in Portafoglio.
 - **1.5** — numero di versione nella fascia blu in alto.
 - **1.4** — controllo completo e correzioni.
