@@ -456,10 +456,15 @@ def completa_prezzi_di_carico(port, ribs, dati, oggi):
 
 
 def prezzo_precedente(g):
+    """Chiusura del giorno di borsa prima di quello del prezzo attuale.
+    Si confrontano le date: i prezzi di Yahoo hanno piccoli arrotondamenti
+    (158,16 contro 158,16000366) e un confronto sui valori sbaglierebbe."""
     ch = g["chiusure"]
-    if len(ch) >= 2 and abs(ch[-1][1] - g["prezzo"]) < 1e-9:
-        return ch[-2][1]
-    return ch[-1][1] if ch else None
+    if not ch:
+        return None
+    giorno = (g.get("ora") or "")[:10] or ch[-1][0]
+    prima = [c for d, c in ch if d < giorno]
+    return prima[-1] if prima else None
 
 
 def mensili(serie, base):

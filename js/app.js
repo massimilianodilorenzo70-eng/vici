@@ -104,7 +104,9 @@ async function carica() {
     if (!p || !p.posizioni) throw new Error("dati non ancora disponibili");
     dati = p;
     storico = s || { nav: [], benchmark: [], certificato: [] };
+    storicoPosizioni = null; // si riscarica alla prossima apertura del dettaglio
     mostra();
+    if (dettaglioAperto) aggiornaDettaglio();
     $("stato").className = "stato";
     $("stato").textContent = `Prezzi aggiornati il ${oraIt(dati.aggiornato)}` +
       (dati.mancanti && dati.mancanti.length ? ` · senza prezzo: ${dati.mancanti.join(", ")}` : "") +
@@ -842,13 +844,20 @@ async function apriDettaglio(chiave) {
   document.querySelectorAll("[data-det-periodo]").forEach((b) => b.classList.toggle("attiva", b.dataset.detPeriodo === "carico"));
   $("dettaglio").hidden = false;
   document.body.style.overflow = "hidden";
+  await aggiornaDettaglio();
+}
+
+// Ridisegna il dettaglio aperto, scaricando lo storico dei prezzi se serve
+// (senza cambiare il periodo scelto)
+async function aggiornaDettaglio() {
+  const chiave = dettaglioAperto;
   mostraDettaglio();
   if (!storicoPosizioni) {
     try {
       const risp = await fetch(`data/posizioni_storico.json?t=${Date.now()}`);
       storicoPosizioni = risp.ok ? await risp.json() : {};
     } catch { storicoPosizioni = {}; }
-    if (dettaglioAperto === chiave) mostraDettaglio();
+    if (dettaglioAperto && dettaglioAperto === chiave) mostraDettaglio();
   }
 }
 
@@ -894,7 +903,7 @@ function mostraDettaglio() {
     ["Contributo", perc(r.contributo), "alla performance del periodo"],
     [dettaglioPeriodo === "carico" ? "Min – max dal carico" : "Min – max 1 anno",
       min == null ? "—" : `${fmt(min, decPrezzo(min))} – ${fmt(max, decPrezzo(max))}`,
-      min == null ? "" : `${perc((min / r.prezzo - 1) * 100, 1)} / ${perc((max / r.prezzo - 1) * 100, 1)} da oggi`],
+      min == null ? "" : `oggi ${perc((r.prezzo / min - 1) * 100, 1)} dal minimo, ${perc((r.prezzo / max - 1) * 100, 1)} dal massimo`],
   ];
   if (rischio) {
     met.push(["Volatilità 1 anno", fmt(rischio.vol) + "%", ""]);
@@ -913,14 +922,15 @@ function mostraDettaglio() {
 
   const sp = (storicoPosizioni || {})[r.chiave] || {};
   $("det-fonte").textContent = `Prezzo: ${r.fonte || "—"}${r.simbolo ? ` (${r.simbolo})` : ""}, ${r.data_prezzo ? dataIt(r.data_prezzo) : ""}` +
-    (sp.storico_da || r.storico_da ? `. Storico per il rischio da ${sp.storico_da || r.storico_da}.` : ".");
+    (sp.storico_da || r.storico_da ? `. Storico (grafico e rischio) ricostruito con ${sp.storico_da || r.storico_da}, riportato al prezzo attuale.` : ".");
   const link = [];
+  // justETF solo per ETF/ETC (riconosciuti dall'emittente nel nome), non per i fondi
+  const etf = /iShares|Amundi|Lyxor|WisdomTree|Xtrackers|Vanguard|SPDR|Invesco|\bETF\b|\bETC\b/i.test(r.nome);
   if (r.isin) {
-    if (r.classe !== "Obbligazioni" || /ETF|iShares|Amundi/i.test(r.nome)) link.push(["justETF", `https://www.justetf.com/it/etf-profile.html?isin=${r.isin}`]);
-    link.push(["Morningstar", `https://www.morningstar.it/it/search/?query=${r.isin}`]);
+    if (etf) link.push(["justETF", `https://www.justetf.com/it/etf-profile.html?isin=${r.isin}`]);
+    link.push(["Morningstar", `https://www.morningstar.it/it/funds/SecuritySearchResults.aspx?search=${r.isin}`]);
   }
   if (r.simbolo && !r.simbolo.startsWith("FT:")) link.push(["Yahoo Finance", `https://finance.yahoo.com/quote/${encodeURIComponent(r.simbolo)}`]);
-  if (r.bloomberg && /\bIM$/.test(r.bloomberg)) link.push(["Borsa Italiana", `https://www.borsaitaliana.it/borsa/search/generic.html?q=${r.isin}`]);
   $("det-link").innerHTML = link.map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener">${n} ↗</a>`).join("");
 }
 
