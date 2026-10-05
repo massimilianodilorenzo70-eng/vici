@@ -1,21 +1,32 @@
 {
- "aggiornato": "2026-10-05T09:46:10+00:00",
+ "aggiornato": "2026-10-05T09:47:36+00:00",
  "nome": "VICI Balanced Growth AMC",
  "indice": "VICIGROW Index",
  "isin_certificato": "CH1453363652",
- "data_esecuzione": "2025-09-02",
+ "data_esecuzione": "2026-09-02",
  "base": 1000.0,
- "nav": 981.4936448539333,
- "nav_prec": 993.2038478449367,
- "perf_totale": -1.8506355146066689,
- "perf_giorno": -1.1790331880421445,
+ "nav": 993.7611911830237,
+ "nav_prec": 994.0665361494704,
+ "perf_totale": -0.6238808816976249,
+ "perf_giorno": -0.03071675339051394,
  "classi": {
-  "Azioni": 47.93176699006506,
-  "Obbligazioni": 42.65042499568898,
-  "Oro": 7.3597203123122235,
-  "Liquidità": 2.058087701933738
+  "Azioni": 48.57452650451425,
+  "Obbligazioni": 42.123924193250566,
+  "Oro": 7.2688677909001544,
+  "Liquidità": 2.0326815113350216
  },
- "certificato": null,
+ "certificato": {
+  "prezzo": 1010.02,
+  "tipo": "prezzo di riferimento",
+  "riferimento": 1010.02,
+  "min_oggi": 1012.71,
+  "max_oggi": 1013.88,
+  "max_anno": 1034.93,
+  "min_anno": 1013.76,
+  "fonte": "Borsa Italiana",
+  "url": "https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/CH1453363652-SEDX.html?lang=it",
+  "ora": "2026-10-05T09:47:36+00:00"
+ },
  "mancanti": [],
  "posizioni": [
   {
@@ -27,17 +38,17 @@
    "peso_iniziale": 17.21,
    "prezzo_carico": 157.58,
    "quote": 1.092143673054956,
-   "prezzo": 158.26,
-   "prezzo_prec": 158.25999450683594,
-   "var_giorno": 3.470974507813196e-06,
-   "var_carico": 0.4315268435080455,
-   "valore": 172.84265769767734,
+   "prezzo": 158.25,
+   "prezzo_prec": 158.3699951171875,
+   "var_giorno": -0.07576884566973252,
+   "var_carico": 0.42518086051528403,
+   "valore": 172.8317362609468,
    "simbolo": "IUSE.L",
    "fonte": "Yahoo Finance",
-   "aggiornato": "2026-10-05T09:19:32+00:00",
+   "aggiornato": "2026-10-05T09:32:02+00:00",
    "mancante": false,
-   "peso_attuale": 17.61016575134319,
-   "contributo": 0.07426576976773465
+   "peso_attuale": 17.391676973740456,
+   "contributo": 0.07317362609468069
   },
   {
    "nome": "Amundi Euro Government Bond 3-5Y",
@@ -57,7 +68,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T09:31:03+00:00",
    "mancante": false,
-   "peso_attuale": 10.073196556373228,
+   "peso_attuale": 9.948847360073627,
    "contributo": -0.09322159655515048
   },
   {
@@ -78,7 +89,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-01T20:00:00+00:00",
    "mancante": false,
-   "peso_attuale": 9.812359711706744,
+   "peso_attuale": 9.691230431926998,
    "contributo": -0.23923130193905795
   },
   {
@@ -99,7 +110,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T08:09:23+00:00",
    "mancante": false,
-   "peso_attuale": 9.53549598995103,
+   "peso_attuale": 9.417784471464055,
    "contributo": -0.11097128533289913
   },
   {
@@ -120,7 +131,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-02T20:00:00+00:00",
    "mancante": false,
-   "peso_attuale": 9.475936058744034,
+   "peso_attuale": 9.35895978150206,
    "contributo": 0.14057102069950025
   },
   {
@@ -141,7 +152,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T09:06:22+00:00",
    "mancante": false,
-   "peso_attuale": 8.9295081395407,
+   "peso_attuale": 8.819277275456141,
    "contributo": -0.18574450936933326
   },
   {
@@ -162,7 +173,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-01T20:00:00+00:00",
    "mancante": false,
-   "peso_attuale": 8.069910113745692,
+   "peso_attuale": 7.970290610518646,
    "contributo": -0.0694345088161221
   },
   {
@@ -183,7 +194,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T09:29:14+00:00",
    "mancante": false,
-   "peso_attuale": 7.3597203123122235,
+   "peso_attuale": 7.2688677909001544,
    "contributo": -0.11648128556314896
   },
   {
@@ -204,7 +215,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T09:27:47+00:00",
    "mancante": false,
-   "peso_attuale": 5.159462623912281,
+   "peso_attuale": 5.095771319267243,
    "contributo": 0.01397977623130387
   },
   {
@@ -216,17 +227,17 @@
    "peso_iniziale": 4.11,
    "prezzo_carico": 101.29,
    "quote": 0.4057656234573995,
-   "prezzo": 76.59,
-   "prezzo_prec": 105.0199966430664,
-   "var_giorno": -27.071031757591847,
-   "var_carico": -24.385427979069995,
-   "valore": 31.077589100602232,
-   "simbolo": "AEME.MI",
+   "prezzo": 106.85,
+   "prezzo_prec": 106.8499984741211,
+   "var_giorno": 1.4280570059810316e-06,
+   "var_carico": 5.489189456017374,
+   "valore": 43.35605686642314,
+   "simbolo": "AEME.PA",
    "fonte": "Yahoo Finance",
-   "aggiornato": "2025-09-26T14:55:22+00:00",
+   "aggiornato": "2026-10-05T09:26:36+00:00",
    "mancante": false,
-   "peso_attuale": 3.1663566303811597,
-   "contributo": -1.002241089939777
+   "peso_attuale": 4.362824514691491,
+   "contributo": 0.22560568664231365
   },
   {
    "nome": "iShares S&P 500 Health Care EUR Hdg",
@@ -246,7 +257,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T09:06:27+00:00",
    "mancante": false,
-   "peso_attuale": 3.884141844816337,
+   "peso_attuale": 3.8361938162026226,
    "contributo": -0.16773946360153258
   },
   {
@@ -267,7 +278,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T08:56:26+00:00",
    "mancante": false,
-   "peso_attuale": 3.01782289356672,
+   "peso_attuale": 2.9805691926894027,
    "contributo": 0.00197399133044393
   },
   {
@@ -288,7 +299,7 @@
    "fonte": "liquidità",
    "aggiornato": null,
    "mancante": false,
-   "peso_attuale": 2.058087701933738,
+   "peso_attuale": 2.0326815113350216,
    "contributo": 0.0
   },
   {
@@ -309,7 +320,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T08:52:55+00:00",
    "mancante": false,
-   "peso_attuale": 1.847835671672925,
+   "peso_attuale": 1.8250249502320852,
    "contributo": -0.10636103151862464
   }
  ]
