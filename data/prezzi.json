@@ -1,5 +1,5 @@
 {
- "aggiornato": "2026-10-05T10:42:27+00:00",
+ "aggiornato": "2026-10-05T10:43:05+00:00",
  "nome": "VICI Balanced Growth AMC",
  "indice": "VICIGROW Index",
  "isin_certificato": "CH1453363652",
@@ -39,7 +39,7 @@
   "min_anno": 1013.76,
   "fonte": "Borsa Italiana",
   "url": "https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/CH1453363652-SEDX.html?lang=it",
-  "ora": "2026-10-05T10:42:27+00:00",
+  "ora": "2026-10-05T10:43:05+00:00",
   "data": "2026-10-02"
  },
  "premio": {
@@ -1041,7 +1041,7 @@
    "valore": 98.81162264694366,
    "simbolo": "EM35.MI",
    "fonte": "Yahoo Finance",
-   "aggiornato": "2026-10-05T10:18:15+00:00",
+   "aggiornato": "2026-10-05T10:27:41+00:00",
    "storia": 263,
    "storico_da": null,
    "mancante": false,
