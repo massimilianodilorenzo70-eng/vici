@@ -1,10 +1,5 @@
-leonteq_it.html | 200 2362 | BLOCCO | prezzi trovati:  | https://certificati.leonteq.com/isin/CH1453363652?language_id=1
-leonteq_ch.html | 200 2245 | BLOCCO | prezzi trovati:  | https://structuredproducts-ch.leonteq.com/isin/CH1453363652
-certificatiederivati.html | 200 19854 |  | prezzi trovati:  | https://www.certificatiederivati.it/db_bs_scheda_certificato.asp?isin=CH1453363652
-teleborsa.html | 404 11803 |  | prezzi trovati:  | https://www.teleborsa.it/Quotazioni/Certificati/CH1453363652
-borsaitaliana.html | 200 14934 |  | prezzi trovati: 1.010,02 1.012,71 1.013,88  | https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/CH1453363652-SEDX.html?lang=it
-borse_it.html | 403 3237 | BLOCCO | prezzi trovati:  | https://www.borse.it/quotazioni/certificati/CH1453363652
-marketscreener.html | 403 390 | BLOCCO | prezzi trovati:  | https://it.marketscreener.com/ricerca/?q=CH1453363652
-onvista.html | 200 8898 |  | prezzi trovati: 1.058.41 1.056.36  | https://www.onvista.de/suche/?searchValue=CH1453363652
-finanzen.html | 403 395 | BLOCCO | prezzi trovati:  | https://www.finanzen.net/suchergebnis.asp?_search=CH1453363652
-justetf_ricerca.html | 200 46215 |  | prezzi trovati:  | https://www.google.com/search?q=CH1453363652
+bi_dati_mercato.html | 200 13429 |  | prezzi trovati: 1.005,58 1.020,78 1.010,02  | https://www.borsaitaliana.it/borsa/cw-e-certificates/dati-mercato.html?isin=CH1453363652&mic=SEDX&lang=it
+bi_contratti.html | 200 13137 |  | prezzi trovati:  | https://www.borsaitaliana.it/borsa/cw-e-certificates/contratti.html?isin=CH1453363652&mic=SEDX&lang=it
+bi_anagrafici.html | 200 13299 |  | prezzi trovati: 1.000,00  | https://www.borsaitaliana.it/borsa/cw-e-certificates/dati-anagrafici.html?isin=CH1453363652&mic=SEDX&lang=it
+bi_listino.html | 200 12486 |  | prezzi trovati: 1.028,05 1.010,02  | https://www.borsaitaliana.it/borsa/cw-e-certificates/listino-ufficiale.html?isin=CH1453363652&mic=SEDX&lang=it
+kid.html | 200 158808 |  | prezzi trovati:  | https://priipkidportal.com/isin/CH1453363652/kid/it
