@@ -15,12 +15,14 @@ Solo libreria standard, nessuna dipendenza da installare.
 """
 
 import json
+import math
+import os
 import re
 import sys
 import time
 import urllib.parse
 import urllib.request
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -144,7 +146,7 @@ def candidati(pos, cache):
 
 
 def trova_prezzi(pos, cache, dal):
-    p0 = pos["prezzo_carico"]
+    p0 = pos.get("prezzo_carico")  # None per il benchmark: niente controllo sul prezzo
     for s in candidati(pos, cache):
         try:
             g = yahoo_grafico(s, dal)
@@ -157,8 +159,7 @@ def trova_prezzi(pos, cache, dal):
         if g["ora"] and (datetime.now(timezone.utc) - datetime.fromisoformat(g["ora"])).days > GIORNI_MAX:
             log(f"  {s}: scartato (ultimo prezzo del {g['ora'][:10]})")
             continue
-        scarto = abs(g["prezzo"] / p0 - 1)
-        if scarto > SCARTO_MAX:
+        if p0 and abs(g["prezzo"] / p0 - 1) > SCARTO_MAX:
             log(f"  {s}: scartato (prezzo {g['prezzo']} lontano dal carico {p0})")
             continue
         log(f"  {s}: ok {g['prezzo']} EUR ({g['borsa']})")
@@ -242,6 +243,14 @@ def quotazione_certificato(isin):
 
 # ---------------------------------------------------------------- calcolo
 
+# Finestra per volatilità, drawdown e correlazioni del portafoglio attuale
+GIORNI_RISCHIO = 365
+
+
+def chiave(pos):
+    return pos.get("isin") or pos.get("bloomberg") or pos["nome"]
+
+
 def valore_al(chiusure, giorno, ripiego):
     """Ultima chiusura disponibile fino a `giorno` compreso."""
     v = ripiego
@@ -253,103 +262,405 @@ def valore_al(chiusure, giorno, ripiego):
     return v
 
 
+def serie_allineata(chiusure, giorni, ripiego):
+    """Prezzi sui giorni dati, riportando avanti l'ultimo noto."""
+    out, j, v = [], 0, ripiego
+    for g in giorni:
+        while j < len(chiusure) and chiusure[j][0] <= g:
+            v = chiusure[j][1]
+            j += 1
+        out.append(v)
+    return out
+
+
+def rendimenti(valori):
+    return [(b / a - 1) if a else 0.0 for a, b in zip(valori, valori[1:])]
+
+
+def media(x):
+    return sum(x) / len(x) if x else 0.0
+
+
+def covarianza(a, b):
+    if len(a) < 2:
+        return 0.0
+    ma, mb = media(a), media(b)
+    return sum((x - ma) * (y - mb) for x, y in zip(a, b)) / (len(a) - 1)
+
+
+def vol_annua(r):
+    return math.sqrt(max(covarianza(r, r), 0) * 252) * 100 if len(r) > 1 else None
+
+
+def max_drawdown(valori):
+    if not valori:
+        return None
+    picco, peggiore = valori[0], 0.0
+    for v in valori:
+        picco = max(picco, v)
+        peggiore = min(peggiore, v / picco - 1)
+    return peggiore * 100
+
+
+def var_storico(r, livello=0.95):
+    """Perdita giornaliera superata solo nel 5% dei giorni (in %)."""
+    if len(r) < 20:
+        return None
+    ordinati = sorted(r)
+    return -ordinati[int((1 - livello) * len(ordinati))] * 100
+
+
+def scarica_strumenti(port, cache, dal_storia):
+    strumenti = {}
+    for rib in port["ribilanciamenti"]:
+        for pos in rib["posizioni"]:
+            strumenti[chiave(pos)] = pos  # vale la definizione più recente
+    dati = {}
+    for k, pos in strumenti.items():
+        log(pos["nome"])
+        if pos.get("liquidita"):
+            dati[k] = {"prezzo": float(pos["prezzo_carico"]), "chiusure": [], "fonte": "liquidità",
+                       "simbolo": None, "ora": None, "liquidita": True}
+            continue
+        g = trova_prezzi(pos, cache, dal_storia)
+        if g is None and pos.get("isin"):
+            try:
+                g = ft_nav(pos["isin"])
+            except Exception as e:
+                log("  FT:", e)
+        dati[k] = g if g and g.get("prezzo") else None
+    return dati
+
+
+def prezzo_precedente(g):
+    ch = g["chiusure"]
+    if len(ch) >= 2 and abs(ch[-1][1] - g["prezzo"]) < 1e-9:
+        return ch[-2][1]
+    return ch[-1][1] if ch else None
+
+
+def mensili(serie, base):
+    """Rendimento di ogni mese dalla serie giornaliera [(data, valore)]."""
+    fine_mese = {}
+    for d, v in serie:
+        fine_mese[d[:7]] = v
+    out, prec = [], base
+    for mese in sorted(fine_mese):
+        v = fine_mese[mese]
+        out.append({"mese": mese, "rend": (v / prec - 1) * 100})
+        prec = v
+    return out
+
+
+def calcola_rischio(posizioni_attuali, dati, oggi):
+    """Rischio del portafoglio di oggi, con i pesi attuali, sull'ultimo anno."""
+    dal = (oggi - timedelta(days=GIORNI_RISCHIO)).isoformat()
+    voci = [r for r in posizioni_attuali if not r.get("liquidita")]
+    giorni = sorted({d for r in voci if dati.get(r["chiave"])
+                     for d, _ in dati[r["chiave"]]["chiusure"] if d >= dal})
+    if len(giorni) < 30:
+        return None
+    rend, senza_storia = {}, []
+    for r in voci:
+        g = dati.get(r["chiave"])
+        ch = g["chiusure"] if g else []
+        if len([1 for d, _ in ch if d >= dal]) < 30:
+            senza_storia.append(r["nome"])
+        primo = next((c for d, c in ch if d >= dal), r["prezzo"])
+        rend[r["chiave"]] = rendimenti(serie_allineata(ch, giorni, primo))
+    pesi = {r["chiave"]: r["peso_attuale"] / 100 for r in voci}
+    n = len(giorni) - 1
+    rp = [sum(pesi[k] * rend[k][t] for k in rend) for t in range(n)]
+    cumulato, v = [], 1.0
+    for x in rp:
+        v *= 1 + x
+        cumulato.append(v)
+    var_p = covarianza(rp, rp)
+    per_posizione = []
+    for r in voci:
+        k = r["chiave"]
+        per_posizione.append({
+            "nome": r["nome"],
+            "vol": vol_annua(rend[k]),
+            "rend_1a": (math.prod(1 + x for x in rend[k]) - 1) * 100,
+            "contributo_rischio": pesi[k] * covarianza(rend[k], rp) / var_p * 100 if var_p else None,
+        })
+    nomi = [r["nome"] for r in voci]
+    sd = {k: math.sqrt(max(covarianza(rend[k], rend[k]), 0)) for k in rend}
+    chiavi = [r["chiave"] for r in voci]
+    corr = [[round(covarianza(rend[a], rend[b]) / (sd[a] * sd[b]), 3) if sd[a] and sd[b] else None
+             for b in chiavi] for a in chiavi]
+    return {
+        "dal": giorni[0],
+        "giorni": n,
+        "vol": vol_annua(rp),
+        "max_drawdown": max_drawdown([1.0] + cumulato),
+        "var95": var_storico(rp),
+        "rend_1a": (cumulato[-1] - 1) * 100,
+        "peggior_giorno": min(rp) * 100,
+        "miglior_giorno": max(rp) * 100,
+        "posizioni": per_posizione,
+        "correlazioni": {"nomi": nomi, "matrice": corr},
+        "senza_storia": senza_storia,
+    }
+
+
+def calcola_benchmark(port, cache, dal_storia, inizio, base):
+    b = port.get("benchmark")
+    if not b:
+        return None, []
+    comp = []
+    somma = sum(c["peso"] for c in b["componenti"])
+    for c in b["componenti"]:
+        log(f"Benchmark: {c['nome']}")
+        g = trova_prezzi(c, cache, dal_storia)
+        if not g:
+            log("  benchmark incompleto, salto")
+            return None, []
+        p0 = valore_al(g["chiusure"], inizio, g["chiusure"][0][1] if g["chiusure"] else g["prezzo"])
+        comp.append((c["peso"] / somma, p0, g))
+    giorni = sorted({d for _, _, g in comp for d, _ in g["chiusure"] if d >= inizio})
+    serie = [(d, base * sum(w * valore_al(g["chiusure"], d, p0) / p0 for w, p0, g in comp)) for d in giorni]
+    valore = base * sum(w * g["prezzo"] / p0 for w, p0, g in comp)
+    prec = base * sum(w * (prezzo_precedente(g) or g["prezzo"]) / p0 for w, p0, g in comp)
+    # rischio del benchmark sull'ultimo anno, per confronto
+    dal = (date.today() - timedelta(days=GIORNI_RISCHIO)).isoformat()
+    gr = sorted({d for _, _, g in comp for d, _ in g["chiusure"] if d >= dal})
+    vb = [sum(w * valore_al(g["chiusure"], d, p0) / p0 for w, p0, g in comp) for d in gr]
+    rb = rendimenti(vb)
+    return {
+        "nome": b["nome"],
+        "componenti": [{"nome": c["nome"], "peso": c["peso"], "simbolo": g["simbolo"]}
+                       for c, (_, _, g) in zip(b["componenti"], comp)],
+        "valore": valore,
+        "perf": (valore / base - 1) * 100,
+        "perf_giorno": (valore / prec - 1) * 100 if prec else None,
+        "vol": vol_annua(rb),
+        "max_drawdown": max_drawdown(vb),
+        "rend_1a": (vb[-1] / vb[0] - 1) * 100 if len(vb) > 1 else None,
+    }, serie
+
+
+# ---------------------------------------------------------------- avvisi
+
+def api_github(metodo, percorso, corpo=None):
+    url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}{percorso}"
+    req = urllib.request.Request(url, method=metodo, data=json.dumps(corpo).encode() if corpo else None, headers={
+        "Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "vici-bot",
+    })
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return json.loads(r.read() or b"{}")
+
+
+def gestisci_avvisi(righe, soglia, nav):
+    """Apre una issue (GitHub la manda anche per email) quando una posizione
+    si scosta dal peso obiettivo più della soglia; la chiude quando rientra.
+    Solo sul ramo principale, per non mandare avvisi dalle prove."""
+    if not os.environ.get("GITHUB_TOKEN") or os.environ.get("GITHUB_REF") != "refs/heads/main":
+        return
+    stato_file = DATA / "avvisi.json"
+    stato = json.loads(stato_file.read_text(encoding="utf-8")) if stato_file.exists() else {}
+    fuori = [r for r in righe if r["oltre_soglia"]]
+    nomi = sorted(r["nome"] for r in fuori)
+    issue = stato.get("issue")
+    try:
+        if fuori and (nomi != stato.get("posizioni") or not issue):
+            tabella = "\n".join(
+                f"| {r['nome']} | {r['peso_obiettivo']:.2f}% | {r['peso_attuale']:.2f}% | "
+                f"{r['scostamento']:+.2f} | {'vendi' if r['scostamento'] > 0 else 'compra'} "
+                f"{abs(r['scostamento']):.2f}% del portafoglio |"
+                for r in fuori)
+            testo = (f"Posizioni oltre la soglia di {soglia:.1f} punti dal peso obiettivo:\n\n"
+                     "| Posizione | Obiettivo | Attuale | Scostamento | Per riallineare |\n|---|---|---|---|---|\n"
+                     f"{tabella}\n\nValore stimato del paniere: {nav:.2f}.\n"
+                     "Il simulatore nella scheda *Gestione* dell'app calcola le operazioni.")
+            if issue:
+                api_github("POST", f"/issues/{issue}/comments", {"body": "Aggiornamento\n\n" + testo})
+            else:
+                issue = api_github("POST", "/issues", {
+                    "title": "VICI: posizioni fuori dalla soglia di scostamento", "body": testo,
+                })["number"]
+            stato = {"issue": issue, "posizioni": nomi}
+        elif not fuori and issue:
+            api_github("POST", f"/issues/{issue}/comments",
+                       {"body": "Tutte le posizioni sono rientrate nella soglia."})
+            api_github("PATCH", f"/issues/{issue}", {"state": "closed", "state_reason": "completed"})
+            stato = {}
+    except Exception as e:
+        log("Avviso GitHub non inviato:", e)
+        return
+    stato_file.write_text(json.dumps(stato, ensure_ascii=False), encoding="utf-8")
+
+
+# ---------------------------------------------------------------- principale
+
 def main():
     port = json.loads((DATA / "portafoglio.json").read_text(encoding="utf-8"))
     cache_file = DATA / "simboli.json"
     cache = json.loads(cache_file.read_text(encoding="utf-8")) if cache_file.exists() else {}
-    dal = date.fromisoformat(port["data_esecuzione"])
     base = float(port.get("base", 1000))
+    ribs = sorted(port["ribilanciamenti"], key=lambda r: r["data"])
+    inizio = ribs[0]["data"]
+    oggi = date.today()
+    dal_storia = min(date.fromisoformat(inizio), oggi - timedelta(days=GIORNI_RISCHIO)) - timedelta(days=5)
 
-    # I pesi si riportano a 100 (quelli dello screenshot sommano 100,01), così
-    # la somma dei contributi coincide con la performance del totale
-    somma_pesi = sum(p["peso"] for p in port["posizioni"])
-    righe, serie_prezzi = [], {}
-    for pos in port["posizioni"]:
-        p0 = float(pos["prezzo_carico"])
-        quote = base * pos["peso"] / somma_pesi / p0
-        log(pos["nome"])
-        if pos.get("liquidita"):
-            g = {"simbolo": "", "valuta": "EUR", "borsa": "", "prezzo": p0, "ora": None,
-                 "chiusure": [], "fonte": "liquidità"}
+    dati = scarica_strumenti(port, cache, dal_storia)
+
+    def prezzo_di(k, giorno, ripiego):
+        g = dati.get(k)
+        return valore_al(g["chiusure"], giorno, ripiego) if g and g["chiusure"] else (g["prezzo"] if g and g.get("liquidita") else ripiego)
+
+    # Periodi tra un ribilanciamento e l'altro: ognuno riparte dal valore
+    # raggiunto dal precedente, così la curva è continua
+    periodi = []
+    for i, rib in enumerate(ribs):
+        if i == 0:
+            b = base
         else:
-            g = trova_prezzi(pos, cache, dal)
-            if g is None and pos.get("isin"):
-                try:
-                    g = ft_nav(pos["isin"])
-                except Exception as e:
-                    log("  FT:", e)
-        ok = g is not None and g.get("prezzo")
+            b = sum(q * prezzo_di(k, rib["data"], p0) for k, (q, p0) in periodi[-1]["quote"].items())
+        somma = sum(p["peso"] for p in rib["posizioni"])
+        quote = {chiave(p): (b * p["peso"] / somma / p["prezzo_carico"], float(p["prezzo_carico"]))
+                 for p in rib["posizioni"]}
+        periodi.append({"data": rib["data"], "base": b, "quote": quote, "rib": rib, "somma": somma})
+
+    giorni = sorted({d for g in dati.values() if g for d, _ in g["chiusure"] if d >= inizio})
+    serie_nav = []
+    for d in giorni:
+        per = [p for p in periodi if p["data"] <= d][-1]
+        serie_nav.append((d, sum(q * prezzo_di(k, d, p0) for k, (q, p0) in per["quote"].items())))
+
+    # Posizioni del periodo in corso
+    att = periodi[-1]
+    righe = []
+    for pos in att["rib"]["posizioni"]:
+        k = chiave(pos)
+        q, p0 = att["quote"][k]
+        g = dati.get(k)
+        ok = g is not None
         prezzo = g["prezzo"] if ok else p0
-        ch = g["chiusure"] if ok else []
-        serie_prezzi[pos["nome"]] = (ch, p0, quote)
-        prec = ch[-2][1] if len(ch) >= 2 and ch[-1][1] == prezzo else (ch[-1][1] if ch else None)
+        prec = prezzo_precedente(g) if ok and g["chiusure"] else (prezzo if ok and g.get("liquidita") else None)
         righe.append({
-            "nome": pos["nome"], "isin": pos.get("isin"), "bloomberg": pos.get("bloomberg"),
-            "classe": pos.get("classe"), "area": pos.get("area"),
-            "peso_iniziale": pos["peso"], "prezzo_carico": p0, "quote": quote,
-            "prezzo": prezzo, "prezzo_prec": prec,
+            "chiave": k, "nome": pos["nome"], "isin": pos.get("isin"), "bloomberg": pos.get("bloomberg"),
+            "classe": pos.get("classe"), "area": pos.get("area"), "liquidita": bool(pos.get("liquidita")),
+            "peso_iniziale": pos["peso"], "peso_obiettivo": pos["peso"] / att["somma"] * 100,
+            "prezzo_carico": p0, "quote": q, "prezzo": prezzo, "prezzo_prec": prec,
             "var_giorno": (prezzo / prec - 1) * 100 if prec else None,
             "var_carico": (prezzo / p0 - 1) * 100,
-            "valore": quote * prezzo,
+            "valore": q * prezzo,
             "simbolo": g.get("simbolo") if ok else None,
             "fonte": g.get("fonte") if ok else None,
             "aggiornato": g.get("ora") if ok else None,
             "mancante": not ok,
         })
-
     nav = sum(r["valore"] for r in righe)
     nav_prec = sum(r["quote"] * (r["prezzo_prec"] or r["prezzo"]) for r in righe)
+    soglia = float(port.get("soglia_scostamento", 2.0))
     for r in righe:
         r["peso_attuale"] = r["valore"] / nav * 100
-        r["contributo"] = r["quote"] * (r["prezzo"] - r["prezzo_carico"]) / base * 100
+        r["contributo"] = r["quote"] * (r["prezzo"] - r["prezzo_carico"]) / att["base"] * 100
+        r["scostamento"] = r["peso_attuale"] - r["peso_obiettivo"]
+        r["oltre_soglia"] = abs(r["scostamento"]) > soglia
+    if serie_nav and serie_nav[-1][0] == oggi.isoformat():
+        serie_nav[-1] = (serie_nav[-1][0], nav)
+    else:
+        serie_nav.append((oggi.isoformat(), nav))
 
-    classi = {}
+    classi, aree = {}, {}
     for r in righe:
         classi[r["classe"]] = classi.get(r["classe"], 0) + r["peso_attuale"]
+        aree[r["area"]] = aree.get(r["area"], 0) + r["peso_attuale"]
+
+    riepilogo_periodi = []
+    for i, p in enumerate(periodi):
+        fine = periodi[i + 1]["base"] if i + 1 < len(periodi) else nav
+        riepilogo_periodi.append({
+            "data": p["data"], "fino_al": periodi[i + 1]["data"] if i + 1 < len(periodi) else None,
+            "base": p["base"], "fine": fine, "perf": (fine / p["base"] - 1) * 100,
+            "posizioni": len(p["rib"]["posizioni"]), "nota": p["rib"].get("nota", ""),
+        })
+
+    bench, serie_bench = calcola_benchmark(port, cache, dal_storia, inizio, base)
+    rischio = calcola_rischio(righe, dati, oggi)
+    r_nav = rendimenti([v for _, v in serie_nav])
+    realizzato = {
+        "vol": vol_annua(r_nav) if len(r_nav) >= 10 else None,
+        "max_drawdown": max_drawdown([base] + [v for _, v in serie_nav]),
+        "giorni": len(r_nav),
+    }
 
     log("Certificato")
     cert = quotazione_certificato(port["isin_certificato"])
 
-    # Serie storica del NAV stimato: un punto per ogni giorno di borsa
-    giorni = sorted({d for ch, _, _ in serie_prezzi.values() for d, _ in ch if d >= dal.isoformat()})
-    storico = []
-    for g in giorni:
-        v = sum(q * valore_al(ch, g, p0) for ch, p0, q in serie_prezzi.values())
-        storico.append({"data": g, "nav": round(v, 4)})
-
-    # Le quotazioni del certificato si accumulano un giorno alla volta
     st_file = DATA / "storico.json"
     vecchio = json.loads(st_file.read_text(encoding="utf-8")) if st_file.exists() else {}
     cert_storico = {p["data"]: p["prezzo"] for p in vecchio.get("certificato", [])}
     if cert:
-        cert_storico[date.today().isoformat()] = cert["prezzo"]
+        cert_storico[oggi.isoformat()] = cert["prezzo"]
 
+    # Premio/sconto: quotazione del certificato contro il valore che avrebbe
+    # se seguisse esattamente il paniere da un giorno di riferimento
+    premio = None
+    if cert:
+        ancora_prezzo, ancora_data = port.get("certificato_al_ribilanciamento"), att["data"]
+        ancora_nav = att["base"]
+        if not ancora_prezzo:
+            dopo = sorted(d for d in cert_storico if d >= att["data"])
+            if dopo:
+                ancora_data, ancora_prezzo = dopo[0], cert_storico[dopo[0]]
+                ancora_nav = valore_al(serie_nav, ancora_data, nav)
+        if ancora_prezzo:
+            implicito = ancora_prezzo * nav / ancora_nav
+            premio = {"data": ancora_data, "prezzo_riferimento": ancora_prezzo,
+                      "da_configurazione": bool(port.get("certificato_al_ribilanciamento")),
+                      "valore_implicito": implicito, "premio": (cert["prezzo"] / implicito - 1) * 100}
+
+    emissione = port.get("emissione", {"prezzo": base})
     adesso = datetime.now(timezone.utc).isoformat(timespec="seconds")
     out = {
         "aggiornato": adesso,
         "nome": port["nome"],
         "indice": port["indice"],
         "isin_certificato": port["isin_certificato"],
-        "data_esecuzione": port["data_esecuzione"],
+        "emissione": emissione,
+        "data_inizio": inizio,
+        "data_esecuzione": att["data"],
         "base": base,
+        "base_periodo": att["base"],
         "nav": nav,
         "nav_prec": nav_prec,
         "perf_totale": (nav / base - 1) * 100,
+        "perf_periodo": (nav / att["base"] - 1) * 100,
         "perf_giorno": (nav / nav_prec - 1) * 100 if nav_prec else None,
         "classi": classi,
+        "aree": aree,
+        "soglia_scostamento": soglia,
         "certificato": cert,
+        "premio": premio,
+        "benchmark": bench,
+        "rischio": rischio,
+        "realizzato": realizzato,
+        "mensili": {
+            "paniere": mensili(serie_nav, base),
+            "benchmark": mensili(serie_bench + ([(oggi.isoformat(), bench["valore"])] if bench else []), base),
+        },
+        "periodi": riepilogo_periodi,
         "mancanti": [r["nome"] for r in righe if r["mancante"]],
         "posizioni": righe,
     }
     (DATA / "prezzi.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
     st_file.write_text(json.dumps({
         "aggiornato": adesso,
-        "nav": storico,
+        "nav": [{"data": d, "nav": round(v, 4)} for d, v in serie_nav],
+        "benchmark": [{"data": d, "valore": round(v, 4)} for d, v in serie_bench],
         "certificato": [{"data": d, "prezzo": p} for d, p in sorted(cert_storico.items())],
     }, ensure_ascii=False, indent=0), encoding="utf-8")
     cache_file.write_text(json.dumps(cache, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
 
-    log(f"NAV stimato {nav:.2f} ({out['perf_totale']:+.2f}%), mancanti: {out['mancanti'] or 'nessuno'}")
+    gestisci_avvisi(righe, soglia, nav)
+    log(f"Paniere {nav:.2f} ({out['perf_periodo']:+.2f}% dal {att['data']}), "
+        f"mancanti: {out['mancanti'] or 'nessuno'}")
 
 
 if __name__ == "__main__":

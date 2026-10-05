@@ -6,6 +6,10 @@
   <title>VICI Balanced Growth</title>
   <meta name="description" content="Posizioni e andamento del certificato VICI Balanced Growth AMC.">
   <meta name="theme-color" content="#0A2283">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="VICI">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/logo.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -16,6 +20,9 @@
 </head>
 <body>
   <header class="testata">
+    <button id="apri-menu" class="bottone-icona" aria-label="Apri il menu" aria-expanded="false" aria-controls="menu">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </button>
     <div class="marchio">
       <img src="icons/logo.svg" alt="" class="marchio-icona">
       <div>
@@ -29,96 +36,243 @@
     </button>
   </header>
 
+  <nav class="schede" aria-label="Sezioni">
+    <button data-scheda="portafoglio" class="attiva">Portafoglio</button>
+    <button data-scheda="andamento">Andamento</button>
+    <button data-scheda="gestione">Gestione</button>
+    <button data-scheda="report">Report</button>
+  </nav>
+
+  <!-- Menu laterale -->
+  <div id="velo" class="velo" hidden></div>
+  <aside id="menu" class="menu" aria-label="Menu" hidden>
+    <div class="menu-testa">
+      <img src="icons/logo.svg" alt="" width="40" height="40">
+      <div><b>VICI</b><span>Balanced Growth AMC</span></div>
+    </div>
+    <nav class="menu-voci">
+      <button data-scheda="portafoglio">Portafoglio<small>Posizioni, prezzi e performance</small></button>
+      <button data-scheda="andamento">Andamento<small>Grafico, benchmark, rischio</small></button>
+      <button data-scheda="gestione">Gestione<small>Scostamenti, simulatore, ribilanciamenti</small></button>
+      <button data-scheda="report">Report<small>Report mensile da stampare o salvare in PDF</small></button>
+    </nav>
+    <div class="menu-voci secondarie">
+      <button id="menu-aggiorna">Ricarica i dati</button>
+      <button id="menu-installa" hidden>Installa l'app</button>
+      <button id="menu-novita">Novità della versione</button>
+      <a href="https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/CH1453363652-SEDX.html?lang=it" target="_blank" rel="noopener">Scheda su Borsa Italiana</a>
+      <a href="https://github.com/massimilianodilorenzo70-eng/vici/actions/workflows/aggiorna-prezzi.yml" target="_blank" rel="noopener">Aggiornamenti dei prezzi (GitHub)</a>
+    </div>
+    <div class="menu-piede">Versione <span class="versione"></span></div>
+  </aside>
+
+  <!-- Invito a installare -->
+  <div id="installa" class="installa" role="dialog" aria-label="Installa VICI" hidden>
+    <img src="icons/icon-192.png" alt="" width="44" height="44">
+    <div class="installa-testo">
+      <b>Installa VICI sul telefono</b>
+      <span id="installa-suggerimento">Si apre come un'app dalla schermata Home, a schermo intero.</span>
+    </div>
+    <div class="installa-azioni">
+      <button id="installa-si" hidden>Installa</button>
+      <button id="installa-no" class="link">Non ora</button>
+    </div>
+  </div>
+
   <main>
     <p id="stato" class="stato">Caricamento dati…</p>
 
-    <section class="riquadri">
-      <article class="riquadro principale">
-        <h2>Certificato</h2>
-        <div id="cert-prezzo" class="cifra">—</div>
-        <div id="cert-perf" class="sotto">—</div>
-        <div id="cert-fonte" class="nota"></div>
-      </article>
-      <article class="riquadro">
-        <h2>Paniere stimato</h2>
-        <div id="nav" class="cifra">—</div>
-        <div id="nav-perf" class="sotto">—</div>
-        <div id="nav-oggi" class="nota"></div>
-      </article>
+    <!-- ===================== PORTAFOGLIO ===================== -->
+    <section data-pannello="portafoglio">
+      <div class="riquadri">
+        <article class="riquadro principale">
+          <h2>Certificato</h2>
+          <div id="cert-prezzo" class="cifra">—</div>
+          <div id="cert-perf" class="sotto">—</div>
+          <div id="cert-fonte" class="nota"></div>
+        </article>
+        <article class="riquadro">
+          <h2>Paniere stimato</h2>
+          <div id="nav" class="cifra">—</div>
+          <div id="nav-perf" class="sotto">—</div>
+          <div id="nav-oggi" class="nota"></div>
+        </article>
+      </div>
+
+      <div class="riquadro">
+        <div class="titolo-riga">
+          <h2>Posizioni investite</h2>
+          <label class="ordina">Ordina
+            <select id="ordina">
+              <option value="peso_iniziale">Peso</option>
+              <option value="var_carico">Var. dal carico</option>
+              <option value="contributo">Contributo</option>
+              <option value="var_giorno">Var. oggi</option>
+            </select>
+          </label>
+        </div>
+        <div class="tabella-box">
+          <table class="tabella schede-mobile">
+            <thead><tr><th>Posizione</th><th>Peso</th><th>Carico</th><th>Attuale</th><th>Var. %</th><th>Contrib.</th></tr></thead>
+            <tbody id="posizioni"></tbody>
+            <tfoot id="totale"></tfoot>
+          </table>
+        </div>
+        <p class="nota">Var. % = prezzo attuale rispetto al prezzo di carico. Contributo = peso × Var. %: quanto la posizione aggiunge o toglie al totale. La somma dei contributi è la performance del portafoglio.</p>
+      </div>
+
+      <div class="riquadro">
+        <h2>Allocazione</h2>
+        <div class="due-colonne">
+          <div><h3>Per classe</h3><div id="classi-barra" class="barra"></div><ul id="classi-elenco" class="classi"></ul></div>
+          <div><h3>Per area</h3><div id="aree-barra" class="barra"></div><ul id="aree-elenco" class="classi"></ul></div>
+        </div>
+      </div>
+
+      <div class="riquadro" id="mio">
+        <div class="titolo-riga">
+          <h2>Il mio investimento</h2>
+          <button id="modifica-mio" class="link">Modifica</button>
+        </div>
+        <div id="mio-vuoto" class="nota">Inserisci quanti certificati hai e a che prezzo li hai presi per vedere guadagno o perdita.</div>
+        <div id="mio-dati" class="mio-griglia" hidden>
+          <div><span>Investito</span><b id="mio-investito">—</b></div>
+          <div><span>Valore oggi</span><b id="mio-valore">—</b></div>
+          <div><span>Risultato</span><b id="mio-risultato">—</b></div>
+        </div>
+        <form id="mio-form" class="mio-form" hidden>
+          <label>Numero certificati <input id="mio-qta" type="number" min="0" step="1" inputmode="numeric"></label>
+          <label>Prezzo medio di carico (EUR) <input id="mio-carico" type="number" min="0" step="0.01" inputmode="decimal"></label>
+          <div class="mio-azioni"><button type="submit" class="primario">Salva</button><button type="button" id="mio-annulla" class="link">Annulla</button></div>
+          <p class="nota">Resta salvato solo su questo dispositivo.</p>
+        </form>
+      </div>
     </section>
 
-    <section class="riquadro">
-      <div class="titolo-riga">
-        <h2>Posizioni investite</h2>
-        <label class="ordina">Ordina
-          <select id="ordina">
-            <option value="peso_iniziale">Peso</option>
-            <option value="var_carico">Var. dal carico</option>
-            <option value="contributo">Contributo</option>
-            <option value="var_giorno">Var. oggi</option>
-          </select>
+    <!-- ===================== ANDAMENTO ===================== -->
+    <section data-pannello="andamento" hidden>
+      <div class="riquadri tre">
+        <article class="riquadro">
+          <h2>Paniere</h2>
+          <div id="a-paniere" class="cifra piccola">—</div>
+          <div id="a-paniere-dett" class="nota"></div>
+        </article>
+        <article class="riquadro">
+          <h2 id="a-bench-nome">Benchmark</h2>
+          <div id="a-bench" class="cifra piccola">—</div>
+          <div id="a-bench-dett" class="nota"></div>
+        </article>
+        <article class="riquadro">
+          <h2>Certificato vs paniere</h2>
+          <div id="a-premio" class="cifra piccola">—</div>
+          <div id="a-premio-dett" class="nota"></div>
+        </article>
+      </div>
+
+      <div class="riquadro">
+        <h2>Andamento dal <span class="data-inizio">—</span></h2>
+        <div id="grafico" class="grafico" role="img" aria-label="Andamento del paniere, del benchmark e del certificato"></div>
+        <div class="legenda">
+          <span class="l-nav"></span>Paniere (base 1000)
+          <span class="l-bench"></span>Benchmark
+          <span class="l-cert"></span>Certificato (stessa scala)
+        </div>
+      </div>
+
+      <div class="riquadro">
+        <h2>Rendimenti mensili</h2>
+        <div class="tabella-box"><table class="tabella compatta" id="mensili"></table></div>
+      </div>
+
+      <div class="riquadro">
+        <h2>Rischio del portafoglio attuale</h2>
+        <p class="nota" id="rischio-nota"></p>
+        <div class="metriche" id="rischio-metriche"></div>
+        <h3>Per posizione</h3>
+        <div class="tabella-box">
+          <table class="tabella compatta">
+            <thead><tr><th>Posizione</th><th>Peso</th><th>Volatilità</th><th>Rend. 1 anno</th><th>Quota di rischio</th></tr></thead>
+            <tbody id="rischio-posizioni"></tbody>
+          </table>
+        </div>
+        <p class="nota">Quota di rischio: quanta parte della volatilità del portafoglio viene da quella posizione (il totale fa 100%). Una quota molto più alta del peso indica una posizione che concentra il rischio.</p>
+        <h3>Correlazioni</h3>
+        <div class="tabella-box"><div id="correlazioni" class="correlazioni"></div></div>
+        <p class="nota">1 = si muovono insieme, 0 = indipendenti, −1 = in direzioni opposte. Calcolate sui rendimenti giornalieri dell'ultimo anno.</p>
+      </div>
+    </section>
+
+    <!-- ===================== GESTIONE ===================== -->
+    <section data-pannello="gestione" hidden>
+      <div class="riquadro">
+        <h2>Scostamento dai pesi obiettivo</h2>
+        <p class="nota" id="scost-nota"></p>
+        <div id="scostamenti" class="scostamenti"></div>
+      </div>
+
+      <div class="riquadro">
+        <h2>Simulatore di ribilanciamento</h2>
+        <div class="sim-comandi">
+          <label>Patrimonio del certificato (EUR)
+            <input id="sim-patrimonio" type="number" min="0" step="1000" inputmode="decimal" placeholder="es. 5000000">
+          </label>
+          <div class="sim-bottoni">
+            <button type="button" id="sim-obiettivo" class="secondario">Pesi obiettivo</button>
+            <button type="button" id="sim-attuali" class="secondario">Pesi attuali</button>
+          </div>
+        </div>
+        <div class="tabella-box">
+          <table class="tabella compatta sim schede-mobile">
+            <thead><tr><th>Posizione</th><th>Attuale</th><th>Nuovo peso</th><th>Operazione</th><th>Quantità</th></tr></thead>
+            <tbody id="sim-righe"></tbody>
+            <tfoot id="sim-totale"></tfoot>
+          </table>
+        </div>
+        <div id="sim-classi" class="nota"></div>
+        <div class="sim-bottoni">
+          <button type="button" id="sim-esporta" class="secondario">Scarica come nuovo ribilanciamento</button>
+        </div>
+        <p class="nota">Il file scaricato ha i nuovi pesi e i prezzi di oggi come prezzi di carico: dopo l'esecuzione correggi i prezzi con quelli reali e aggiungilo in <code>data/portafoglio.json</code> (oppure mandamelo).</p>
+      </div>
+
+      <div class="riquadro">
+        <h2>Storico dei ribilanciamenti</h2>
+        <div class="tabella-box">
+          <table class="tabella compatta">
+            <thead><tr><th>Dal</th><th>Al</th><th>Posizioni</th><th>Valore iniziale</th><th>Valore finale</th><th>Performance</th></tr></thead>
+            <tbody id="periodi"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== REPORT ===================== -->
+    <section data-pannello="report" hidden>
+      <div class="riquadro non-stampare">
+        <h2>Report mensile</h2>
+        <p class="nota">Scrivi il commento del gestore, poi «Stampa o salva PDF»: nella finestra di stampa scegli «Salva come PDF». Il commento resta salvato su questo dispositivo.</p>
+        <label class="campo">Commento del gestore
+          <textarea id="commento" rows="6" placeholder="Andamento del mese, scelte di gestione, prospettive…"></textarea>
         </label>
+        <div class="sim-bottoni"><button type="button" id="stampa" class="primario">Stampa o salva PDF</button></div>
       </div>
-      <div class="tabella-box">
-        <table class="tabella">
-          <thead>
-            <tr>
-              <th>Posizione</th>
-              <th>Peso</th>
-              <th>Carico</th>
-              <th>Attuale</th>
-              <th>Var. %</th>
-              <th>Contrib.</th>
-            </tr>
-          </thead>
-          <tbody id="posizioni"></tbody>
-          <tfoot id="totale"></tfoot>
-        </table>
-      </div>
-      <p class="nota">Var. % = prezzo attuale rispetto al prezzo di carico. Contributo = peso × Var. %: è quanto quella posizione aggiunge o toglie al totale. La somma dei contributi è la performance del portafoglio.</p>
+      <article id="report" class="report"></article>
     </section>
 
-    <section class="riquadro" id="mio">
-      <div class="titolo-riga">
-        <h2>Il mio investimento</h2>
-        <button id="modifica-mio" class="link">Modifica</button>
-      </div>
-      <div id="mio-vuoto" class="nota">Inserisci quanti certificati hai e a che prezzo li hai presi per vedere guadagno o perdita.</div>
-      <div id="mio-dati" class="mio-griglia" hidden>
-        <div><span>Investito</span><b id="mio-investito">—</b></div>
-        <div><span>Valore oggi</span><b id="mio-valore">—</b></div>
-        <div><span>Risultato</span><b id="mio-risultato">—</b></div>
-      </div>
-      <form id="mio-form" class="mio-form" hidden>
-        <label>Numero certificati <input id="mio-qta" type="number" min="0" step="1" inputmode="numeric"></label>
-        <label>Prezzo medio di carico (EUR) <input id="mio-carico" type="number" min="0" step="0.01" inputmode="decimal"></label>
-        <div class="mio-azioni"><button type="submit">Salva</button><button type="button" id="mio-annulla" class="link">Annulla</button></div>
-        <p class="nota">Resta salvato solo su questo dispositivo.</p>
-      </form>
-    </section>
-
-    <section class="riquadro">
-      <div class="titolo-riga">
-        <h2>Andamento dal ribilanciamento del <span id="data-esecuzione">—</span></h2>
-      </div>
-      <div id="grafico" class="grafico" role="img" aria-label="Andamento del paniere stimato"></div>
-      <div class="legenda"><span class="l-nav"></span>Paniere stimato (base 1000)<span class="l-cert"></span>Certificato (stessa scala)</div>
-    </section>
-
-    <section class="riquadro">
-      <h2>Allocazione</h2>
-      <div id="classi-barra" class="barra"></div>
-      <ul id="classi-elenco" class="classi"></ul>
-    </section>
-
-
-    <p class="avvertenza">
-      Il paniere stimato ricalcola il valore con i pesi e i prezzi di carico dell'ultimo ribilanciamento
-      e i prezzi di mercato più recenti, senza commissioni né ribilanciamenti successivi.
-      Per il valore reale fa fede la quotazione del certificato.
-      <span id="aggiornato"></span>
+    <p class="avvertenza non-stampare">
+      Il paniere stimato ricalcola il valore con i pesi e i prezzi di carico dei ribilanciamenti
+      e i prezzi di mercato più recenti, senza commissioni. Per il valore reale fa fede la quotazione del certificato.
+      <span id="aggiornato"></span> · Versione <span class="versione"></span>
     </p>
   </main>
+
+  <div id="novita" class="finestra" role="dialog" aria-label="Novità" hidden>
+    <div class="finestra-corpo">
+      <h2>Novità</h2>
+      <div id="novita-elenco"></div>
+      <button id="novita-chiudi" class="primario">Chiudi</button>
+    </div>
+  </div>
 
   <script src="js/app.js"></script>
 </body>

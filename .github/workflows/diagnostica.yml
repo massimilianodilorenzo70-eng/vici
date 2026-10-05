@@ -3,10 +3,7 @@ name: Diagnostica fonti
 # Salva nel repository una copia delle pagine delle fonti (Leonteq, Euronext,
 # Borsa Italiana) così si può capire dove sono i dati e adattare lo script.
 on:
-  workflow_dispatch: {}
-  push:
-    paths:
-      - ".github/workflows/diagnostica.yml"
+  workflow_dispatch: {}   # solo a mano: GitHub → Actions → Diagnostica fonti → Run workflow
 
 permissions:
   contents: write
