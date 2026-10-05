@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "1.9.1";
+const VERSIONE = "1.9.2";
 const NOVITA = [
+  { v: "1.9.2", voci: ["Certificato vs paniere: il prezzo del certificato è confrontato con il paniere alla stessa data (prima con il valore di adesso)."] },
   { v: "1.9.1", voci: [
     "Correzioni: variazione giornaliera calcolata correttamente (prima risultava quasi sempre zero); link e testi del dettaglio posizione; il grafico del dettaglio mantiene il periodo scelto.",
   ] },
@@ -264,10 +265,13 @@ function mostraAndamento() {
     $("a-bench-dett").textContent = "Benchmark non disponibile";
   }
   const pr = d.premio;
-  if (pr) {
+  if (pr && pr.data_confronto && pr.data_confronto <= pr.data) {
+    $("a-premio").textContent = "—";
+    $("a-premio-dett").textContent = `Il confronto parte dalla quotazione del ${dataIt(pr.data)}: il risultato arriva con la prossima quotazione del certificato.`;
+  } else if (pr) {
     $("a-premio").innerHTML = colorato(pr.premio);
     $("a-premio-dett").textContent = `${pr.premio >= 0 ? "Premio" : "Sconto"} del certificato rispetto al paniere: ` +
-      `se lo seguisse alla perfezione dal ${dataIt(pr.data)} varrebbe ${fmt(pr.valore_implicito)}` +
+      `se lo seguisse alla perfezione dal ${dataIt(pr.data)}, il ${dataIt(pr.data_confronto || dati.aggiornato)} varrebbe ${fmt(pr.valore_implicito)} invece di ${fmt(dati.certificato.prezzo)}` +
       (pr.da_configurazione ? "." : " (riferimento: prima quotazione registrata dall'app).");
   } else {
     $("a-premio").textContent = "—";
