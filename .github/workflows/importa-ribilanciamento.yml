@@ -1,0 +1,58 @@
+name: Importa ribilanciamento
+
+# Quando carichi su GitHub l'Excel della composizione nella cartella
+# ribilanciamenti/ (con la data di esecuzione nel nome, es. 2026-11-06.xlsx),
+# lo aggiunge a data/portafoglio.json e ricalcola subito i dati dell'app.
+# I prezzi di carico arrivano da soli con le chiusure di quel giorno.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ribilanciamenti/*.xlsx"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: aggiorna-prezzi-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  importa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installa dipendenze
+        run: pip install openpyxl
+
+      - name: Importa i file nuovi
+        run: |
+          for f in ribilanciamenti/*.xlsx; do
+            nome=$(basename "$f")
+            if grep -qF "\"file\": \"$nome\"" data/portafoglio.json; then
+              echo "$nome già importato"
+            else
+              python scripts/importa_ribilanciamento.py "$f"
+            fi
+          done
+
+      - name: Ricalcola i dati
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/aggiorna_prezzi.py
+
+      - name: Salva
+        run: |
+          git config user.name "vici-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "Importa ribilanciamento [bot]"
+          git pull --rebase
+          git push

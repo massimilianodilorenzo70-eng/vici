@@ -268,6 +268,8 @@ def quotazione_certificato(isin):
 
 # Finestra per volatilità, drawdown e correlazioni del portafoglio attuale
 GIORNI_RISCHIO = 365
+# Giorni di attesa dei prezzi di chiusura del giorno di ribilanciamento
+GIORNI_ATTESA = 5
 
 
 def chiave(pos):
@@ -368,6 +370,49 @@ def scarica_strumenti(port, cache, dal_storia):
                 log(f"  storico da {proxy['yahoo']} non disponibile: {e}")
         dati[k] = g
     return dati
+
+
+def completa_prezzi_di_carico(port, ribs, dati, oggi):
+    """Ribilanciamenti senza prezzi di carico: si usano le chiusure del giorno
+    di esecuzione appena ci sono tutte (i NAV dei fondi possono arrivare con
+    qualche giorno di ritardo; dopo GIORNI_ATTESA si prende l'ultimo prezzo
+    disponibile fino a quel giorno). I prezzi trovati si scrivono nel file, così
+    restano fissi. Restituisce i ribilanciamenti ancora in attesa."""
+    in_attesa, modificato = [], False
+    for rib in ribs:
+        vuote = [p for p in rib["posizioni"] if p.get("prezzo_carico") in (None, "")]
+        if not vuote:
+            continue
+        d = rib["data"]
+        scaduto = (oggi - date.fromisoformat(d)).days > GIORNI_ATTESA
+        prezzi = {}
+        for p in vuote:
+            if p.get("liquidita"):
+                prezzi[id(p)] = 1.0
+                continue
+            g = dati.get(chiave(p))
+            ch = g["chiusure"] if g else []
+            esatta = next((c for gg, c in ch if gg == d), None)
+            if esatta is not None:
+                prezzi[id(p)] = esatta
+            elif scaduto and ch and ch[0][0] <= d:
+                prezzi[id(p)] = valore_al(ch, d, None)
+                log(f"  {p['nome']}: nessuna chiusura del {d}, uso l'ultima precedente")
+        # Il giorno stesso la "chiusura" di Yahoo è ancora il prezzo della
+        # giornata: si aspetta almeno il giorno dopo
+        if len(prezzi) < len(vuote) or date.fromisoformat(d) >= oggi:
+            mancano = [p["nome"] for p in vuote if id(p) not in prezzi]
+            log(f"Ribilanciamento del {d} in attesa dei prezzi di chiusura: {', '.join(mancano) or 'giorno non ancora chiuso'}")
+            in_attesa.append(rib)
+            continue
+        for p in vuote:
+            p["prezzo_carico"] = round(prezzi[id(p)], 6)
+        rib["prezzi_carico_da"] = f"chiusure del {d} (automatico)"
+        modificato = True
+        log(f"Ribilanciamento del {d}: prezzi di carico compilati con le chiusure")
+    if modificato:
+        (DATA / "portafoglio.json").write_text(json.dumps(port, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return in_attesa
 
 
 def prezzo_precedente(g):
@@ -545,6 +590,8 @@ def main():
     dal_storia = min(date.fromisoformat(inizio), oggi - timedelta(days=GIORNI_RISCHIO)) - timedelta(days=5)
 
     dati = scarica_strumenti(port, cache, dal_storia)
+    programmati = completa_prezzi_di_carico(port, ribs, dati, oggi)
+    ribs = [r for r in ribs if r not in programmati]
 
     def prezzo_di(k, giorno, ripiego):
         g = dati.get(k)
@@ -686,6 +733,11 @@ def main():
             "benchmark": mensili(serie_bench + ([(oggi.isoformat(), bench["valore"])] if bench else []), base),
         },
         "periodi": riepilogo_periodi,
+        "programmati": [{
+            "data": r["data"], "nota": r.get("nota", ""),
+            "posizioni": [{"nome": p["nome"], "isin": p.get("isin"), "classe": p.get("classe"),
+                           "peso": p["peso"], "liquidita": bool(p.get("liquidita"))} for p in r["posizioni"]],
+        } for r in programmati],
         "mancanti": [r["nome"] for r in righe if r["mancante"]],
         "posizioni": righe,
     }

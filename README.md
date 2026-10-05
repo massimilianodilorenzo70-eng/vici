@@ -53,20 +53,34 @@ Si può avviare a mano da GitHub → **Actions** → *Aggiorna prezzi* → **Run
 `Diagnostica fonti` salva in `debug/fonti/` una copia delle pagine di Leonteq,
 Euronext e Borsa Italiana: serve per adattare lo script se una fonte cambia.
 
-## Nuovo ribilanciamento
+## Ribilanciamento mensile
 
-In `data/portafoglio.json`, nell'elenco `ribilanciamenti`, aggiungi in fondo un
-elemento con data, pesi e prezzi di esecuzione (il simulatore può generarlo:
-«Scarica come nuovo ribilanciamento»). Il paniere riparte dal valore raggiunto
-quel giorno, quindi la curva resta continua. Nello stesso file:
-`certificato_al_ribilanciamento` (prezzo del certificato quel giorno, per un
-premio/sconto preciso), `soglia_scostamento` e il `benchmark`.
+Ogni mese arriva l'Excel della composizione (righe con ISIN, nome e peso, più la
+riga "Liquidità"). Due modi per inserirlo:
+
+- **Da GitHub:** carica il file nella cartella `ribilanciamenti/` con la data di
+  esecuzione nel nome, per esempio `2026-11-06.xlsx` (Add file → Upload files).
+  Il workflow *Importa ribilanciamento* lo aggiunge e ricalcola tutto.
+- **A mano:** `python scripts/importa_ribilanciamento.py FILE.xlsx --data AAAA-MM-GG`.
+
+I prezzi di carico sono le **chiusure del giorno di esecuzione**: lo script le
+prende da solo il giorno dopo (per i NAV dei fondi aspetta fino a 5 giorni) e le
+scrive in `data/portafoglio.json`. Fino ad allora il ribilanciamento compare in
+Gestione come "programmato" e resta attivo il portafoglio precedente. Il paniere
+riparte dal valore raggiunto quel giorno, quindi la curva resta continua.
+
+Le posizioni nuove prendono classe e area dal nome (da controllare in
+`data/portafoglio.json`). Nello stesso file: `certificato_al_ribilanciamento`,
+`soglia_scostamento`, `benchmark`, `storico_proxy`.
 
 ## Versioni
 
 Il numero di versione è nel menu e in fondo alla pagina; le novità di ogni
 versione sono nel menu → «Novità della versione».
 
+- **1.2** — ribilanciamento di ottobre (7/10/2026) con prezzi di carico
+  automatici dalle chiusure; importazione dell'Excel mensile; riquadro del
+  ribilanciamento programmato.
 - **1.1** — menu e sezioni, benchmark, premio/sconto, rischio e correlazioni,
   rendimenti mensili, scostamenti con avviso email, simulatore, storico dei
   ribilanciamenti, report PDF, invito a installare all'apertura.

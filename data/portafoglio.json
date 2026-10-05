@@ -168,10 +168,152 @@
      "prezzo_carico": 5.235
     }
    ]
+  },
+  {
+   "data": "2026-10-07",
+   "nota": "Da 2026-10-07_Composizione_10.26.xlsx; prezzi di carico = chiusure del 2026-10-07",
+   "file": "2026-10-07_Composizione_10.26.xlsx",
+   "posizioni": [
+    {
+     "nome": "iShares S&P 500 EUR Hedged",
+     "isin": "IE00B3ZW0K18",
+     "bloomberg": "IUSE LN",
+     "classe": "Azioni",
+     "area": "USA",
+     "peso": 15.0,
+     "prezzo_carico": null
+    },
+    {
+     "nome": "iShares EUR Floating Rate Bond Advanced",
+     "isin": "IE000NVM56L3",
+     "bloomberg": "EFRB GY",
+     "classe": "Obbligazioni",
+     "area": "Europa",
+     "peso": 9.0,
+     "prezzo_carico": null
+    },
+    {
+     "nome": "PIMCO GIS Capital Securities EUR Hdg Acc",
+     "isin": "IE00BFRSV973",
+     "bloomberg": "PIMEEHA ID",
+     "classe": "Obbligazioni",
+     "area": "Globale",
+     "peso": 9.0,
+     "prezzo_carico": null
+    },
+    {
+     "nome": "T. Rowe Price Global Value Equity A EUR",
+     "isin": "LU1493953001",
+     "bloomberg": "TRPGVAE LX",
+     "classe": "Azioni",
+     "area": "Globale",
+     "peso": 9.0,
+     "prezzo_carico": null
+    },
+    {
+     "nome": "iShares Core EURO STOXX 50",
+     "isin": "IE00B53L3W79",
+     "bloomberg": "CSSX5E IM",
+     "classe": "Azioni",
+     "area": "Europa",
+     "peso": 8.0,
+     "prezzo_carico": null
+    },
+    {
+     "nome": "Muzinich Enhancedyield Short-Term H EUR R Acc",
+     "isin": "IE00B65YMK29",
+     "bloomberg": "MUZHEAR ID",
+     "classe": "Obbligazioni",
+     "area": "Globale",
+     "peso": 8.0,
+     "prezzo_carico": null
+    },
+    {
+     "nome": "WisdomTree Physical Gold",
+     "isin": "JE00B1VS3770",
+     "bloomberg": "PHAU IM",
+     "classe": "Oro",
+     "area": "Globale",
+     "storico_proxy": {
+      "yahoo": "4GLD.DE",
+      "nome": "Xetra-Gold"
+     },
+     "peso": 7.5,
+     "prezzo_carico": null
+    },
+    {
+     "nome": "Schroder ISF EURO Corporate Bond A Acc",
+     "isin": "LU0113257694",
+     "bloomberg": "SCHEHIA LX",
+     "classe": "Obbligazioni",
+     "area": "Europa",
+     "storico_proxy": {
+      "yahoo": "IEAC.AS",
+      "nome": "iShares Core EUR Corp Bond"
+     },
+     "peso": 7.5,
+     "prezzo_carico": null
+    },
+    {
+     "nome": "iShares Nasdaq 100 (Acc)",
+     "isin": "IE00B53SZB19",
+     "bloomberg": "CSNDX IM",
+     "classe": "Azioni",
+     "area": "USA",
+     "peso": 7.0,
+     "prezzo_carico": null
+    },
+    {
+     "nome": "Amundi Euro Government Bond 3-5Y",
+     "isin": "LU1650488494",
+     "bloomberg": "EM35 IM",
+     "classe": "Obbligazioni",
+     "area": "Europa",
+     "peso": 5.0,
+     "prezzo_carico": null
+    },
+    {
+     "nome": "Amundi MSCI Emerging Markets",
+     "isin": "LU1437017350",
+     "bloomberg": "AEME IM",
+     "classe": "Azioni",
+     "area": "Emergenti",
+     "peso": 5.0,
+     "prezzo_carico": null
+    },
+    {
+     "nome": "iShares S&P 500 Health Care EUR Hdg",
+     "isin": "IE00BMBKBZ46",
+     "bloomberg": "IUHE NA",
+     "classe": "Azioni",
+     "area": "USA",
+     "peso": 5.0,
+     "prezzo_carico": null
+    },
+    {
+     "nome": "Liquidità EUR",
+     "isin": "",
+     "bloomberg": "CASH_EUR",
+     "classe": "Liquidità",
+     "area": "Europa",
+     "peso": 3.0,
+     "prezzo_carico": 1,
+     "liquidita": true
+    },
+    {
+     "nome": "iShares MSCI China EUR Hdg Acc",
+     "isin": "IE00099GAJC6",
+     "bloomberg": "CNYE IM",
+     "classe": "Azioni",
+     "area": "Emergenti",
+     "peso": 2.0,
+     "prezzo_carico": null
+    }
+   ]
   }
  ],
  "_istruzioni": {
-  "ribilanciamenti": "Per un nuovo ribilanciamento aggiungi in fondo un elemento con data, pesi (%) e prezzi di esecuzione. La curva resta continua: il paniere riparte dal valore raggiunto quel giorno.",
+  "ribilanciamenti": "Un elemento per ogni ribilanciamento (data di esecuzione, pesi in %). Se prezzo_carico è null lo script usa la chiusura di quel giorno appena è disponibile e la scrive qui. Per aggiungerne uno: scripts/importa_ribilanciamento.py FILE.xlsx --data AAAA-MM-GG, oppure carica l'Excel nella cartella ribilanciamenti/ con la data nel nome del file.",
   "certificato_al_ribilanciamento": "Prezzo del certificato il giorno dell'ultimo ribilanciamento: serve per calcolare premio/sconto rispetto al paniere. Se è null si usa la prima quotazione registrata dall'app.",
   "soglia_scostamento": "Punti percentuali di scostamento dal peso obiettivo oltre i quali arriva l'avviso (issue GitHub, che ti arriva anche per email).",
   "benchmark": "Indice di confronto, ribasato a 1000 al primo ribilanciamento. 'yahoo' è facoltativo: se manca si cerca dall'ISIN.",
