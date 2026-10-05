@@ -27,16 +27,13 @@ jobs:
             echo "$1 | $(cat /tmp/esito) | $blocco | prezzi trovati: $prezzo | $2" | tee -a debug/fonti/elenco.txt
           }
           rm -f debug/fonti/elenco.txt
-          get leonteq_it.html        "https://certificati.leonteq.com/isin/$ISIN?language_id=1"
-          get leonteq_ch.html        "https://structuredproducts-ch.leonteq.com/isin/$ISIN"
-          get certificatiederivati.html "https://www.certificatiederivati.it/db_bs_scheda_certificato.asp?isin=$ISIN"
-          get teleborsa.html         "https://www.teleborsa.it/Quotazioni/Certificati/$ISIN"
-          get borsaitaliana.html     "https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/$ISIN-SEDX.html?lang=it"
-          get borse_it.html          "https://www.borse.it/quotazioni/certificati/$ISIN"
-          get marketscreener.html    "https://it.marketscreener.com/ricerca/?q=$ISIN"
-          get onvista.html           "https://www.onvista.de/suche/?searchValue=$ISIN"
-          get finanzen.html          "https://www.finanzen.net/suchergebnis.asp?_search=$ISIN"
-          get justetf_ricerca.html   "https://www.google.com/search?q=$ISIN"
+          BI="https://www.borsaitaliana.it/borsa/cw-e-certificates"
+          get bi_dati_mercato.html "$BI/dati-mercato.html?isin=$ISIN&mic=SEDX&lang=it"
+          get bi_contratti.html    "$BI/contratti.html?isin=$ISIN&mic=SEDX&lang=it"
+          get bi_anagrafici.html   "$BI/dati-anagrafici.html?isin=$ISIN&mic=SEDX&lang=it"
+          get bi_listino.html      "$BI/listino-ufficiale.html?isin=$ISIN&mic=SEDX&lang=it"
+          get kid.html             "https://priipkidportal.com/isin/$ISIN/kid/it"
+          grep -o -E 'href="[^"]*\.pdf[^"]*"' debug/fonti/kid.html | head -5 > debug/fonti/kid_link.txt || true
           # link e indirizzi dati dentro la pagina Leonteq
           grep -o -E '(src|href|data-[a-z-]+)="[^"]*(api|json|chart|price|quote)[^"]*"' debug/fonti/leonteq_it.html | head -40 > debug/fonti/leonteq_indirizzi.txt || true
           grep -o -E 'https?://[^"'"'"' ]*(api|json|chart|price|quote)[^"'"'"' ]*' debug/fonti/leonteq_it.html | sort -u | head -40 >> debug/fonti/leonteq_indirizzi.txt || true
