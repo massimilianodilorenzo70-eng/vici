@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.0";
+const VERSIONE = "3.0.1";
 const NOVITA = [
+  { v: "3.0.1", voci: ["Finestra delle novità: ✕ in alto per chiuderla senza scorrere fino in fondo."] },
   { v: "3.0", voci: [
     "Certificato: book del market maker da Borsa Italiana (denaro, lettera, spread), data ufficiale della quotazione e performance a 1 settimana, 1 mese, 6 mesi e 1 anno.",
     "Il mio investimento: quanto incasseresti vendendo ora al prezzo denaro.",
@@ -1196,6 +1197,8 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape") { chiudiMe
 $("menu-aggiorna").addEventListener("click", () => { chiudiMenu(); carica(); });
 $("menu-novita").addEventListener("click", mostraNovita);
 $("novita-chiudi").addEventListener("click", () => { $("novita").hidden = true; });
+$("novita-x").addEventListener("click", () => { $("novita").hidden = true; });
+$("novita").addEventListener("click", (e) => { if (e.target === $("novita")) $("novita").hidden = true; });
 $("aggiorna").addEventListener("click", carica);
 $("ordina").addEventListener("change", () => dati && mostraPosizioni());
 $("modifica-mio").addEventListener("click", () => apriFormMio(true));
