@@ -524,3 +524,31 @@ body.con-invito main { padding-bottom: 130px; }
 @media (max-width: 520px) {
   .attr-riga { grid-template-columns: minmax(0, 50%) 1fr 58px; gap: 6px; font-size: 12.5px; }
 }
+
+/* ---------- dettaglio posizione ---------- */
+#posizioni tr, #rischio-posizioni tr { cursor: pointer; }
+#posizioni tr:hover td, #rischio-posizioni tr:hover td { background: var(--sfondo); }
+.dettaglio-corpo { max-width: 640px; max-height: 90vh; padding: 16px 16px 18px; }
+.det-testa { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.det-testa h2 { margin: 0; font-size: 17px; }
+.bottone-chiudi { background: var(--sfondo); color: var(--testo); border: 0; border-radius: 50%; width: 34px; height: 34px; flex: none; font-size: 15px; cursor: pointer; }
+.det-prezzo { margin: 10px 0 6px; font-size: 14px; }
+.det-prezzo b { font-size: 26px; margin-right: 8px; }
+.det-periodi { display: flex; gap: 6px; margin: 4px 0; }
+.det-periodi button { background: var(--sfondo); color: var(--testo-2); border: 1px solid var(--bordo); border-radius: 16px; padding: 4px 12px; font: inherit; font-size: 12.5px; cursor: pointer; }
+.det-periodi button.attiva { background: var(--blu); color: #fff; border-color: var(--blu); }
+.det-grafico { height: 180px; margin: 6px 0 10px; }
+.det-grafico .carico { stroke: var(--testo-2); stroke-dasharray: 4 4; stroke-width: 1; }
+.det-sens { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 4px 0 10px; }
+@media (max-width: 480px) { .det-sens { grid-template-columns: 1fr 1fr; } }
+.det-sens div { background: var(--sfondo); border-radius: 8px; padding: 7px 9px; font-size: 12px; color: var(--testo-2); }
+.det-sens b { display: block; font-size: 15px; color: var(--testo); }
+.det-link { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.det-link a { font-size: 13px; color: var(--azzurro); text-decoration: none; border: 1px solid var(--bordo); border-radius: 8px; padding: 6px 10px; }
+
+/* ---------- certificato dall'emissione ---------- */
+.l-scambi { background: var(--azzurro); }
+.l-rif { background: var(--linea-cert); margin-left: 10px; }
+.l-rib { background: repeating-linear-gradient(90deg, var(--giallo) 0 4px, transparent 4px 7px); margin-left: 10px; }
+.grafico .rib { stroke: var(--giallo); stroke-dasharray: 3 4; stroke-width: 1.2; }
+.grafico .rib-testo { font-size: 10px; fill: var(--testo-2); }
