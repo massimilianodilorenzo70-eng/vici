@@ -124,7 +124,7 @@
             <tfoot id="totale"></tfoot>
           </table>
         </div>
-        <p class="nota">Var. % = prezzo attuale rispetto al prezzo di carico. Contributo = peso × Var. %: quanto la posizione aggiunge o toglie al totale. La somma dei contributi è la performance del portafoglio.</p>
+        <p class="nota">Tocca una posizione per il dettaglio. Var. % = prezzo attuale rispetto al prezzo di carico. Contributo = peso × Var. %: quanto la posizione aggiunge o toglie al totale. La somma dei contributi è la performance del portafoglio.</p>
       </div>
 
       <div class="riquadro">
@@ -173,6 +173,18 @@
           <div id="a-premio" class="cifra piccola">—</div>
           <div id="a-premio-dett" class="nota"></div>
         </article>
+      </div>
+
+      <div class="riquadro">
+        <h2>Certificato dall'emissione</h2>
+        <div id="cert-storia-metriche" class="metriche"></div>
+        <div id="cert-storia-grafico" class="grafico" role="img" aria-label="Prezzi del certificato dall'emissione"></div>
+        <div class="legenda">
+          <span class="l-scambi"></span>Prezzi degli scambi
+          <span class="l-rif"></span>Prezzo di riferimento
+          <span class="l-rib"></span>Ribilanciamenti
+        </div>
+        <p class="nota">Il certificato scambia poco: i punti sono i giorni in cui il prezzo di scambio è cambiato (Borsa Italiana). Il prezzo di riferimento è il valore ufficiale di ogni giorno, registrato dall'app dal 2 ottobre 2026.</p>
       </div>
 
       <div class="riquadro">
@@ -318,6 +330,28 @@
       <span id="aggiornato"></span> · Versione <span class="versione"></span>
     </p>
   </main>
+
+  <div id="dettaglio" class="finestra" role="dialog" aria-modal="true" aria-labelledby="det-nome" hidden>
+    <div class="finestra-corpo dettaglio-corpo">
+      <div class="det-testa">
+        <div>
+          <h2 id="det-nome"></h2>
+          <div id="det-codici" class="nota"></div>
+        </div>
+        <button id="det-chiudi" class="bottone-chiudi" aria-label="Chiudi">✕</button>
+      </div>
+      <div id="det-prezzo" class="det-prezzo"></div>
+      <div class="det-periodi">
+        <button type="button" data-det-periodo="carico" class="attiva">Dal carico</button>
+        <button type="button" data-det-periodo="anno">1 anno</button>
+      </div>
+      <div id="det-grafico" class="grafico det-grafico"></div>
+      <div id="det-metriche" class="metriche"></div>
+      <div id="det-sensibilita"></div>
+      <div id="det-fonte" class="nota"></div>
+      <div id="det-link" class="det-link"></div>
+    </div>
+  </div>
 
   <div id="novita" class="finestra" role="dialog" aria-label="Novità" hidden>
     <div class="finestra-corpo">

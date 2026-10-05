@@ -3,8 +3,13 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "1.8";
+const VERSIONE = "1.9";
 const NOVITA = [
+  { v: "1.9", voci: [
+    "Dettaglio posizione: tocca una posizione per grafico dal carico o a 1 anno, minimo e massimo, contributo, rischio, sensibilità dello stress test, nuovo peso del ribilanciamento e link a justETF, Morningstar e Yahoo Finance.",
+    "Certificato dall'emissione: prezzi degli scambi da luglio 2025 (Borsa Italiana), prezzo di riferimento e date dei ribilanciamenti; rendimento dall'emissione e annuo.",
+    "Premio/sconto calcolato solo sui prezzi di riferimento (non sugli scambi, che possono essere fermi da giorni).",
+  ] },
   { v: "1.8", voci: ["Tolta dal menu la voce «Aggiornamenti dei prezzi (GitHub)»; corretti scenario libero e attribuzione sul telefono."] },
   { v: "1.7", voci: [
     "Attribuzione della performance per classe, area e posizione: dal ribilanciamento, dall'inizio e mese per mese.",
@@ -167,7 +172,7 @@ function mostraBanner() {
 function mostraPosizioni() {
   const chiave = $("ordina").value;
   const righe = [...dati.posizioni].sort((a, b) => (b[chiave] ?? -1e9) - (a[chiave] ?? -1e9));
-  $("posizioni").innerHTML = righe.map((r) => `<tr>
+  $("posizioni").innerHTML = righe.map((r) => `<tr data-k="${esc(r.chiave || r.nome)}">
       <td>
         <div class="pos-nome">${esc(r.nome)}${r.mancante ? ' <span class="etichetta">senza prezzo</span>' : ""}</div>
         <div class="pos-codice">${esc(r.bloomberg || "")} · ${etichettaGiorno(r)} ${colorato(r.var_giorno)}</div>
@@ -264,10 +269,76 @@ function mostraAndamento() {
     $("a-premio-dett").textContent = "Serve la quotazione del certificato.";
   }
   mostraGrafico();
+  mostraStoriaCertificato();
   mostraMensili();
   mostraAttribuzione();
   mostraStress();
   mostraRischio();
+}
+
+/* ---------- certificato dall'emissione ---------- */
+function mostraStoriaCertificato() {
+  const box = $("cert-storia-grafico");
+  const pt = (arr) => (arr || []).map((p) => ({ t: new Date(p.data).getTime(), v: p.prezzo, d: p.data }));
+  const scambi = pt(storico.certificato_scambi);
+  const rif = pt(storico.certificato);
+  const emis = dati.emissione || { prezzo: 1000 };
+  const c = dati.certificato;
+  const ultimoRif = rif.length ? rif[rif.length - 1] : null;
+  const ultimoSc = scambi.length ? scambi[scambi.length - 1] : null;
+  const attuale = (c && c.prezzo) || (ultimoRif && ultimoRif.v) || (ultimoSc && ultimoSc.v);
+  const inizioT = scambi.length ? scambi[0].t : new Date(emis.data || dati.data_inizio).getTime();
+  const anni = (Date.now() - inizioT) / (365.25 * 86400000);
+  const rendTot = attuale ? (attuale / (emis.prezzo || 1000) - 1) * 100 : null;
+  const rendAnn = attuale && anni > 0.5 ? (Math.pow(attuale / (emis.prezzo || 1000), 1 / anni) - 1) * 100 : null;
+  const vals = scambi.map((p) => p.v);
+  const met = [
+    ["Dall'emissione", perc(rendTot), `${fmt(emis.prezzo || 1000, 0)} → ${fmt(attuale)}`],
+    ["Rendimento annuo", rendAnn == null ? "—" : perc(rendAnn), scambi.length ? `in ${fmt(anni, 1)} anni` : ""],
+    ["Ultimo scambio", ultimoSc ? fmt(ultimoSc.v) : "—", ultimoSc ? dataIt(ultimoSc.d) : ""],
+    ["Massimo – minimo", vals.length ? `${fmt(Math.max(...vals), 0)} – ${fmt(Math.min(...vals), 0)}` : "—", "prezzi degli scambi"],
+  ];
+  $("cert-storia-metriche").innerHTML = met.map(([a, v, x]) => `<div><span>${a}</span><b>${v}</b><small>${x}</small></div>`).join("");
+  if (box.offsetParent === null) return;
+  if (scambi.length + rif.length < 2) { box.innerHTML = `<div class="vuoto">Storico non ancora disponibile.</div>`; return; }
+
+  const W = box.clientWidth || 600, H = box.clientHeight || 220, m = { l: 44, r: 8, t: 14, b: 22 };
+  const tutti = scambi.concat(rif);
+  const t0 = Math.min(...tutti.map((p) => p.t)), t1 = Math.max(Date.now(), ...tutti.map((p) => p.t));
+  const base = emis.prezzo || 1000;
+  let v0 = Math.min(base, ...tutti.map((p) => p.v)), v1 = Math.max(base, ...tutti.map((p) => p.v));
+  const pad = (v1 - v0) * 0.1 || 5; v0 -= pad; v1 += pad;
+  const x = (t) => m.l + (t - t0) / (t1 - t0) * (W - m.l - m.r);
+  const y = (v) => m.t + (1 - (v - v0) / (v1 - v0)) * (H - m.t - m.b);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  for (let i = 0; i <= 3; i++) {
+    const v = v0 + (v1 - v0) * i / 3;
+    svg += `<line class="griglia" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="asse" x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${fmt(v, 0)}</text>`;
+  }
+  svg += `<line class="base" x1="${m.l}" x2="${W - m.r}" y1="${y(base)}" y2="${y(base)}"/>`;
+  for (let i = 0; i <= 4; i++) {
+    const t = t0 + (t1 - t0) * i / 4;
+    svg += `<text class="asse" x="${x(t)}" y="${H - 4}" text-anchor="${i === 0 ? "start" : i === 4 ? "end" : "middle"}">${new Date(t).toLocaleDateString("it-IT", { month: "short", year: "2-digit" })}</text>`;
+  }
+  // date dei ribilanciamenti registrati (anche quello programmato)
+  const ribs = (dati.periodi || []).map((p) => p.data).concat((dati.programmati || []).map((p) => p.data));
+  ribs.forEach((d) => {
+    const t = new Date(d).getTime();
+    if (t < t0 || t > t1) return;
+    svg += `<line class="rib" x1="${x(t)}" x2="${x(t)}" y1="${m.t}" y2="${H - m.b}"/>`;
+  });
+  // scambi: gradini (il prezzo resta fermo fino allo scambio successivo)
+  if (scambi.length) {
+    let d = `M${x(scambi[0].t).toFixed(1)},${y(scambi[0].v).toFixed(1)}`;
+    for (let i = 1; i < scambi.length; i++) d += `H${x(scambi[i].t).toFixed(1)}V${y(scambi[i].v).toFixed(1)}`;
+    svg += `<path d="${d}" fill="none" stroke="var(--azzurro)" stroke-width="1.6"/>`;
+    scambi.forEach((p) => { svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="1.8" fill="var(--azzurro)"/>`; });
+  }
+  if (rif.length) {
+    if (rif.length > 1) svg += `<path d="${rif.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("")}" fill="none" stroke="var(--linea-cert)" stroke-width="2"/>`;
+    rif.forEach((p) => { svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="3" fill="var(--linea-cert)"/>`; });
+  }
+  box.innerHTML = svg + "</svg>";
 }
 
 /* ---------- attribuzione della performance ---------- */
@@ -399,7 +470,7 @@ function mostraGrafico() {
   const bench = pt(storico.benchmark, "valore");
   // La quotazione del certificato ha una base diversa: la riporto sulla scala
   // del paniere dal primo giorno in comune; nel suggerimento resta il prezzo vero.
-  const certVero = pt(storico.certificato, "prezzo");
+  const certVero = pt(storico.certificato, "prezzo").filter((p) => !nav.length || p.t >= nav[0].t);
   let fattore = 1;
   if (certVero.length && nav.length) {
     const primo = certVero[0];
@@ -510,7 +581,7 @@ function mostraRischio() {
 
   const pesi = Object.fromEntries(dati.posizioni.map((p) => [p.nome, p.peso_attuale]));
   $("rischio-posizioni").innerHTML = [...r.posizioni].sort((a, b) => (b.contributo_rischio ?? 0) - (a.contributo_rischio ?? 0)).map((p) =>
-    `<tr><td>${esc(breve(p.nome))}</td><td data-l="Peso">${fmt(pesi[p.nome])}%</td><td data-l="Volatilità">${fmt(p.vol)}%</td>
+    `<tr data-k="${esc((dati.posizioni.find((x) => x.nome === p.nome) || {}).chiave || "")}"><td>${esc(breve(p.nome))}</td><td data-l="Peso">${fmt(pesi[p.nome])}%</td><td data-l="Volatilità">${fmt(p.vol)}%</td>
       <td data-l="Rend. 1 anno">${colorato(p.rend_1a)}</td>
       <td class="var forte" title="Quota di rischio">${fmt(p.contributo_rischio, 1)}%<small class="sotto-var">del rischio</small></td></tr>`).join("");
 
@@ -758,6 +829,130 @@ function mostraReport() {
     <div class="r-piede">Il paniere stimato è un calcolo indicativo basato su pesi e prezzi di carico dei ribilanciamenti e sui prezzi di mercato più recenti; non considera commissioni. Il valore che fa fede è la quotazione ufficiale del certificato. Prezzi: Yahoo Finance e Borsa Italiana. Documento a solo scopo informativo.</div>`;
 }
 
+/* ================= dettaglio posizione ================= */
+let storicoPosizioni = null;
+let dettaglioAperto = null;
+let dettaglioPeriodo = "carico";
+
+async function apriDettaglio(chiave) {
+  const r = dati.posizioni.find((p) => (p.chiave || p.nome) === chiave);
+  if (!r || r.liquidita) return;
+  dettaglioAperto = chiave;
+  dettaglioPeriodo = "carico";
+  document.querySelectorAll("[data-det-periodo]").forEach((b) => b.classList.toggle("attiva", b.dataset.detPeriodo === "carico"));
+  $("dettaglio").hidden = false;
+  document.body.style.overflow = "hidden";
+  mostraDettaglio();
+  if (!storicoPosizioni) {
+    try {
+      const risp = await fetch(`data/posizioni_storico.json?t=${Date.now()}`);
+      storicoPosizioni = risp.ok ? await risp.json() : {};
+    } catch { storicoPosizioni = {}; }
+    if (dettaglioAperto === chiave) mostraDettaglio();
+  }
+}
+
+function chiudiDettaglio() {
+  $("dettaglio").hidden = true;
+  dettaglioAperto = null;
+  document.body.style.overflow = "";
+}
+
+function mostraDettaglio() {
+  const r = dati.posizioni.find((p) => (p.chiave || p.nome) === dettaglioAperto);
+  if (!r) return chiudiDettaglio();
+  const st = dati.stress;
+  const beta = st && st.beta[r.chiave];
+  const rischio = dati.rischio && dati.rischio.posizioni.find((p) => p.nome === r.nome);
+  const prog = (dati.programmati || [])[0];
+  const nuovo = prog && prog.posizioni.find((p) => (p.chiave || p.isin) === r.chiave);
+  const ch = ((storicoPosizioni || {})[r.chiave] || {}).chiusure || [];
+
+  $("det-nome").textContent = r.nome;
+  $("det-codici").textContent = [r.bloomberg, r.isin, r.classe, r.area].filter(Boolean).join(" · ");
+  $("det-prezzo").innerHTML = `<b>${fmt(r.prezzo, decPrezzo(r.prezzo))}</b>${colorato(r.var_carico)} dal carico ` +
+    `<span class="nota">· ${etichettaGiorno(r)} ${colorato(r.var_giorno)}</span>`;
+
+  // serie per il grafico
+  const dal = dettaglioPeriodo === "carico" ? dati.data_esecuzione : null;
+  let punti = ch.filter(([d]) => !dal || d >= dal).map(([d, c]) => ({ t: new Date(d).getTime(), v: c }));
+  if (dettaglioPeriodo === "carico" && (!punti.length || punti[0].t > new Date(dati.data_esecuzione).getTime())) {
+    punti.unshift({ t: new Date(dati.data_esecuzione).getTime(), v: r.prezzo_carico });
+  }
+  const oggiT = new Date(new Date().toISOString().slice(0, 10)).getTime();
+  if (punti.length && punti[punti.length - 1].t < oggiT && r.data_prezzo && r.data_prezzo >= new Date().toISOString().slice(0, 10)) {
+    punti.push({ t: oggiT, v: r.prezzo });
+  }
+  graficoSemplice($("det-grafico"), punti, dettaglioPeriodo === "carico" ? r.prezzo_carico : null,
+    storicoPosizioni ? "Storico non disponibile." : "Caricamento…");
+
+  const valori = punti.map((p) => p.v);
+  const min = valori.length ? Math.min(...valori) : null, max = valori.length ? Math.max(...valori) : null;
+  const met = [
+    ["Peso attuale", fmt(r.peso_attuale) + "%", `obiettivo ${fmt(r.peso_obiettivo)}% (${r.scostamento > 0 ? "+" : ""}${fmt(r.scostamento)})`],
+    ["Carico", fmt(r.prezzo_carico, decPrezzo(r.prezzo_carico)), `dal ${dataIt(dati.data_esecuzione)}`],
+    ["Contributo", perc(r.contributo), "alla performance del periodo"],
+    [dettaglioPeriodo === "carico" ? "Min – max dal carico" : "Min – max 1 anno",
+      min == null ? "—" : `${fmt(min, decPrezzo(min))} – ${fmt(max, decPrezzo(max))}`,
+      min == null ? "" : `${perc((min / r.prezzo - 1) * 100, 1)} / ${perc((max / r.prezzo - 1) * 100, 1)} da oggi`],
+  ];
+  if (rischio) {
+    met.push(["Volatilità 1 anno", fmt(rischio.vol) + "%", ""]);
+    met.push(["Rendimento 1 anno", perc(rischio.rend_1a), ""]);
+    met.push(["Quota di rischio", fmt(rischio.contributo_rischio, 1) + "%", `del rischio del portafoglio (peso ${fmt(r.peso_attuale, 1)}%)`]);
+  }
+  if (prog) met.push([`Dal ${dataIt(prog.data)}`, nuovo ? fmt(nuovo.peso) + "%" : "esce", nuovo ? `oggi ${fmt(r.peso_attuale)}%` : "dal portafoglio"]);
+  $("det-metriche").innerHTML = met.map(([a, v, x]) => `<div><span>${a}</span><b>${v}</b><small>${x}</small></div>`).join("");
+
+  $("det-sensibilita").innerHTML = beta ? `<h3>Sensibilità (stress test)</h3><div class="det-sens">
+      <div>Azioni −10%<b class="${segno(-10 * beta.azioni)}">${perc(-10 * beta.azioni, 1)}</b></div>
+      <div>Tassi +1 punto<b class="${segno(-st.duration_tassi * beta.obbligazioni)}">${perc(-st.duration_tassi * beta.obbligazioni, 1)}</b></div>
+      <div>Oro −10%<b class="${segno(-10 * beta.oro)}">${perc(-10 * beta.oro, 1)}</b></div>
+      <div>Dollaro −10%<b class="${segno(-10 * beta.dollaro)}">${perc(-10 * beta.dollaro, 1)}</b></div>
+    </div><p class="nota">Variazione stimata della posizione in ciascuno scenario; affidabilità della stima (R²) ${fmt((beta.r2 || 0) * 100, 0)}%.</p>` : "";
+
+  const sp = (storicoPosizioni || {})[r.chiave] || {};
+  $("det-fonte").textContent = `Prezzo: ${r.fonte || "—"}${r.simbolo ? ` (${r.simbolo})` : ""}, ${r.data_prezzo ? dataIt(r.data_prezzo) : ""}` +
+    (sp.storico_da || r.storico_da ? `. Storico per il rischio da ${sp.storico_da || r.storico_da}.` : ".");
+  const link = [];
+  if (r.isin) {
+    if (r.classe !== "Obbligazioni" || /ETF|iShares|Amundi/i.test(r.nome)) link.push(["justETF", `https://www.justetf.com/it/etf-profile.html?isin=${r.isin}`]);
+    link.push(["Morningstar", `https://www.morningstar.it/it/search/?query=${r.isin}`]);
+  }
+  if (r.simbolo && !r.simbolo.startsWith("FT:")) link.push(["Yahoo Finance", `https://finance.yahoo.com/quote/${encodeURIComponent(r.simbolo)}`]);
+  if (r.bloomberg && /\bIM$/.test(r.bloomberg)) link.push(["Borsa Italiana", `https://www.borsaitaliana.it/borsa/search/generic.html?q=${r.isin}`]);
+  $("det-link").innerHTML = link.map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener">${n} ↗</a>`).join("");
+}
+
+// Grafico a una linea, con eventuale linea tratteggiata del prezzo di carico
+function graficoSemplice(box, punti, riferimento, messaggio) {
+  if (punti.length < 2) { box.innerHTML = `<div class="vuoto">${esc(messaggio)}</div>`; return; }
+  const W = box.clientWidth || 560, H = box.clientHeight || 180, m = { l: 48, r: 8, t: 8, b: 20 };
+  const t0 = punti[0].t, t1 = Math.max(punti[punti.length - 1].t, t0 + 86400000);
+  const vals = punti.map((p) => p.v).concat(riferimento != null ? [riferimento] : []);
+  let v0 = Math.min(...vals), v1 = Math.max(...vals);
+  const pad = (v1 - v0) * 0.1 || v0 * 0.01 || 1; v0 -= pad; v1 += pad;
+  const x = (t) => m.l + (t - t0) / (t1 - t0) * (W - m.l - m.r);
+  const y = (v) => m.t + (1 - (v - v0) / (v1 - v0)) * (H - m.t - m.b);
+  const dec = v1 < 10 ? 3 : v1 < 100 ? 1 : 0;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  for (let i = 0; i <= 3; i++) {
+    const v = v0 + (v1 - v0) * i / 3;
+    svg += `<line class="griglia" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="asse" x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${fmt(v, dec)}</text>`;
+  }
+  const corto = t1 - t0 < 120 * 86400000;
+  for (let i = 0; i <= 3; i++) {
+    const t = t0 + (t1 - t0) * i / 3;
+    const lab = new Date(t).toLocaleDateString("it-IT", corto ? { day: "numeric", month: "short" } : { month: "short", year: "2-digit" });
+    svg += `<text class="asse" x="${x(t)}" y="${H - 4}" text-anchor="${i === 0 ? "start" : i === 3 ? "end" : "middle"}">${lab}</text>`;
+  }
+  if (riferimento != null) svg += `<line class="carico" x1="${m.l}" x2="${W - m.r}" y1="${y(riferimento)}" y2="${y(riferimento)}"/>`;
+  const ultimo = punti[punti.length - 1].v;
+  const colore = riferimento == null ? "var(--linea-nav)" : ultimo >= riferimento ? "var(--su)" : "var(--giu)";
+  svg += `<path d="${punti.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("")}" fill="none" stroke="${colore}" stroke-width="2" stroke-linejoin="round"/>`;
+  box.innerHTML = svg + "</svg>";
+}
+
 /* ================= schede e menu ================= */
 function mostraScheda(nome) {
   if (!document.querySelector(`[data-pannello="${nome}"]`)) nome = "portafoglio";
@@ -766,7 +961,7 @@ function mostraScheda(nome) {
   scrivi(K.scheda, nome);
   chiudiMenu();
   window.scrollTo({ top: 0 });
-  if (nome === "andamento" && dati) mostraGrafico();
+  if (nome === "andamento" && dati) { mostraGrafico(); mostraStoriaCertificato(); }
 }
 
 function apriMenu() {
@@ -849,7 +1044,7 @@ document.querySelectorAll(".versione").forEach((el) => { el.textContent = VERSIO
 document.querySelectorAll("[data-scheda]").forEach((b) => b.addEventListener("click", () => mostraScheda(b.dataset.scheda)));
 $("apri-menu").addEventListener("click", apriMenu);
 $("velo").addEventListener("click", chiudiMenu);
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") { chiudiMenu(); $("novita").hidden = true; } });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") { chiudiMenu(); chiudiDettaglio(); $("novita").hidden = true; } });
 $("menu-aggiorna").addEventListener("click", () => { chiudiMenu(); carica(); });
 $("menu-novita").addEventListener("click", mostraNovita);
 $("novita-chiudi").addEventListener("click", () => { $("novita").hidden = true; });
@@ -871,8 +1066,19 @@ $("commento").value = leggi(K.commento, "") || "";
 $("commento").addEventListener("input", () => { scrivi(K.commento, $("commento").value); if (dati) mostraReport(); });
 $("stampa").addEventListener("click", () => window.print());
 $("attr-periodo").addEventListener("change", () => dati && mostraAttribuzione());
+["posizioni", "rischio-posizioni"].forEach((id) => $(id).addEventListener("click", (e) => {
+  const tr = e.target.closest("tr[data-k]");
+  if (tr && tr.dataset.k && dati) apriDettaglio(tr.dataset.k);
+}));
+$("det-chiudi").addEventListener("click", chiudiDettaglio);
+$("dettaglio").addEventListener("click", (e) => { if (e.target === $("dettaglio")) chiudiDettaglio(); });
+document.querySelectorAll("[data-det-periodo]").forEach((b) => b.addEventListener("click", () => {
+  dettaglioPeriodo = b.dataset.detPeriodo;
+  document.querySelectorAll("[data-det-periodo]").forEach((x) => x.classList.toggle("attiva", x === b));
+  mostraDettaglio();
+}));
 ["sl-azioni", "sl-tassi", "sl-oro", "sl-dollaro"].forEach((id) => $(id).addEventListener("input", calcolaStressLibero));
-window.addEventListener("resize", () => dati && mostraGrafico());
+window.addEventListener("resize", () => { if (dati) { mostraGrafico(); mostraStoriaCertificato(); } });
 document.addEventListener("visibilitychange", () => { if (!document.hidden) carica(); });
 setInterval(() => { if (!document.hidden) carica(); }, RICARICA_MS);
 

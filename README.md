@@ -11,13 +11,17 @@ L'app ha un menu (☰) e quattro sezioni.
 **Portafoglio**
 - Quotazione del certificato (Borsa Italiana) e variazione dall'emissione.
 - Paniere stimato dall'ultimo ribilanciamento.
-- Tabella delle posizioni: peso, prezzo di carico, prezzo attuale, variazione dal
+- Tabella delle posizioni (tocca una riga per il dettaglio con grafico, rischio,
+  sensibilità e link): peso, prezzo di carico, prezzo attuale, variazione dal
   carico e contributo (peso × variazione), con il totale.
 - Allocazione per classe e per area; "Il mio investimento" (salvato sul dispositivo).
 
 **Andamento**
 - Paniere contro un benchmark bilanciato 60/40 (MSCI World + Euro Aggregate Bond).
-- Premio/sconto del certificato rispetto al paniere.
+- Premio/sconto del certificato rispetto al paniere (sui prezzi di riferimento).
+- Certificato dall'emissione: prezzi degli scambi da Borsa Italiana (solo i giorni
+  in cui il prezzo cambia: il certificato scambia poco), prezzo di riferimento
+  registrato ogni giorno, date dei ribilanciamenti.
 - Grafico, rendimenti mensili.
 - Attribuzione della performance per classe, area e posizione (dal ribilanciamento,
   dall'inizio, per mese).
@@ -85,6 +89,7 @@ versione sono nel menu → «Novità della versione». A ogni apertura l'app leg
 `versione.json` dal sito e, se è cambiata, si aggiorna e si ricarica da sola.
 Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`.
 
+- **1.9** — dettaglio posizione; storico del certificato dall'emissione.
 - **1.8** — menu più semplice, correzioni su scenario libero e attribuzione.
 - **1.7** — attribuzione della performance e stress test.
 - **1.6** — avviso del ribilanciamento programmato in Portafoglio.

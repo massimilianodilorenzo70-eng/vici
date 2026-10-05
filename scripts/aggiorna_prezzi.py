@@ -264,6 +264,46 @@ def quotazione_certificato(isin):
     }
 
 
+def storico_certificato(isin, codice=None):
+    """Chiusure storiche del certificato dal servizio grafici di Borsa
+    Italiana (lo stesso usato dalle loro pagine). Restituisce [(data, prezzo)]."""
+    url = "https://charts.borsaitaliana.it/charts/services/ChartWService.asmx/GetPricesWithVolume"
+    chiavi = [f"{isin}.SEDX"] + ([f"{codice}.SEDX"] if codice else []) + [isin]
+    for k in chiavi:
+        corpo = {"request": {"SampleTime": "1d", "TimeFrame": "5y", "RequestedDataSetType": "ohlc",
+                             "ChartPriceType": "price", "Key": k, "OffSet": 0, "FromDate": None,
+                             "ToDate": None, "UseDelay": True, "KeyType": "Topic", "KeyType2": "Topic",
+                             "Language": "it-IT"}}
+        try:
+            req = urllib.request.Request(url, data=json.dumps(corpo).encode(), method="POST", headers={
+                "User-Agent": UA, "Content-Type": "application/json; charset=UTF-8",
+                "Accept": "application/json", "Origin": "https://www.borsaitaliana.it",
+                "Referer": f"https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/{isin}-SEDX.html"})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                testo = r.read().decode("utf-8", "replace")
+        except Exception as e:
+            log(f"  storico certificato ({k}): {e}")
+            continue
+        try:
+            dati = json.loads(testo)
+        except ValueError:
+            log(f"  storico certificato ({k}): risposta non JSON: {testo[:200]}")
+            continue
+        righe = dati.get("d") if isinstance(dati, dict) else dati
+        out = []
+        for r in righe or []:
+            if isinstance(r, list) and len(r) >= 2 and isinstance(r[0], (int, float)):
+                chiusura = r[4] if len(r) >= 5 else r[1]
+                if chiusura:
+                    giorno = datetime.fromtimestamp(r[0] / 1000, timezone.utc).date().isoformat()
+                    out.append((giorno, float(chiusura)))
+        if out:
+            log(f"  storico certificato ({k}): {len(out)} giorni dal {out[0][0]}")
+            return sorted(out)
+        log(f"  storico certificato ({k}): nessun dato: {testo[:300]}")
+    return []
+
+
 # ---------------------------------------------------------------- calcolo
 
 # Finestra per volatilità, drawdown e correlazioni del portafoglio attuale
@@ -847,6 +887,16 @@ def main():
     st_file = DATA / "storico.json"
     vecchio = json.loads(st_file.read_text(encoding="utf-8")) if st_file.exists() else {}
     cert_storico = {p["data"]: p["prezzo"] for p in vecchio.get("certificato", [])}
+    # Prezzi degli scambi dall'emissione (Borsa Italiana). Il certificato
+    # scambia poco: nei giorni senza scambi il servizio ripete l'ultimo
+    # prezzo, quindi si tiene solo quando il prezzo cambia. Serie separata
+    # dai prezzi di riferimento, che sono il valore ufficiale di ogni giorno.
+    scambi = []
+    for giorno, prezzo in storico_certificato(port["isin_certificato"], port.get("codice_certificato")):
+        if not scambi or abs(prezzo - scambi[-1][1]) > 1e-9:
+            scambi.append((giorno, round(prezzo, 4)))
+    if not scambi:
+        scambi = [(p["data"], p["prezzo"]) for p in vecchio.get("certificato_scambi", [])]
     if cert:
         # Il prezzo di riferimento è quello della seduta precedente: va
         # registrato con quella data, non con oggi
@@ -921,8 +971,18 @@ def main():
         "nav": [{"data": d, "nav": round(v, 4)} for d, v in serie_nav],
         "benchmark": [{"data": d, "valore": round(v, 4)} for d, v in serie_bench],
         "certificato": [{"data": d, "prezzo": p} for d, p in sorted(cert_storico.items())],
+        "certificato_scambi": [{"data": d, "prezzo": p} for d, p in scambi],
     }, ensure_ascii=False, indent=0), encoding="utf-8")
     cache_file.write_text(json.dumps(cache, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
+
+    # Storico dei prezzi di ogni strumento per il dettaglio posizione nell'app
+    # (file a parte: si scarica solo quando si apre un dettaglio)
+    dal_pos = min(inizio, (oggi - timedelta(days=GIORNI_RISCHIO)).isoformat())
+    (DATA / "posizioni_storico.json").write_text(json.dumps({
+        k: {"simbolo": g.get("simbolo"), "storico_da": g.get("storico_da"),
+            "chiusure": [[d, round(c, 4)] for d, c in g["chiusure"] if d >= dal_pos]}
+        for k, g in dati.items() if g and not g.get("liquidita")
+    }, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
     gestisci_avvisi(righe, soglia, nav)
     log(f"Paniere {nav:.2f} ({out['perf_periodo']:+.2f}% dal {att['data']}), "
