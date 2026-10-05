@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "1.7";
+const VERSIONE = "1.8";
 const NOVITA = [
+  { v: "1.8", voci: ["Tolta dal menu la voce «Aggiornamenti dei prezzi (GitHub)»; corretti scenario libero e attribuzione sul telefono."] },
   { v: "1.7", voci: [
     "Attribuzione della performance per classe, area e posizione: dal ribilanciamento, dall'inizio e mese per mese.",
     "Stress test: impatto stimato di scenari (azioni, tassi, oro, dollaro) sul portafoglio attuale e su quello programmato, con dettaglio per posizione e scenario libero.",
