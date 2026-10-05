@@ -521,3 +521,6 @@ body.con-invito main { padding-bottom: 130px; }
 .ordina { min-width: 0; max-width: 100%; }
 .ordina select { max-width: min(62vw, 260px); text-overflow: ellipsis; }
 .tabella.stress th:first-child, .tabella.stress td:first-child { min-width: 0; width: 55%; white-space: normal; }
+@media (max-width: 520px) {
+  .attr-riga { grid-template-columns: minmax(0, 50%) 1fr 58px; gap: 6px; font-size: 12.5px; }
+}
