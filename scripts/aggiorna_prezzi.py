@@ -260,10 +260,13 @@ def main():
     dal = date.fromisoformat(port["data_esecuzione"])
     base = float(port.get("base", 1000))
 
+    # I pesi si riportano a 100 (quelli dello screenshot sommano 100,01), così
+    # la somma dei contributi coincide con la performance del totale
+    somma_pesi = sum(p["peso"] for p in port["posizioni"])
     righe, serie_prezzi = [], {}
     for pos in port["posizioni"]:
         p0 = float(pos["prezzo_carico"])
-        quote = base * pos["peso"] / 100 / p0
+        quote = base * pos["peso"] / somma_pesi / p0
         log(pos["nome"])
         if pos.get("liquidita"):
             g = {"simbolo": "", "valuta": "EUR", "borsa": "", "prezzo": p0, "ora": None,

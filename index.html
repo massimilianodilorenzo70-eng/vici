@@ -47,6 +47,37 @@
       </article>
     </section>
 
+    <section class="riquadro">
+      <div class="titolo-riga">
+        <h2>Posizioni investite</h2>
+        <label class="ordina">Ordina
+          <select id="ordina">
+            <option value="peso_iniziale">Peso</option>
+            <option value="var_carico">Var. dal carico</option>
+            <option value="contributo">Contributo</option>
+            <option value="var_giorno">Var. oggi</option>
+          </select>
+        </label>
+      </div>
+      <div class="tabella-box">
+        <table class="tabella">
+          <thead>
+            <tr>
+              <th>Posizione</th>
+              <th>Peso</th>
+              <th>Carico</th>
+              <th>Attuale</th>
+              <th>Var. %</th>
+              <th>Contrib.</th>
+            </tr>
+          </thead>
+          <tbody id="posizioni"></tbody>
+          <tfoot id="totale"></tfoot>
+        </table>
+      </div>
+      <p class="nota">Var. % = prezzo attuale rispetto al prezzo di carico. Contributo = peso × Var. %: è quanto quella posizione aggiunge o toglie al totale. La somma dei contributi è la performance del portafoglio.</p>
+    </section>
+
     <section class="riquadro" id="mio">
       <div class="titolo-riga">
         <h2>Il mio investimento</h2>
@@ -80,20 +111,6 @@
       <ul id="classi-elenco" class="classi"></ul>
     </section>
 
-    <section class="riquadro">
-      <div class="titolo-riga">
-        <h2>Posizioni</h2>
-        <label class="ordina">Ordina
-          <select id="ordina">
-            <option value="peso_attuale">Peso</option>
-            <option value="var_carico">Var. dal carico</option>
-            <option value="var_giorno">Var. oggi</option>
-            <option value="contributo">Contributo</option>
-          </select>
-        </label>
-      </div>
-      <div id="posizioni" class="posizioni"></div>
-    </section>
 
     <p class="avvertenza">
       Il paniere stimato ricalcola il valore con i pesi e i prezzi di carico dell'ultimo ribilanciamento

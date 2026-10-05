@@ -15,8 +15,10 @@ const $ = (id) => document.getElementById(id);
 const fmt = (v, dec = 2) => v == null || isNaN(v) ? "—" :
   v.toLocaleString("it-IT", { minimumFractionDigits: dec, maximumFractionDigits: dec });
 const eur = (v, dec = 2) => v == null ? "—" : fmt(v, dec) + " €";
-const perc = (v, dec = 2) => v == null ? "—" : (v > 0 ? "+" : "") + fmt(v, dec) + "%";
-const segno = (v) => v == null ? "" : v > 0 ? "su" : v < 0 ? "giu" : "";
+// Arrotondo prima di decidere il segno, così non compare "-0,00%"
+const tondo = (v, dec = 2) => Math.round(v * 10 ** dec) / 10 ** dec || 0;
+const perc = (v, dec = 2) => v == null ? "—" : (tondo(v, dec) > 0 ? "+" : "") + fmt(tondo(v, dec), dec) + "%";
+const segno = (v) => v == null ? "" : tondo(v) > 0 ? "su" : tondo(v) < 0 ? "giu" : "";
 const dataIt = (s) => s ? new Date(s).toLocaleDateString("it-IT", { day: "numeric", month: "short", year: "numeric" }) : "—";
 const oraIt = (s) => s ? new Date(s).toLocaleString("it-IT", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "—";
 
@@ -202,27 +204,28 @@ function mostraClassi() {
 function mostraPosizioni() {
   const chiave = $("ordina").value;
   const righe = [...dati.posizioni].sort((a, b) => (b[chiave] ?? -1e9) - (a[chiave] ?? -1e9));
-  const maxPeso = Math.max(...righe.map((r) => r.peso_attuale));
-  $("posizioni").innerHTML = righe.map((r) => {
-    const deriva = r.peso_attuale - r.peso_iniziale;
-    return `<div class="pos">
-      <div>
-        <div class="pos-nome">${r.nome}</div>
-        <div class="pos-codice">${r.bloomberg || ""}${r.isin ? " · " + r.isin : ""}${r.mancante ? ' <span class="etichetta">senza prezzo</span>' : ""}</div>
-      </div>
-      <div class="pos-destra">
-        <div class="pos-var ${segno(r.var_carico)}">${perc(r.var_carico)}</div>
-        <div class="pos-codice">oggi <span class="${segno(r.var_giorno)}">${perc(r.var_giorno)}</span></div>
-      </div>
-      <div class="pos-dett">
-        <span>Peso <b>${fmt(r.peso_attuale)}%</b> (iniz. ${fmt(r.peso_iniziale)}%, <span class="${segno(deriva)}">${deriva > 0 ? "+" : ""}${fmt(deriva)}</span>)</span>
-        <span>Carico <b>${fmt(r.prezzo_carico, r.prezzo_carico < 10 ? 4 : 2)}</b></span>
-        <span>Ultimo <b>${fmt(r.prezzo, r.prezzo < 10 ? 4 : 2)}</b></span>
-        <span>Contributo <b class="${segno(r.contributo)}">${perc(r.contributo)}</b></span>
-      </div>
-      <div class="pos-peso"><i style="width:${r.peso_attuale / maxPeso * 100}%"></i></div>
-    </div>`;
-  }).join("");
+  const dec = (v) => v < 10 ? 4 : 2;
+  $("posizioni").innerHTML = righe.map((r) => `<tr>
+      <td>
+        <div class="pos-nome">${r.nome}${r.mancante ? ' <span class="etichetta">senza prezzo</span>' : ""}</div>
+        <div class="pos-codice">${r.bloomberg || ""} · oggi <span class="${segno(r.var_giorno)}">${perc(r.var_giorno)}</span></div>
+      </td>
+      <td data-l="Peso">${fmt(r.peso_iniziale)}%</td>
+      <td data-l="Carico">${fmt(r.prezzo_carico, dec(r.prezzo_carico))}</td>
+      <td data-l="Attuale">${fmt(r.prezzo, dec(r.prezzo))}</td>
+      <td data-l="Var. %" class="var forte ${segno(r.var_carico)}">${perc(r.var_carico)}</td>
+      <td data-l="Contributo" class="forte ${segno(r.contributo)}">${perc(r.contributo)}</td>
+    </tr>`).join("");
+  const pesoTot = righe.reduce((a, r) => a + r.peso_iniziale, 0);
+  const contrTot = righe.reduce((a, r) => a + r.contributo, 0);
+  $("totale").innerHTML = `<tr>
+      <td>Totale portafoglio<div class="pos-codice">oggi <span class="${segno(dati.perf_giorno)}">${perc(dati.perf_giorno)}</span></div></td>
+      <td data-l="Peso">${fmt(pesoTot)}%</td>
+      <td data-l="Base">${fmt(dati.base)}</td>
+      <td data-l="Valore">${fmt(dati.nav)}</td>
+      <td data-l="Var. %" class="var forte ${segno(dati.perf_totale)}">${perc(dati.perf_totale)}</td>
+      <td data-l="Contributo" class="forte ${segno(contrTot)}">${perc(contrTot)}</td>
+    </tr>`;
 }
 
 /* ---------- avvio ---------- */
