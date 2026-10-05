@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "1.5";
+const VERSIONE = "1.6";
 const NOVITA = [
+  { v: "1.6", voci: ["In Portafoglio un riquadro avvisa quando c'è un ribilanciamento programmato non ancora in vigore."] },
   { v: "1.5", voci: ["Numero di versione anche in alto, nella fascia blu, in azzurro tenue.", "Intestazione sistemata sui telefoni stretti: il pulsante di ricarica non copre più la scritta VICI."] },
   { v: "1.4", voci: [
     "Controllo completo e correzioni: data giusta della quotazione del certificato (seduta precedente), niente punti nel fine settimana, virgola decimale accettata nei campi, simulatore che non perde quello che stai scrivendo, data dell'ultimo NAV per i fondi, tabella del rischio leggibile sul telefono.",
@@ -137,11 +138,23 @@ function mostraPortafoglio() {
   $("nav-perf").innerHTML = `${colorato(perfPeriodo)} dal ${dataIt(d.data_esecuzione)}`;
   $("nav-oggi").innerHTML = `Oggi ${colorato(d.perf_giorno)}`;
 
+  mostraBanner();
   mostraPosizioni();
   barraAllocazione("classi", d.classi, (k) => COLORI_CLASSI[k] || "#888");
   const aree = Object.keys(d.aree || {}).sort((a, b) => d.aree[b] - d.aree[a]);
   barraAllocazione("aree", d.aree || {}, (k) => COLORI_AREE[aree.indexOf(k) % COLORI_AREE.length]);
   mostraMio();
+}
+
+// Avviso ben visibile quando c'è un ribilanciamento non ancora in vigore
+function mostraBanner() {
+  const prog = (dati.programmati || [])[0];
+  $("banner-programmato").hidden = !prog;
+  if (!prog) return;
+  const mese = new Date(prog.data).toLocaleDateString("it-IT", { month: "long" });
+  $("banner-titolo").textContent = `Ribilanciamento di ${mese} programmato per il ${dataIt(prog.data)}`;
+  $("banner-testo").textContent = `Le posizioni e il paniere qui sotto sono ancora quelli del ${dataIt(dati.data_esecuzione)}. ` +
+    "Il nuovo portafoglio entra in vigore da solo con i prezzi di chiusura di quel giorno.";
 }
 
 function mostraPosizioni() {
