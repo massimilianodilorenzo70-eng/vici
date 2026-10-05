@@ -1,0 +1,41 @@
+name: Quotazione certificato
+
+# Controllo leggero ogni 15 minuti durante la seduta: legge solo la
+# quotazione del certificato (book denaro/lettera, ultimo contratto) da Borsa
+# Italiana e la salva in data/certificato.json, che l'app legge all'apertura.
+on:
+  schedule:
+    # giorni feriali, ogni 15 minuti dalle 9 alle 18 circa (ora italiana)
+    - cron: "*/15 7-16 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aggiorna-prezzi-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  quotazione:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Legge la quotazione
+        run: python scripts/aggiorna_prezzi.py --certificato
+
+      - name: Salva se è cambiata
+        run: |
+          git config user.name "vici-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/certificato.json 2>/dev/null || true
+          git diff --cached --quiet && exit 0
+          git commit -m "Quotazione certificato [bot]"
+          git pull --rebase
+          git push

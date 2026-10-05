@@ -268,14 +268,23 @@ def leggi_dati_mercato(pagina, url=""):
         if m:
             perf[chiave] = numero(m.group(1))
     log(f"  Borsa Italiana: riferimento {rif} del {data_rif}, ultimo {ultimo}, book {denaro} / {lettera}")
+    medio = (denaro + lettera) / 2 if denaro and lettera else None
+    if ultimo:
+        corrente, tipo_corrente = ultimo, "ultimo contratto"
+    elif medio:
+        corrente, tipo_corrente = medio, "medio denaro/lettera"
+    else:
+        corrente, tipo_corrente = rif, "prezzo di riferimento"
     return {
+        "corrente": corrente,
+        "tipo_corrente": tipo_corrente,
         "prezzo": prezzo,
         "tipo": "ultimo contratto" if ultimo else "prezzo di riferimento",
         "riferimento": rif,
         "data_riferimento": data_rif,
         "ufficiale": cerca("Prezzo ufficiale"),
         "denaro": denaro, "lettera": lettera, "volume_denaro": vol_d, "volume_lettera": vol_l,
-        "medio": (denaro + lettera) / 2 if denaro and lettera else None,
+        "medio": medio,
         "spread": (lettera / denaro - 1) * 100 if denaro and lettera else None,
         "min_oggi": cerca("Min Oggi"),
         "max_oggi": cerca("Max Oggi"),
@@ -1029,10 +1038,37 @@ def main():
         for k, g in dati.items() if g and not g.get("liquidita")
     }, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
+    salva_quotazione(cert)
     gestisci_avvisi(righe, soglia, nav)
     log(f"Paniere {nav:.2f} ({out['perf_periodo']:+.2f}% dal {att['data']}), "
         f"mancanti: {out['mancanti'] or 'nessuno'}")
 
 
+def salva_quotazione(cert):
+    """Scrive data/certificato.json solo se è cambiato qualcosa oltre all'ora
+    di lettura, così il controllo ogni 15 minuti non crea commit inutili."""
+    if not cert:
+        return False
+    f = DATA / "certificato.json"
+    vecchio = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
+    if {k: v for k, v in vecchio.items() if k != "ora"} == {k: v for k, v in cert.items() if k != "ora"}:
+        log("Quotazione invariata")
+        return False
+    f.write_text(json.dumps(cert, ensure_ascii=False, indent=1), encoding="utf-8")
+    return True
+
+
+def solo_certificato():
+    """Controllo leggero: legge solo la quotazione del certificato."""
+    port = json.loads((DATA / "portafoglio.json").read_text(encoding="utf-8"))
+    cert = quotazione_certificato(port["isin_certificato"])
+    if cert:
+        cert["data"] = cert.get("data_riferimento")
+    salva_quotazione(cert)
+
+
 if __name__ == "__main__":
-    main()
+    if "--certificato" in sys.argv:
+        solo_certificato()
+    else:
+        main()
