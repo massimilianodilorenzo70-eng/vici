@@ -1,2 +1,0 @@
-href="/content/main.json?language_id=1"
-href="/api/language-variables/json?lang=en&country=IT"

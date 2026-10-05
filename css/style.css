@@ -557,3 +557,16 @@ body.con-invito main { padding-bottom: 130px; }
 .l-indice { background: #F0A030; }
 #indice-mesi td, #indice-mesi th { text-align: right; }
 #indice-mesi td:first-child, #indice-mesi th:first-child { text-align: left; min-width: 0; }
+
+/* ---------- book del certificato e costi ---------- */
+.cert-book { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 10px; }
+.cert-book div { background: var(--sfondo); border-radius: 8px; padding: 6px 8px; font-size: 11.5px; color: var(--testo-2); }
+.cert-book b { display: block; font-size: 15px; color: var(--testo); }
+.cert-book .nota { grid-column: 1 / -1; background: none; padding: 0; }
+.indice-costi { background: var(--sfondo); border-radius: 10px; padding: 10px 12px; margin: 10px 0; font-size: 13px; }
+.indice-costi h4 { margin: 0 0 6px; font-size: 13px; }
+.indice-costi table { width: 100%; border-collapse: collapse; }
+.indice-costi td { padding: 4px 0; border-top: 1px solid var(--bordo); }
+.indice-costi td:last-child { text-align: right; font-weight: 600; white-space: nowrap; }
+.indice-costi tr:first-child td { border-top: 0; }
+.indice-costi tr.totale td { border-top: 2px solid var(--testo); }

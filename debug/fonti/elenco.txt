@@ -1,5 +1,0 @@
-bi_dati_mercato.html | 200 13429 |  | prezzi trovati: 1.005,58 1.020,78 1.010,02  | https://www.borsaitaliana.it/borsa/cw-e-certificates/dati-mercato.html?isin=CH1453363652&mic=SEDX&lang=it
-bi_contratti.html | 200 13137 |  | prezzi trovati:  | https://www.borsaitaliana.it/borsa/cw-e-certificates/contratti.html?isin=CH1453363652&mic=SEDX&lang=it
-bi_anagrafici.html | 200 13299 |  | prezzi trovati: 1.000,00  | https://www.borsaitaliana.it/borsa/cw-e-certificates/dati-anagrafici.html?isin=CH1453363652&mic=SEDX&lang=it
-bi_listino.html | 200 12486 |  | prezzi trovati: 1.028,05 1.010,02  | https://www.borsaitaliana.it/borsa/cw-e-certificates/listino-ufficiale.html?isin=CH1453363652&mic=SEDX&lang=it
-kid.html | 200 158808 |  | prezzi trovati:  | https://priipkidportal.com/isin/CH1453363652/kid/it

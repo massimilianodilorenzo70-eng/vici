@@ -223,41 +223,65 @@ def testo_pagina(html_):
 
 
 def quotazione_certificato(isin):
-    """Quotazione del certificato dalla scheda SeDeX di Borsa Italiana.
-
-    Euronext cifra le risposte e Leonteq blocca le richieste automatiche,
-    quindi si usa solo Borsa Italiana: ultimo contratto se c'è, altrimenti
-    il prezzo di riferimento (quello del giorno prima).
-    """
-    url = f"https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/{isin}-SEDX.html?lang=it"
+    """Quotazione del certificato dalla pagina «Dati mercato» di Borsa
+    Italiana: prezzo di riferimento e ufficiale con la loro data, ultimo
+    contratto, book del market maker (denaro/lettera, ritardato di 15 minuti)
+    e performance. Euronext cifra le risposte e Leonteq blocca le richieste
+    automatiche, quindi si usa Borsa Italiana."""
+    url = f"https://www.borsaitaliana.it/borsa/cw-e-certificates/dati-mercato.html?isin={isin}&mic=SEDX&lang=it"
     try:
         pagina = scarica(url)
     except Exception as e:
         log(f"  Borsa Italiana: {e}")
         return None
+    return leggi_dati_mercato(pagina, url)
+
+
+def leggi_dati_mercato(pagina, url=""):
     t = testo_pagina(pagina)
-    num = r"(\d{1,3}(?:\.\d{3})*,\d+)"
+    num = r"([+-]?\d{1,3}(?:\.\d{3})*,\d+)"
 
     def cerca(etichetta):
         m = re.search(etichetta + r":? " + num, t)
         return numero(m.group(1)) if m else None
 
-    ultimo = cerca("Ultimo Contratto")
+    ultimo = cerca("Prezzo Ultimo Contratto") or cerca("Ultimo Contratto")
     rif = cerca("Prezzo di riferimento")
     prezzo = ultimo or rif
     if not prezzo:
         salva_debug("certificato_borsa_italiana.html", pagina)
         log("  Borsa Italiana: prezzo non trovato (copia in debug/)")
         return None
-    log(f"  Borsa Italiana: ultimo {ultimo}, riferimento {rif}")
+    # Book: prima riga dopo l'intestazione (N, proposte, volume, denaro, lettera, volume, proposte)
+    denaro = lettera = vol_d = vol_l = None
+    m = re.search(r"Volume Vendita Numero Proposte 1 \d+ ([\d.]+) " + num + " " + num + r" ([\d.]+)", t)
+    if m:
+        vol_d, denaro, lettera, vol_l = int(m.group(1).replace(".", "")), numero(m.group(2)), numero(m.group(3)), int(m.group(4).replace(".", ""))
+    data_rif = None
+    m = re.search(r"Data Pr Rif e Uff (\d{2})/(\d{2})/(\d{2})", t)
+    if m:
+        data_rif = f"20{m.group(3)}-{m.group(2)}-{m.group(1)}"
+    perf = {}
+    for chiave, etichetta in [("giorno", "1 Giorno"), ("settimana", "1 Settimana"), ("mese", "1 mese"),
+                              ("sei_mesi", "6 mesi"), ("anno", "1 anno"), ("inizio", "Inizio Negoziazioni")]:
+        m = re.search(r"Performance " + etichetta + r" " + num + "%", t)
+        if m:
+            perf[chiave] = numero(m.group(1))
+    log(f"  Borsa Italiana: riferimento {rif} del {data_rif}, ultimo {ultimo}, book {denaro} / {lettera}")
     return {
         "prezzo": prezzo,
         "tipo": "ultimo contratto" if ultimo else "prezzo di riferimento",
         "riferimento": rif,
+        "data_riferimento": data_rif,
+        "ufficiale": cerca("Prezzo ufficiale"),
+        "denaro": denaro, "lettera": lettera, "volume_denaro": vol_d, "volume_lettera": vol_l,
+        "medio": (denaro + lettera) / 2 if denaro and lettera else None,
+        "spread": (lettera / denaro - 1) * 100 if denaro and lettera else None,
         "min_oggi": cerca("Min Oggi"),
         "max_oggi": cerca("Max Oggi"),
         "max_anno": cerca("Max Anno"),
         "min_anno": cerca("Min Anno"),
+        "performance": perf,
         "fonte": "Borsa Italiana",
         "url": url,
         "ora": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -902,14 +926,22 @@ def main():
             scambi.append((giorno, round(prezzo, 4)))
     if not scambi:
         scambi = [(p["data"], p["prezzo"]) for p in vecchio.get("certificato_scambi", [])]
+    # Book del market maker (denaro/lettera): uno per giorno, l'ultimo letto
+    book = {p["data"]: p for p in vecchio.get("certificato_book", [])}
+    if cert and cert.get("denaro") and cert.get("lettera"):
+        book[oggi.isoformat()] = {"data": oggi.isoformat(), "denaro": cert["denaro"], "lettera": cert["lettera"]}
+    book_storico = [book[d] for d in sorted(book)]
     if cert:
         # Il prezzo di riferimento è quello della seduta precedente: va
         # registrato con quella data, non con oggi
         giorno = oggi
         if cert["tipo"] == "prezzo di riferimento":
-            giorno = oggi - timedelta(days=1)
-            while giorno.weekday() >= 5:
-                giorno -= timedelta(days=1)
+            if cert.get("data_riferimento"):
+                giorno = date.fromisoformat(cert["data_riferimento"])
+            else:
+                giorno = oggi - timedelta(days=1)
+                while giorno.weekday() >= 5:
+                    giorno -= timedelta(days=1)
         cert["data"] = giorno.isoformat()
         cert_storico[giorno.isoformat()] = cert["prezzo"]
 
@@ -944,6 +976,7 @@ def main():
         "indice": port["indice"],
         "isin_certificato": port["isin_certificato"],
         "emissione": emissione,
+        "costi": port.get("costi"),
         "data_inizio": inizio,
         "data_esecuzione": att["data"],
         "base": base,
@@ -983,6 +1016,7 @@ def main():
         "benchmark": [{"data": d, "valore": round(v, 4)} for d, v in serie_bench],
         "certificato": [{"data": d, "prezzo": p} for d, p in sorted(cert_storico.items())],
         "certificato_scambi": [{"data": d, "prezzo": p} for d, p in scambi],
+        "certificato_book": book_storico,
     }, ensure_ascii=False, indent=0), encoding="utf-8")
     cache_file.write_text(json.dumps(cache, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
 
