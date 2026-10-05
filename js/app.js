@@ -3,8 +3,13 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "1.6";
+const VERSIONE = "1.7";
 const NOVITA = [
+  { v: "1.7", voci: [
+    "Attribuzione della performance per classe, area e posizione: dal ribilanciamento, dall'inizio e mese per mese.",
+    "Stress test: impatto stimato di scenari (azioni, tassi, oro, dollaro) sul portafoglio attuale e su quello programmato, con dettaglio per posizione e scenario libero.",
+    "Attribuzione e stress test anche nel report mensile.",
+  ] },
   { v: "1.6", voci: ["In Portafoglio un riquadro avvisa quando c'è un ribilanciamento programmato non ancora in vigore."] },
   { v: "1.5", voci: ["Numero di versione anche in alto, nella fascia blu, in azzurro tenue.", "Intestazione sistemata sui telefoni stretti: il pulsante di ricarica non copre più la scritta VICI."] },
   { v: "1.4", voci: [
@@ -258,7 +263,130 @@ function mostraAndamento() {
   }
   mostraGrafico();
   mostraMensili();
+  mostraAttribuzione();
+  mostraStress();
   mostraRischio();
+}
+
+/* ---------- attribuzione della performance ---------- */
+const etichettaPeriodo = (a) => a.mese ? meseIt(a.id) : a.id === "ribilanciamento"
+  ? `Dal ribilanciamento (${dataIt(dati.data_esecuzione)})` : `Dall'inizio (${dataIt(dati.data_inizio)})`;
+
+function barreContributi(id, voci) {
+  const max = Math.max(0.01, ...voci.map(([, v]) => Math.abs(v)));
+  $(id).innerHTML = voci.map(([nome, v]) => {
+    const w = Math.abs(v) / max * 50;
+    return `<div class="attr-riga"><span class="nome" title="${esc(nome)}">${esc(nome)}</span>
+      <div class="attr-barra"><i style="left:${v >= 0 ? 50 : 50 - w}%;width:${w}%;background:${v >= 0 ? "var(--su)" : "var(--giu)"}"></i><span class="centro"></span></div>
+      <span class="num ${segno(v)}">${perc(v)}</span></div>`;
+  }).join("");
+}
+
+function mostraAttribuzione() {
+  const lista = dati.attribuzione || [];
+  const sel = $("attr-periodo");
+  if (!lista.length) { $("attr-totale").textContent = "Dati non ancora disponibili."; return; }
+  const scelto = sel.value || lista[0].id;
+  sel.innerHTML = lista.map((a) => `<option value="${esc(a.id)}">${esc(etichettaPeriodo(a))}</option>`).join("");
+  sel.value = lista.some((a) => a.id === scelto) ? scelto : lista[0].id;
+  const a = lista.find((x) => x.id === sel.value);
+  $("attr-totale").innerHTML = `<b class="${segno(a.rend)}">${perc(a.rend)}</b> ${esc(etichettaPeriodo(a).toLowerCase())}`;
+  const ord = (o) => Object.entries(o || {}).sort((x, y) => y[1] - x[1]);
+  barreContributi("attr-classi", ord(a.classi));
+  barreContributi("attr-aree", ord(a.aree));
+  barreContributi("attr-posizioni", a.posizioni.map((p) => [breve(p.nome), p.contributo]));
+}
+
+/* ---------- stress test ---------- */
+// Impatto % di uno scenario su ogni strumento: somma di sensibilità × shock.
+// Il fattore tassi è un indice obbligazionario: +1 punto di tassi = −duration%.
+function impattoStrumento(beta, shock, duration) {
+  if (!beta) return 0;
+  const f = { azioni: shock.azioni || 0, obbligazioni: -(shock.tassi || 0) * duration, oro: shock.oro || 0, dollaro: shock.dollaro || 0 };
+  return Object.keys(f).reduce((t, k) => t + (beta[k] || 0) * f[k], 0);
+}
+
+function impattoPortafoglio(pesi, shock) {
+  const st = dati.stress;
+  const det = pesi.map((p) => ({ ...p, impatto: p.liquidita ? 0 : impattoStrumento(st.beta[p.chiave], shock, st.duration_tassi) }));
+  return { totale: det.reduce((t, p) => t + p.peso / 100 * p.impatto, 0), det };
+}
+
+function pesiAttuali() {
+  return dati.posizioni.map((p) => ({ nome: p.nome, chiave: p.chiave || p.isin, peso: p.peso_attuale, liquidita: p.liquidita }));
+}
+function pesiProgrammati() {
+  const prog = (dati.programmati || [])[0];
+  if (!prog) return null;
+  const somma = prog.posizioni.reduce((t, p) => t + p.peso, 0) || 100;
+  return prog.posizioni.map((p) => ({ nome: p.nome, chiave: p.chiave || p.isin, peso: p.peso / somma * 100, liquidita: p.liquidita }));
+}
+
+function testoShock(sh) {
+  const parti = [];
+  if (sh.azioni) parti.push(`azioni ${perc(sh.azioni, 0)}`);
+  if (sh.tassi) parti.push(`tassi ${sh.tassi > 0 ? "+" : ""}${fmt(sh.tassi, 1)} punti`);
+  if (sh.oro) parti.push(`oro ${perc(sh.oro, 0)}`);
+  if (sh.dollaro) parti.push(`dollaro ${perc(sh.dollaro, 0)}`);
+  return parti.join(", ");
+}
+
+function inEuro(v) {
+  const pat = leggi(K.patrimonio);
+  return pat ? ` · ${v >= 0 ? "+" : "−"}${eur(Math.abs(pat * v / 100), 0)}` : "";
+}
+
+function mostraStress() {
+  const st = dati.stress;
+  if (!st) {
+    $("stress-nota").textContent = "Dati per lo stress test non ancora disponibili.";
+    $("stress-scenari").innerHTML = "";
+    return;
+  }
+  const att = pesiAttuali(), prog = pesiProgrammati();
+  const prossimo = (dati.programmati || [])[0];
+  $("stress-col-prog").hidden = !prog;
+  if (prossimo) $("stress-col-prog").textContent = `Dal ${new Date(prossimo.data).toLocaleDateString("it-IT", { day: "numeric", month: "short" })}`;
+  $("stress-nota").textContent = "Perdita o guadagno stimato del portafoglio se succedesse lo scenario. Tocca una riga per vedere le posizioni più colpite." +
+    (leggi(K.patrimonio) ? "" : " Inserisci il patrimonio nel simulatore (Gestione) per vedere anche gli importi.");
+  $("stress-scenari").innerHTML = st.scenari.map((sc, i) => {
+    const a = impattoPortafoglio(att, sc.shock).totale;
+    const b = prog ? impattoPortafoglio(prog, sc.shock).totale : null;
+    return `<tr data-i="${i}"><td>${esc(sc.nome)}<small>${esc(testoShock(sc.shock))}</small></td>
+      <td class="forte ${segno(a)}">${perc(a)}<small>${inEuro(a).replace(/^ · /, "")}</small></td>
+      ${prog ? `<td class="forte ${segno(b)}">${perc(b)}</td>` : ""}</tr>`;
+  }).join("");
+  $("stress-scenari").querySelectorAll("tr").forEach((tr) => tr.addEventListener("click", () => {
+    $("stress-scenari").querySelectorAll("tr").forEach((x) => x.classList.toggle("scelto", x === tr));
+    dettaglioStress(st.scenari[Number(tr.dataset.i)]);
+  }));
+  const senza = att.filter((p) => !p.liquidita && !st.beta[p.chiave]).map((p) => breve(p.nome));
+  $("stress-metodo").textContent = `Metodo: per ogni posizione si stima quanto si muove con azioni (S&P 500 coperto dal cambio), tassi euro, oro e dollaro, ` +
+    `sui rendimenti settimanali dell'ultimo anno (${st.settimane} settimane dal ${dataIt(st.dal)}); ` +
+    `+1 punto di tassi corrisponde a −${fmt(st.duration_tassi, 1)}% sull'indice obbligazionario. È una stima lineare: negli shock forti le correlazioni cambiano.` +
+    (senza.length ? ` Senza storico sufficiente (impatto 0): ${senza.join(", ")}.` : "");
+  calcolaStressLibero();
+}
+
+function dettaglioStress(sc) {
+  const r = impattoPortafoglio(pesiAttuali(), sc.shock);
+  const voci = r.det.filter((p) => !p.liquidita).map((p) => ({ ...p, contr: p.peso / 100 * p.impatto }))
+    .sort((a, b) => a.contr - b.contr);
+  $("stress-dettaglio").hidden = false;
+  $("stress-dettaglio").innerHTML = `<h4>${esc(sc.nome)}: ${perc(r.totale)}${inEuro(r.totale)}</h4>
+    <div class="tabella-box"><table class="tabella compatta"><thead><tr><th>Posizione</th><th>Impatto</th><th>Sul portafoglio</th></tr></thead>
+    <tbody>${voci.map((p) => `<tr><td>${esc(breve(p.nome))}</td><td class="${segno(p.impatto)}">${perc(p.impatto, 1)}</td>
+      <td class="forte ${segno(p.contr)}">${perc(p.contr)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+function calcolaStressLibero() {
+  if (!dati || !dati.stress) return;
+  const sh = { azioni: numero($("sl-azioni").value), tassi: numero($("sl-tassi").value), oro: numero($("sl-oro").value), dollaro: numero($("sl-dollaro").value) };
+  const a = impattoPortafoglio(pesiAttuali(), sh).totale;
+  const prog = pesiProgrammati();
+  const b = prog ? impattoPortafoglio(prog, sh).totale : null;
+  $("stress-libero-esito").innerHTML = `Portafoglio attuale <b class="${segno(a)}">${perc(a)}</b>${inEuro(a)}` +
+    (prog ? ` · dal ${dataIt(dati.programmati[0].data)} <b class="${segno(b)}">${perc(b)}</b>` : "");
 }
 
 function mostraGrafico() {
@@ -604,6 +732,21 @@ function mostraReport() {
       <tbody>${mens.map((m) => `<tr><td>${meseIt(m.mese)}</td><td class="${segno(m.paniere)}">${perc(m.paniere)}</td>
         ${b ? `<td class="${segno(m.bench)}">${perc(m.bench)}</td><td class="${segno(m.bench == null ? null : m.paniere - m.bench)}">${m.bench == null ? "—" : perc(m.paniere - m.bench)}</td>` : ""}</tr>`).join("")}</tbody>
     </table>
+    ${(() => {
+      const lista = d.attribuzione || [];
+      const am = [...lista].reverse().find((x) => x.mese);
+      const ar = lista.find((x) => x.id === "ribilanciamento");
+      if (!am && !ar) return "";
+      const classi = [...new Set([...Object.keys((am || {}).classi || {}), ...Object.keys((ar || {}).classi || {})])];
+      const cella = (x, c) => x ? `<td class="${segno(x.classi[c])}">${perc(x.classi[c] || 0)}</td>` : "";
+      return `<h2>Attribuzione della performance</h2>
+      <table><thead><tr><th>Classe</th>${am ? `<th>${meseIt(am.id)}</th>` : ""}${ar ? `<th>Dal ${dataIt(d.data_esecuzione)}</th>` : ""}</tr></thead>
+      <tbody>${classi.map((c) => `<tr><td>${esc(c)}</td>${cella(am, c)}${cella(ar, c)}</tr>`).join("")}</tbody>
+      <tfoot><tr><td>Totale</td>${am ? `<td class="${segno(am.rend)}">${perc(am.rend)}</td>` : ""}${ar ? `<td class="${segno(ar.rend)}">${perc(ar.rend)}</td>` : ""}</tr></tfoot></table>`;
+    })()}
+    ${d.stress ? `<h2>Stress test (portafoglio attuale)</h2>
+    <table><tbody>${d.stress.scenari.map((sc) => { const v = impattoPortafoglio(pesiAttuali(), sc.shock).totale;
+      return `<tr><td>${esc(sc.nome)}</td><td>${esc(testoShock(sc.shock))}</td><td class="${segno(v)}">${perc(v)}</td></tr>`; }).join("")}</tbody></table>` : ""}
     ${r ? `<h2>Rischio (portafoglio attuale, ultimo anno)</h2>
     <table><tbody>
       <tr><td>Volatilità annua</td><td>${fmt(r.vol)}%</td><td>${b && b.vol != null ? "benchmark " + fmt(b.vol) + "%" : ""}</td></tr>
@@ -725,6 +868,8 @@ $("sim-esporta").addEventListener("click", () => dati && esportaRibilanciamento(
 $("commento").value = leggi(K.commento, "") || "";
 $("commento").addEventListener("input", () => { scrivi(K.commento, $("commento").value); if (dati) mostraReport(); });
 $("stampa").addEventListener("click", () => window.print());
+$("attr-periodo").addEventListener("change", () => dati && mostraAttribuzione());
+["sl-azioni", "sl-tassi", "sl-oro", "sl-dollaro"].forEach((id) => $(id).addEventListener("input", calcolaStressLibero));
 window.addEventListener("resize", () => dati && mostraGrafico());
 document.addEventListener("visibilitychange", () => { if (!document.hidden) carica(); });
 setInterval(() => { if (!document.hidden) carica(); }, RICARICA_MS);
