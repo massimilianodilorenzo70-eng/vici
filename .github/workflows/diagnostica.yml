@@ -1,9 +1,9 @@
 name: Diagnostica fonti
 
-# Salva nel repository una copia delle pagine delle fonti (Leonteq, Euronext,
-# Borsa Italiana) così si può capire dove sono i dati e adattare lo script.
+# Solo a mano: scarica la pagina del certificato da diverse fonti e salva
+# in debug/fonti/ cosa risponde ognuna, per scegliere quali usare.
 on:
-  workflow_dispatch: {}   # solo a mano: GitHub → Actions → Diagnostica fonti → Run workflow
+  workflow_dispatch: {}   # GitHub → Actions → Diagnostica fonti → Run workflow
 
 permissions:
   contents: write
@@ -17,18 +17,29 @@ jobs:
       - name: Scarica le pagine
         run: |
           mkdir -p debug/fonti
+          ISIN=CH1453363652
           UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
-          get() { curl -sSL --max-time 40 -A "$UA" -o "debug/fonti/$1" -w "$1 %{http_code} %{size_download}\n" "$2" || echo "$1 errore"; }
-          get leonteq_index.html "https://indices.leonteq.com/index-details/VICIGROW%20Index"
-          get leonteq_home.html  "https://indices.leonteq.com/"
-          get euronext_pagina.html "https://live.euronext.com/en/product/structured-products/CH1453363652-SEDX"
-          get euronext_quote.html  "https://live.euronext.com/en/ajax/getDetailedQuote/CH1453363652-SEDX"
-          get euronext_grafico.json "https://live.euronext.com/en/intraday_chart/getChartData/CH1453363652-SEDX/max"
-          get borsaitaliana.html "https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/CH1453363652-SEDX.html?lang=it"
-          get yahoo_cerca.json "https://query2.finance.yahoo.com/v1/finance/search?q=IE00BFRSV973&quotesCount=10&newsCount=0"
-          ls -la debug/fonti | tee debug/fonti/elenco.txt
-          # i file JS dell'app Leonteq contengono gli indirizzi delle API
-          grep -oE '(src|href)="[^"]+\.js[^"]*"' debug/fonti/leonteq_index.html | head -20 > debug/fonti/leonteq_script.txt || true
+          get() {
+            curl -sSL --compressed --max-time 40 -A "$UA" -H "Accept-Language: it-IT,it;q=0.9" \
+              -o "debug/fonti/$1" -w "%{http_code} %{size_download}" "$2" > /tmp/esito 2>/dev/null || echo "errore" > /tmp/esito
+            prezzo=$(grep -o -E '1[.,]?0[0-9]{2}[.,][0-9]{2}' "debug/fonti/$1" 2>/dev/null | head -3 | tr '\n' ' ')
+            blocco=$(grep -l -i -E 'incapsula|captcha|cloudflare|access denied|forbidden' "debug/fonti/$1" >/dev/null 2>&1 && echo BLOCCO || echo "")
+            echo "$1 | $(cat /tmp/esito) | $blocco | prezzi trovati: $prezzo | $2" | tee -a debug/fonti/elenco.txt
+          }
+          rm -f debug/fonti/elenco.txt
+          get leonteq_it.html        "https://certificati.leonteq.com/isin/$ISIN?language_id=1"
+          get leonteq_ch.html        "https://structuredproducts-ch.leonteq.com/isin/$ISIN"
+          get certificatiederivati.html "https://www.certificatiederivati.it/db_bs_scheda_certificato.asp?isin=$ISIN"
+          get teleborsa.html         "https://www.teleborsa.it/Quotazioni/Certificati/$ISIN"
+          get borsaitaliana.html     "https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/$ISIN-SEDX.html?lang=it"
+          get borse_it.html          "https://www.borse.it/quotazioni/certificati/$ISIN"
+          get marketscreener.html    "https://it.marketscreener.com/ricerca/?q=$ISIN"
+          get onvista.html           "https://www.onvista.de/suche/?searchValue=$ISIN"
+          get finanzen.html          "https://www.finanzen.net/suchergebnis.asp?_search=$ISIN"
+          get justetf_ricerca.html   "https://www.google.com/search?q=$ISIN"
+          # link e indirizzi dati dentro la pagina Leonteq
+          grep -o -E '(src|href|data-[a-z-]+)="[^"]*(api|json|chart|price|quote)[^"]*"' debug/fonti/leonteq_it.html | head -40 > debug/fonti/leonteq_indirizzi.txt || true
+          grep -o -E 'https?://[^"'"'"' ]*(api|json|chart|price|quote)[^"'"'"' ]*' debug/fonti/leonteq_it.html | sort -u | head -40 >> debug/fonti/leonteq_indirizzi.txt || true
 
       - name: Salva la copia nel repository
         run: |
