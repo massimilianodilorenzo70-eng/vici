@@ -1,6 +1,7 @@
 /* sw.js — l'app funziona anche offline con gli ultimi dati scaricati.
- * Quando cambi i file dell'app incrementa CACHE_NAME. */
-const CACHE_NAME = "vici-v1.2";
+ * A ogni rilascio aumenta CACHE_NAME insieme a VERSIONE in js/app.js e in
+ * versione.json: all'apertura l'app vede la versione nuova e si aggiorna. */
+const CACHE_NAME = "vici-v1.3";
 const ASSETS = [
   "./", "./index.html", "./manifest.json", "./css/style.css", "./js/app.js",
   "./icons/logo.svg", "./icons/icon-192.png", "./icons/icon-512.png",
@@ -18,12 +19,16 @@ self.addEventListener("activate", (e) => {
   self.clients.claim();
 });
 
-// Rete prima (dati sempre freschi), copia salvata solo se la rete manca.
+// Rete prima (file e dati sempre freschi), copia salvata solo se la rete
+// manca. "no-cache" fa ricontrollare al server anche i file che il browser
+// terrebbe in memoria per qualche minuto (GitHub Pages li tiene 10 minuti).
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
+  const stessoSito = new URL(e.request.url).origin === location.origin;
+  const richiesta = stessoSito ? new Request(e.request, { cache: "no-cache" }) : e.request;
   e.respondWith(
-    fetch(e.request).then((r) => {
-      if (r.ok && new URL(e.request.url).origin === location.origin) {
+    fetch(richiesta).then((r) => {
+      if (r.ok && stessoSito) {
         const copia = r.clone();
         const chiave = e.request.url.split("?")[0];
         caches.open(CACHE_NAME).then((c) => c.put(chiave, copia));
