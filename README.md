@@ -19,9 +19,8 @@ L'app ha un menu (☰) e quattro sezioni.
 **Andamento**
 - Paniere contro un benchmark bilanciato 60/40 (MSCI World + Euro Aggregate Bond).
 - Premio/sconto del certificato rispetto al paniere (sui prezzi di riferimento).
-- Certificato dall'emissione: prezzi degli scambi da Borsa Italiana (solo i giorni
-  in cui il prezzo cambia: il certificato scambia poco), prezzo di riferimento
-  registrato ogni giorno, date dei ribilanciamenti.
+- Certificato dall'emissione: prezzi degli scambi da Borsa Italiana, prezzo di
+  riferimento registrato ogni giorno, date dei ribilanciamenti.
 - Grafico, rendimenti mensili.
 - Attribuzione della performance per classe, area e posizione (dal ribilanciamento,
   dall'inizio, per mese).
