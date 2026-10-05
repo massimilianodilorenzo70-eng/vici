@@ -59,6 +59,9 @@ ogni ora dalle 8 alle 19 e una volta la sera. Esegue
 2. legge la quotazione del certificato;
 3. scrive `data/prezzi.json` e `data/storico.json`, che l'app legge.
 
+Il workflow `quotazione-certificato.yml` legge solo la quotazione del certificato
+ogni 15 minuti durante la seduta e la salva in `data/certificato.json`.
+
 Si può avviare a mano da GitHub → **Actions** → *Aggiorna prezzi* → **Run workflow**.
 
 `Diagnostica fonti` salva in `debug/fonti/` una copia delle pagine di Leonteq,
@@ -93,6 +96,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.1** — prezzo corrente del certificato in cima (ultimo contratto o medio del book) e quotazione aggiornata ogni 15 minuti.
 - **3.0.1** — ✕ per chiudere la finestra delle novità.
 - **3.0** — book denaro/lettera e performance da Borsa Italiana, costi del KID e scomposizione della differenza con l'indice.
 - **2.0** — indice VICIGROW (Leonteq) e confronto con il certificato.

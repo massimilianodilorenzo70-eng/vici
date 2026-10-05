@@ -3,8 +3,12 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.0.1";
+const VERSIONE = "3.1";
 const NOVITA = [
+  { v: "3.1", voci: [
+    "In cima il prezzo corrente del certificato (ultimo contratto di oggi o medio tra denaro e lettera, come su Euronext) con l'ora; il prezzo di riferimento resta come informazione.",
+    "Quotazione del certificato aggiornata ogni 15 minuti durante la seduta e letta a ogni apertura dell'app.",
+  ] },
   { v: "3.0.1", voci: ["Finestra delle novità: ✕ in alto per chiuderla senza scorrere fino in fondo."] },
   { v: "3.0", voci: [
     "Certificato: book del market maker da Borsa Italiana (denaro, lettera, spread), data ufficiale della quotazione e performance a 1 settimana, 1 mese, 6 mesi e 1 anno.",
@@ -109,12 +113,15 @@ async function carica() {
   bottone.classList.add("gira");
   try {
     const t = Date.now();
-    const [p, s, ind] = await Promise.all([
+    const [p, s, ind, q] = await Promise.all([
       fetch(`data/prezzi.json?t=${t}`).then((r) => r.ok ? r.json() : null),
       fetch(`data/storico.json?t=${t}`).then((r) => r.ok ? r.json() : null),
       fetch(`data/indice.json?t=${t}`).then((r) => r.ok ? r.json() : null).catch(() => null),
+      fetch(`data/certificato.json?t=${t}`).then((r) => r.ok ? r.json() : null).catch(() => null),
     ]);
     indice = ind;
+    // quotazione aggiornata ogni 15 minuti: se è più recente prevale
+    if (p && q && q.ora && (!p.certificato || !p.certificato.ora || q.ora > p.certificato.ora)) p.certificato = q;
     if (!p || !p.posizioni) throw new Error("dati non ancora disponibili");
     dati = p;
     storico = s || { nav: [], benchmark: [], certificato: [] };
@@ -150,17 +157,24 @@ function mostraPortafoglio() {
   const emis = (d.emissione && d.emissione.prezzo) || d.base || 1000;
   const c = d.certificato;
   if (c && c.prezzo) {
-    $("cert-prezzo").textContent = eur(c.prezzo);
-    const pc = (c.prezzo / emis - 1) * 100;
+    const att = c.corrente || c.prezzo;
+    $("cert-prezzo").textContent = eur(att);
+    const pc = (att / emis - 1) * 100;
     $("cert-perf").innerHTML = `${colorato(pc)} dall'emissione a ${fmt(emis, 0)}`;
     const range = c.min_oggi && c.max_oggi ? ` · oggi ${fmt(c.min_oggi)}–${fmt(c.max_oggi)}` : "";
-    const quando = c.tipo === "ultimo contratto" ? `ultimo contratto, letto ${oraIt(c.ora)}` : `prezzo di riferimento del ${dataIt(c.data_riferimento || c.data || c.ora)}`;
-    $("cert-fonte").textContent = `${quando[0].toUpperCase() + quando.slice(1)}${c.denaro ? "" : range} · ${c.fonte}`;
+    // ora dei dati: Borsa Italiana li dà con 15 minuti di ritardo
+    const oraDati = c.ora ? new Date(new Date(c.ora).getTime() - 15 * 60000).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : "";
+    const giornoLettura = c.ora ? dataIt(c.ora) : "";
+    const rifTesto = c.riferimento ? ` · riferimento del ${dataIt(c.data_riferimento || c.data)}: ${fmt(c.riferimento)}` : "";
+    const quando = c.tipo_corrente === "ultimo contratto" ? `Ultimo contratto, ${giornoLettura} ore ${oraDati} circa`
+      : c.tipo_corrente === "medio denaro/lettera" ? `Medio tra denaro e lettera, ${giornoLettura} ore ${oraDati} circa`
+      : `Prezzo di riferimento del ${dataIt(c.data_riferimento || c.data || c.ora)}`;
+    $("cert-fonte").textContent = `${quando}${c.tipo_corrente && c.tipo_corrente !== "prezzo di riferimento" ? rifTesto : ""}${c.denaro ? "" : range} · ${c.fonte}`;
     $("cert-book").hidden = !(c.denaro && c.lettera);
     if (c.denaro && c.lettera) {
       $("cert-book").innerHTML = `<div>Denaro<b>${fmt(c.denaro)}</b></div><div>Lettera<b>${fmt(c.lettera)}</b></div>
         <div>Spread<b>${fmt(c.spread)}%</b></div>
-        <span class="nota">Book del market maker (ritardo 15 min): denaro = a quanto si vende, lettera = a quanto si compra. Medio ${fmt(c.medio)}.</span>`;
+        <span class="nota">Book del market maker (ritardo 15 min, come su Euronext): denaro = a quanto si vende, lettera = a quanto si compra.</span>`;
     }
   } else {
     $("cert-prezzo").textContent = "—";
@@ -236,7 +250,7 @@ function barraAllocazione(id, valori, colore) {
 
 function prezzoCorrente() {
   if (!dati) return null;
-  if (dati.certificato && dati.certificato.prezzo) return dati.certificato.prezzo;
+  if (dati.certificato && dati.certificato.prezzo) return dati.certificato.corrente || dati.certificato.prezzo;
   return dati.nav;
 }
 
@@ -256,7 +270,7 @@ function mostraMio() {
   $("mio-vendita").hidden = !(c && c.denaro);
   if (c && c.denaro) {
     const incasso = mio.qta * c.denaro, d2 = incasso - investito;
-    $("mio-vendita").innerHTML = `Valore al prezzo di riferimento. Vendendo ora al denaro (${fmt(c.denaro)}) incasseresti ${eur(incasso, 0)}: ` +
+    $("mio-vendita").innerHTML = `Valore al prezzo corrente. Vendendo ora al denaro (${fmt(c.denaro)}) incasseresti ${eur(incasso, 0)}: ` +
       `<span class="${segno(d2)}">${d2 > 0 ? "+" : ""}${eur(d2, 0)} (${perc(d2 / investito * 100)})</span>.`;
   }
 }
@@ -319,7 +333,7 @@ function mostraStoriaCertificato() {
   const c = dati.certificato;
   const ultimoRif = rif.length ? rif[rif.length - 1] : null;
   const ultimoSc = scambi.length ? scambi[scambi.length - 1] : null;
-  const attuale = (c && c.prezzo) || (ultimoRif && ultimoRif.v) || (ultimoSc && ultimoSc.v);
+  const attuale = (c && (c.corrente || c.prezzo)) || (ultimoRif && ultimoRif.v) || (ultimoSc && ultimoSc.v);
   const inizioT = scambi.length ? scambi[0].t : new Date(emis.data || dati.data_inizio).getTime();
   const anni = (Date.now() - inizioT) / (365.25 * 86400000);
   const rendTot = attuale ? (attuale / (emis.prezzo || 1000) - 1) * 100 : null;
@@ -404,11 +418,12 @@ function mostraIndice() {
   const rendIndice = ultimo.v - 100;
   const emis = (dati.emissione && dati.emissione.prezzo) || 1000;
   const c = dati.certificato;
-  const rendCert = c && c.prezzo ? (c.prezzo / emis - 1) * 100 : null;
+  const prezzoCert = c ? (c.corrente || c.prezzo) : null;
+  const rendCert = prezzoCert ? (prezzoCert / emis - 1) * 100 : null;
   const met = [
     ["Indice dall'avvio", perc(rendIndice), `fino a ${MESI_BREVI[ultimo.mese - 1]} ${ultimo.anno}`],
     ["Media annua indice", indice.media_annua_leonteq != null ? perc(indice.media_annua_leonteq) : "—", "dato Leonteq"],
-    ["Certificato dall'emissione", perc(rendCert), c ? `prezzo ${fmt(c.prezzo)}` : ""],
+    ["Certificato dall'emissione", perc(rendCert), c ? `prezzo ${fmt(prezzoCert)}` : ""],
     ["Differenza", rendCert == null ? "—" : `${fmt(rendCert - rendIndice)} punti`, "costi della struttura e altre differenze"],
   ];
   $("indice-metriche").innerHTML = met.map(([a, v, x]) => `<div><span>${a}</span><b class="${a === "Differenza" ? segno(rendCert - rendIndice) : ""}">${v}</b><small>${x}</small></div>`).join("");
@@ -431,7 +446,7 @@ function mostraIndice() {
       <tr><td>Commissione di gestione (${fmt(costi.commissione_gestione, 1)}% annuo per ${fmt(anni, 1)} anni)</td><td class="giu">${fmt(gestionePt)} punti</td></tr>
       <tr><td>Commissione di performance (${fmt(costi.commissione_performance, 0)}% della performance positiva)</td><td class="${perfPt < 0 ? "giu" : ""}">${fmt(perfPt)} punti</td></tr>
       <tr><td>Valore atteso del certificato</td><td>${fmt(atteso)}</td></tr>
-      <tr><td>Prezzo attuale${c && c.medio ? ` (medio del book ${fmt(c.medio)})` : ""}</td><td>${fmt(c.prezzo)}</td></tr>
+      <tr><td>Prezzo attuale (${esc(c.tipo_corrente || "riferimento")})</td><td>${fmt(prezzoCert)}</td></tr>
       <tr class="totale"><td>Differenza non spiegata dalle commissioni</td><td class="${segno(resto)}">${fmt(resto)} punti</td></tr>
     </table><p class="nota">${esc(costi.fonte || "")}. Stima semplificata: la commissione di performance reale dipende dai massimi raggiunti (high watermark).</p>`;
   } else $("indice-costi").innerHTML = "";
@@ -921,7 +936,7 @@ function mostraReport() {
       <img src="icons/logo.svg" alt="">
     </div>
     <div class="r-cifre">
-      <div><span>Certificato</span><b>${c ? eur(c.prezzo) : "—"}</b><span>${c ? perc((c.prezzo / emis - 1) * 100) + " dall'emissione" : ""}</span></div>
+      <div><span>Certificato</span><b>${c ? eur(c.corrente || c.prezzo) : "—"}</b><span>${c ? perc(((c.corrente || c.prezzo) / emis - 1) * 100) + " dall'emissione" : ""}</span></div>
       <div><span>Paniere dal ${dataIt(d.data_esecuzione)}</span><b class="${segno(d.perf_periodo ?? d.perf_totale)}">${perc(d.perf_periodo ?? d.perf_totale)}</b><span>valore ${fmt(d.nav)}</span></div>
       <div><span>Mese in corso</span><b class="${segno(ultimo && ultimo.paniere)}">${ultimo ? perc(ultimo.paniere) : "—"}</b><span>${ultimo && ultimo.bench != null ? "benchmark " + perc(ultimo.bench) : ""}</span></div>
       <div><span>${b ? esc(b.nome) : "Benchmark"}</span><b class="${segno(b && b.perf)}">${b ? perc(b.perf) : "—"}</b><span>dal ${dataIt(d.data_inizio)}</span></div>
