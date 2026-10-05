@@ -145,8 +145,16 @@ def candidati(pos, cache):
     return unici
 
 
+# Sotto questo numero di prezzi nell'ultimo anno si prova anche un altro listino
+STORIA_MINIMA = 200
+
+
 def trova_prezzi(pos, cache, dal):
+    """Primo listino valido (in EUR, aggiornato, vicino al prezzo di carico);
+    se ha poco storico si guardano anche gli altri e si tiene il più lungo,
+    altrimenti volatilità e correlazioni verrebbero falsate."""
     p0 = pos.get("prezzo_carico")  # None per il benchmark: niente controllo sul prezzo
+    migliore = None
     for s in candidati(pos, cache):
         try:
             g = yahoo_grafico(s, dal)
@@ -162,11 +170,15 @@ def trova_prezzi(pos, cache, dal):
         if p0 and abs(g["prezzo"] / p0 - 1) > SCARTO_MAX:
             log(f"  {s}: scartato (prezzo {g['prezzo']} lontano dal carico {p0})")
             continue
-        log(f"  {s}: ok {g['prezzo']} EUR ({g['borsa']})")
-        cache[pos["isin"]] = s
         g["fonte"] = "Yahoo Finance"
-        return g
-    return None
+        log(f"  {s}: ok {g['prezzo']} EUR ({g['borsa']}), {len(g['chiusure'])} prezzi storici")
+        if migliore is None or len(g["chiusure"]) > len(migliore["chiusure"]):
+            migliore = g
+        if len(migliore["chiusure"]) >= STORIA_MINIMA:
+            break
+    if migliore:
+        cache[pos["isin"]] = migliore["simbolo"]
+    return migliore
 
 
 # ---------------------------------------------------------------- FT (fondi)
@@ -552,6 +564,7 @@ def main():
             "simbolo": g.get("simbolo") if ok else None,
             "fonte": g.get("fonte") if ok else None,
             "aggiornato": g.get("ora") if ok else None,
+            "storia": len(g["chiusure"]) if ok else 0,
             "mancante": not ok,
         })
     nav = sum(r["valore"] for r in righe)
