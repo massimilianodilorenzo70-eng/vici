@@ -21,6 +21,9 @@ L'app ha un menu (☰) e quattro sezioni.
 - Premio/sconto del certificato rispetto al paniere (sui prezzi di riferimento).
 - Certificato dall'emissione: prezzi degli scambi da Borsa Italiana, prezzo di
   riferimento registrato ogni giorno, date dei ribilanciamenti.
+- Indice VICIGROW: rendimenti mensili da Leonteq (inseriti a mano in
+  `data/indice.json`, perché il sito Leonteq non è raggiungibile in automatico),
+  andamento dall'avvio e confronto con il certificato.
 - Grafico, rendimenti mensili.
 - Attribuzione della performance per classe, area e posizione (dal ribilanciamento,
   dall'inizio, per mese).
@@ -90,6 +93,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → numero intero successivo (2, 3, …), correzioni → un punto in
 più sulla versione in corso (1.9 → 1.9.1; 2 → 2.1).
 
+- **2** — indice VICIGROW (Leonteq) e confronto con il certificato.
 - **1.9.2** — premio/sconto confrontato alla stessa data.
 - **1.9.1** — correzioni (variazione giornaliera, dettaglio posizione).
 - **1.9** — dettaglio posizione; storico del certificato dall'emissione.
