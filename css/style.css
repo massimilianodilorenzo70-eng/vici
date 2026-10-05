@@ -61,6 +61,7 @@ body {
 }
 
 .testata {
+  position: relative;
   background: radial-gradient(120% 140% at 85% 0%, #1638B8 0%, var(--blu) 55%, var(--blu-scuro) 100%);
   color: #fff;
   padding: calc(14px + env(safe-area-inset-top)) 16px 16px;
@@ -77,7 +78,7 @@ body {
   letter-spacing: .12em;
   line-height: 1;
 }
-.marchio-righe { display: flex; height: 2px; margin: 7px 0 6px; width: 170px; }
+.marchio-righe { display: flex; height: 2px; margin: 7px 0 6px; width: 170px; max-width: 100%; }
 .marchio-righe i { flex: 1; }
 .marchio-righe i:nth-child(1) { background: var(--giallo); }
 .marchio-righe i:nth-child(2) { background: var(--rosso); }
@@ -452,4 +453,26 @@ body.con-invito main { padding-bottom: 130px; }
 .sotto-var { display: none; }
 @media (max-width: 600px) {
   .sotto-var { display: block; font-size: 10.5px; font-weight: 400; color: var(--testo-2); }
+}
+
+/* numero di versione in basso a destra nella fascia blu */
+.versione-testata {
+  position: absolute;
+  right: 12px;
+  bottom: 3px;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: .03em;
+  color: #A9CFEA;   /* azzurro tenue dell'albero del logo */
+  opacity: .7;
+  pointer-events: none;
+}
+
+/* telefoni stretti: il marchio si rimpicciolisce e non tocca i pulsanti */
+@media (max-width: 370px) {
+  .marchio { gap: 8px; margin: 0 8px; }
+  .marchio-icona { width: 44px; height: 44px; }
+  .marchio-nome { font-size: 24px; }
+  .marchio-righe { width: 120px; margin: 5px 0 4px; }
+  .marchio-sotto { font-size: 14px; }
 }
