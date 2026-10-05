@@ -1,19 +1,19 @@
 {
- "aggiornato": "2026-10-05T09:52:28+00:00",
+ "aggiornato": "2026-10-05T09:53:44+00:00",
  "nome": "VICI Balanced Growth AMC",
  "indice": "VICIGROW Index",
  "isin_certificato": "CH1453363652",
  "data_esecuzione": "2026-09-02",
  "base": 1000.0,
- "nav": 993.5118978296521,
- "nav_prec": 993.6861707117861,
- "perf_totale": -0.6488102170347898,
- "perf_giorno": -0.017538020279495026,
+ "nav": 993.5337385190442,
+ "nav_prec": 993.7080160668529,
+ "perf_totale": -0.6466261480955859,
+ "perf_giorno": -0.017538104251035858,
  "classi": {
-  "Azioni": 48.57334579388918,
-  "Obbligazioni": 42.129615560234484,
-  "Oro": 7.264050390164176,
-  "Liquidità": 2.0329882557121577
+  "Azioni": 48.574476297602786,
+  "Obbligazioni": 42.12868943179819,
+  "Oro": 7.2638907057346005,
+  "Liquidità": 2.0329435648644196
  },
  "certificato": {
   "prezzo": 1010.02,
@@ -25,7 +25,7 @@
   "min_anno": 1013.76,
   "fonte": "Borsa Italiana",
   "url": "https://www.borsaitaliana.it/borsa/cw-e-certificates/scheda/CH1453363652-SEDX.html?lang=it",
-  "ora": "2026-10-05T09:52:28+00:00"
+  "ora": "2026-10-05T09:53:44+00:00"
  },
  "mancanti": [],
  "posizioni": [
@@ -38,17 +38,17 @@
    "peso_iniziale": 17.21,
    "prezzo_carico": 157.58,
    "quote": 1.0920344696079953,
-   "prezzo": 158.18,
-   "prezzo_prec": 158.17999267578125,
-   "var_giorno": 4.630306671415951e-06,
-   "var_carico": 0.38075897956593163,
-   "valore": 172.73801240259272,
+   "prezzo": 158.2,
+   "prezzo_prec": 158.1999969482422,
+   "var_giorno": 1.9290504749136517e-06,
+   "var_carico": 0.39345094555145455,
+   "valore": 172.75985309198484,
    "simbolo": "IUSE.L",
    "fonte": "Yahoo Finance",
-   "aggiornato": "2026-10-05T09:37:17+00:00",
+   "aggiornato": "2026-10-05T09:37:38+00:00",
    "mancante": false,
-   "peso_attuale": 17.386607324979458,
-   "contributo": 0.0655220681764791
+   "peso_attuale": 17.388423401655157,
+   "contributo": 0.0677061371156931
   },
   {
    "nome": "Amundi Euro Government Bond 3-5Y",
@@ -68,7 +68,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T09:36:31+00:00",
    "mancante": false,
-   "peso_attuale": 9.949683306349742,
+   "peso_attuale": 9.949464584091787,
    "contributo": -0.09387335529447967
   },
   {
@@ -89,7 +89,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-01T20:00:00+00:00",
    "mancante": false,
-   "peso_attuale": 9.692692899325824,
+   "peso_attuale": 9.692479826445881,
    "contributo": -0.23920738120093785
   },
   {
@@ -110,7 +110,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T08:09:23+00:00",
    "mancante": false,
-   "peso_attuale": 9.419205674153993,
+   "peso_attuale": 9.418998613298912,
    "contributo": -0.1109601893139677
   },
   {
@@ -131,7 +131,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-02T20:00:00+00:00",
    "mancante": false,
-   "peso_attuale": 9.360372107177682,
+   "peso_attuale": 9.360166339651265,
    "contributo": 0.14055696500299994
   },
   {
@@ -152,7 +152,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T09:06:22+00:00",
    "mancante": false,
-   "peso_attuale": 8.820608159659873,
+   "peso_attuale": 8.820414257675878,
    "contributo": -0.1857259367756557
   },
   {
@@ -173,7 +173,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-01T20:00:00+00:00",
    "mancante": false,
-   "peso_attuale": 7.971493377314765,
+   "peso_attuale": 7.971318141281911,
    "contributo": -0.06942756605951614
   },
   {
@@ -194,7 +194,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T09:35:15+00:00",
    "mancante": false,
-   "peso_attuale": 7.264050390164176,
+   "peso_attuale": 7.2638907057346005,
    "contributo": -0.12234558433042492
   },
   {
@@ -215,7 +215,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T09:27:47+00:00",
    "mancante": false,
-   "peso_attuale": 5.096540303090159,
+   "peso_attuale": 5.0964282666797,
    "contributo": 0.013978378393464521
   },
   {
@@ -236,7 +236,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T09:34:58+00:00",
    "mancante": false,
-   "peso_attuale": 4.362666142994331,
+   "peso_attuale": 4.362570239219294,
    "contributo": 0.22477167822757624
   },
   {
@@ -257,7 +257,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T09:35:53+00:00",
    "mancante": false,
-   "peso_attuale": 3.836772721887631,
+   "peso_attuale": 3.8366883787415067,
    "contributo": -0.1677226913323993
   },
   {
@@ -278,7 +278,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T08:56:26+00:00",
    "mancante": false,
-   "peso_attuale": 2.981018979257257,
+   "peso_attuale": 2.9809534480054496,
    "contributo": 0.001973793951048825
   },
   {
@@ -299,7 +299,7 @@
    "fonte": "liquidità",
    "aggiornato": null,
    "mancante": false,
-   "peso_attuale": 2.0329882557121577,
+   "peso_attuale": 2.0329435648644196,
    "contributo": 0.0
   },
   {
@@ -320,7 +320,7 @@
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-10-05T08:52:55+00:00",
    "mancante": false,
-   "peso_attuale": 1.825300357932945,
+   "peso_attuale": 1.825260232654236,
    "contributo": -0.10635039647897676
   }
  ]
