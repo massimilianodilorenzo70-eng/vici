@@ -6,19 +6,35 @@ posizioni, prezzi aggiornati e andamento rispetto a quanto investito.
 
 ## Cosa mostra
 
-- **Certificato**: ultima quotazione (Euronext / Borsa Italiana) e variazione
-  dal prezzo di emissione (1000).
-- **Paniere stimato**: valore ricalcolato del paniere partendo da 1000 alla
-  data di esecuzione, con i pesi e i prezzi di carico di `data/portafoglio.json`
-  e i prezzi di mercato più recenti. Variazione totale e di oggi.
-- **Il mio investimento**: numero di certificati e prezzo medio di carico
-  (salvati solo sul dispositivo) → valore attuale e guadagno/perdita in € e %.
-- **Andamento**: grafico del paniere stimato dalla data di esecuzione, con i
-  punti della quotazione del certificato man mano che vengono raccolti.
-- **Allocazione** per classe (azioni, obbligazioni, oro, liquidità).
-- **Posizioni**: per ognuna peso attuale e scostamento dal peso iniziale,
-  prezzo di carico, ultimo prezzo, variazione dal carico e di oggi,
-  contributo alla performance.
+L'app ha un menu (☰) e quattro sezioni.
+
+**Portafoglio**
+- Quotazione del certificato (Borsa Italiana) e variazione dall'emissione.
+- Paniere stimato dall'ultimo ribilanciamento.
+- Tabella delle posizioni: peso, prezzo di carico, prezzo attuale, variazione dal
+  carico e contributo (peso × variazione), con il totale.
+- Allocazione per classe e per area; "Il mio investimento" (salvato sul dispositivo).
+
+**Andamento**
+- Paniere contro un benchmark bilanciato 60/40 (MSCI World + Euro Aggregate Bond).
+- Premio/sconto del certificato rispetto al paniere.
+- Grafico, rendimenti mensili.
+- Rischio del portafoglio attuale sull'ultimo anno: volatilità, perdita massima,
+  VaR 95%, quota di rischio per posizione, matrice delle correlazioni.
+
+**Gestione**
+- Scostamento di ogni posizione dal peso obiettivo; oltre la soglia
+  (`soglia_scostamento`, 2 punti) il workflow apre una issue su GitHub, che arriva
+  anche per email, e la chiude quando tutto rientra.
+- Simulatore di ribilanciamento: nuovi pesi → operazioni in euro e quantità,
+  nuova allocazione; si scarica come nuovo ribilanciamento.
+- Storico dei ribilanciamenti con la performance di ogni periodo.
+
+**Report**
+- Report mensile con commento del gestore, da stampare o salvare in PDF.
+
+All'apertura l'app propone di installarsi sul telefono (Android: pulsante
+«Installa»; iPhone: istruzioni per «Aggiungi alla schermata Home»).
 
 ## Come si aggiornano i dati
 
@@ -37,11 +53,24 @@ Si può avviare a mano da GitHub → **Actions** → *Aggiorna prezzi* → **Run
 `Diagnostica fonti` salva in `debug/fonti/` una copia delle pagine di Leonteq,
 Euronext e Borsa Italiana: serve per adattare lo script se una fonte cambia.
 
-## Cambiare la composizione
+## Nuovo ribilanciamento
 
-Dopo un ribilanciamento basta modificare `data/portafoglio.json` (pesi,
-prezzi di carico, data di esecuzione, posizioni nuove). Il campo `yahoo` è
-facoltativo: se è vuoto lo script trova il simbolo da solo partendo dall'ISIN.
+In `data/portafoglio.json`, nell'elenco `ribilanciamenti`, aggiungi in fondo un
+elemento con data, pesi e prezzi di esecuzione (il simulatore può generarlo:
+«Scarica come nuovo ribilanciamento»). Il paniere riparte dal valore raggiunto
+quel giorno, quindi la curva resta continua. Nello stesso file:
+`certificato_al_ribilanciamento` (prezzo del certificato quel giorno, per un
+premio/sconto preciso), `soglia_scostamento` e il `benchmark`.
+
+## Versioni
+
+Il numero di versione è nel menu e in fondo alla pagina; le novità di ogni
+versione sono nel menu → «Novità della versione».
+
+- **1.1** — menu e sezioni, benchmark, premio/sconto, rischio e correlazioni,
+  rendimenti mensili, scostamenti con avviso email, simulatore, storico dei
+  ribilanciamenti, report PDF, invito a installare all'apertura.
+- **1** — prima versione.
 
 ## Pubblicazione
 
