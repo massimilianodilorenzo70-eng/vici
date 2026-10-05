@@ -21,7 +21,7 @@ L'app ha un menu (☰) e quattro sezioni.
 - Grafico, rendimenti mensili.
 - Attribuzione della performance per classe, area e posizione (dal ribilanciamento,
   dall'inizio, per mese).
-- Stress test: sensibilità di ogni posizione ad azioni mondo, tassi euro, oro e
+- Stress test: sensibilità di ogni posizione ad azioni (S&P 500 coperto), tassi euro, oro e
   dollaro (regressione sui rendimenti settimanali dell'ultimo anno) e impatto di
   scenari pronti o liberi, sul portafoglio attuale e su quello programmato.
 - Rischio del portafoglio attuale sull'ultimo anno: volatilità, perdita massima,

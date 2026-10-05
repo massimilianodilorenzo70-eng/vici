@@ -528,7 +528,8 @@ def calcola_benchmark(port, cache, dal_storia, inizio, base):
 
 # Fattori di rischio: per ogni posizione si stima quanto reagisce a ciascuno
 FATTORI = [
-    {"id": "azioni", "nome": "Azioni mondo", "simbolo": "IWDA.AS", "nota": "iShares Core MSCI World (EUR)"},
+    # Azionario coperto dal cambio, così l'effetto del dollaro resta tutto nel fattore dollaro
+    {"id": "azioni", "nome": "Azioni", "simbolo": "IUSE.L", "nota": "S&P 500 coperto dal cambio (EUR)"},
     {"id": "obbligazioni", "nome": "Tassi euro", "simbolo": "IEAG.AS", "nota": "iShares Core Euro Aggregate Bond"},
     {"id": "oro", "nome": "Oro", "simbolo": "4GLD.DE", "nota": "Xetra-Gold (EUR)"},
     {"id": "dollaro", "nome": "Dollaro", "simbolo": "EURUSD=X", "nota": "valore del dollaro in euro", "inverti": True},

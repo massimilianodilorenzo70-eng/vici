@@ -361,7 +361,7 @@ function mostraStress() {
     dettaglioStress(st.scenari[Number(tr.dataset.i)]);
   }));
   const senza = att.filter((p) => !p.liquidita && !st.beta[p.chiave]).map((p) => breve(p.nome));
-  $("stress-metodo").textContent = `Metodo: per ogni posizione si stima quanto si muove con azioni mondo, tassi euro, oro e dollaro, ` +
+  $("stress-metodo").textContent = `Metodo: per ogni posizione si stima quanto si muove con azioni (S&P 500 coperto dal cambio), tassi euro, oro e dollaro, ` +
     `sui rendimenti settimanali dell'ultimo anno (${st.settimane} settimane dal ${dataIt(st.dal)}); ` +
     `+1 punto di tassi corrisponde a −${fmt(st.duration_tassi, 1)}% sull'indice obbligazionario. È una stima lineare: negli shock forti le correlazioni cambiano.` +
     (senza.length ? ` Senza storico sufficiente (impatto 0): ${senza.join(", ")}.` : "");
