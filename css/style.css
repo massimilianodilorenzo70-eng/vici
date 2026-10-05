@@ -570,3 +570,8 @@ body.con-invito main { padding-bottom: 130px; }
 .indice-costi td:last-child { text-align: right; font-weight: 600; white-space: nowrap; }
 .indice-costi tr:first-child td { border-top: 0; }
 .indice-costi tr.totale td { border-top: 2px solid var(--testo); }
+
+/* finestra novità: titolo e ✕ sempre in vista mentre si scorre */
+.novita-testa { position: sticky; top: -18px; margin: -18px -18px 8px; padding: 14px 18px 8px; background: var(--carta);
+  display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bordo); z-index: 1; }
+.novita-testa h2 { margin: 0; }
