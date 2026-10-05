@@ -96,6 +96,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.1.3** — link alla scheda Leonteq nel menu.
 - **3.1.2** — tolto dal menu il link al book di Borsa Italiana.
 - **3.1.1** — link del menu a Euronext e al book di Borsa Italiana.
 - **3.1** — prezzo corrente del certificato in cima (ultimo contratto o medio del book) e quotazione aggiornata ogni 15 minuti.

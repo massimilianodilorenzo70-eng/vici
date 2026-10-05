@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.1.2";
+const VERSIONE = "3.1.3";
 const NOVITA = [
+  { v: "3.1.3", voci: ["Menu: aggiunto il link alla scheda del certificato su Leonteq."] },
   { v: "3.1.2", voci: ["Menu: tolto il link al book di Borsa Italiana."] },
   { v: "3.1.1", voci: ["Menu: i link portano alla quotazione su Euronext e al book di Borsa Italiana (la scheda mostrava solo l'ultimo contratto, vuoto nei giorni senza scambi)."] },
   { v: "3.1", voci: [
