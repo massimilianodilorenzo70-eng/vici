@@ -1,0 +1,11 @@
+total 352
+drwxr-xr-x 2 runner runner   4096 Oct  5 09:53 .
+drwxr-xr-x 3 runner runner   4096 Oct  5 09:53 ..
+-rw-r--r-- 1 runner runner  60579 Oct  5 09:53 borsaitaliana.html
+-rw-r--r-- 1 runner runner      0 Oct  5 09:53 elenco.txt
+-rw-r--r-- 1 runner runner  24320 Oct  5 09:53 euronext_grafico.json
+-rw-r--r-- 1 runner runner 240723 Oct  5 09:53 euronext_pagina.html
+-rw-r--r-- 1 runner runner  10861 Oct  5 09:53 euronext_quote.html
+-rw-r--r-- 1 runner runner    860 Oct  5 09:53 leonteq_home.html
+-rw-r--r-- 1 runner runner    860 Oct  5 09:53 leonteq_index.html
+-rw-r--r-- 1 runner runner    676 Oct  5 09:53 yahoo_cerca.json
