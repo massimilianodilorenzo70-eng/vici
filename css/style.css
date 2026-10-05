@@ -552,3 +552,8 @@ body.con-invito main { padding-bottom: 130px; }
 .l-rib { background: repeating-linear-gradient(90deg, var(--giallo) 0 4px, transparent 4px 7px); margin-left: 10px; }
 .grafico .rib { stroke: var(--giallo); stroke-dasharray: 3 4; stroke-width: 1.2; }
 .grafico .rib-testo { font-size: 10px; fill: var(--testo-2); }
+
+/* ---------- indice VICIGROW ---------- */
+.l-indice { background: #F0A030; }
+#indice-mesi td, #indice-mesi th { text-align: right; }
+#indice-mesi td:first-child, #indice-mesi th:first-child { text-align: left; min-width: 0; }

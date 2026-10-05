@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "1.9.2";
+const VERSIONE = "2";
 const NOVITA = [
+  { v: "2", voci: ["Indice VICIGROW (Leonteq): rendimenti mensili, andamento dall'avvio e confronto con il certificato, con la differenza tra i due."] },
   { v: "1.9.2", voci: ["Certificato vs paniere: il prezzo del certificato è confrontato con il paniere alla stessa data (prima con il valore di adesso)."] },
   { v: "1.9.1", voci: [
     "Correzioni: variazione giornaliera calcolata correttamente (prima risultava quasi sempre zero); link e testi del dettaglio posizione; il grafico del dettaglio mantiene il periodo scelto.",
@@ -94,6 +95,7 @@ function scrivi(k, v) {
 
 let dati = null;
 let storico = null;
+let indice = null; // rendimenti mensili dell'indice VICIGROW (data/indice.json)
 
 /* ================= caricamento ================= */
 async function carica() {
@@ -101,10 +103,12 @@ async function carica() {
   bottone.classList.add("gira");
   try {
     const t = Date.now();
-    const [p, s] = await Promise.all([
+    const [p, s, ind] = await Promise.all([
       fetch(`data/prezzi.json?t=${t}`).then((r) => r.ok ? r.json() : null),
       fetch(`data/storico.json?t=${t}`).then((r) => r.ok ? r.json() : null),
+      fetch(`data/indice.json?t=${t}`).then((r) => r.ok ? r.json() : null).catch(() => null),
     ]);
+    indice = ind;
     if (!p || !p.posizioni) throw new Error("dati non ancora disponibili");
     dati = p;
     storico = s || { nav: [], benchmark: [], certificato: [] };
@@ -279,6 +283,7 @@ function mostraAndamento() {
   }
   mostraGrafico();
   mostraStoriaCertificato();
+  mostraIndice();
   mostraMensili();
   mostraAttribuzione();
   mostraStress();
@@ -347,6 +352,87 @@ function mostraStoriaCertificato() {
     if (rif.length > 1) svg += `<path d="${rif.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("")}" fill="none" stroke="var(--linea-cert)" stroke-width="2"/>`;
     rif.forEach((p) => { svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="3" fill="var(--linea-cert)"/>`; });
   }
+  box.innerHTML = svg + "</svg>";
+}
+
+/* ---------- indice VICIGROW (Leonteq) ---------- */
+const MESI_BREVI = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
+
+// Serie del valore dell'indice a fine mese (100 all'avvio) dai rendimenti mensili
+function serieIndice() {
+  const out = [];
+  let v = 100;
+  Object.keys(indice.mensili).sort().forEach((anno) => {
+    Object.keys(indice.mensili[anno]).map(Number).sort((a, b) => a - b).forEach((mese) => {
+      const r = indice.mensili[anno][mese];
+      if (!out.length) out.push({ t: new Date(Number(anno), mese - 1, 1).getTime(), v }); // inizio del primo mese
+      if (r != null) v *= 1 + r / 100;
+      out.push({ t: new Date(Number(anno), mese, 0).getTime(), v, anno, mese });
+    });
+  });
+  return out;
+}
+
+function mostraIndice() {
+  $("indice-riquadro").hidden = !indice;
+  if (!indice) return;
+  const serie = serieIndice();
+  const ultimo = serie[serie.length - 1];
+  const rendIndice = ultimo.v - 100;
+  const emis = (dati.emissione && dati.emissione.prezzo) || 1000;
+  const c = dati.certificato;
+  const rendCert = c && c.prezzo ? (c.prezzo / emis - 1) * 100 : null;
+  const met = [
+    ["Indice dall'avvio", perc(rendIndice), `fino a ${MESI_BREVI[ultimo.mese - 1]} ${ultimo.anno}`],
+    ["Media annua indice", indice.media_annua_leonteq != null ? perc(indice.media_annua_leonteq) : "—", "dato Leonteq"],
+    ["Certificato dall'emissione", perc(rendCert), c ? `prezzo ${fmt(c.prezzo)}` : ""],
+    ["Differenza", rendCert == null ? "—" : `${fmt(rendCert - rendIndice)} punti`, "costi della struttura e altre differenze"],
+  ];
+  $("indice-metriche").innerHTML = met.map(([a, v, x]) => `<div><span>${a}</span><b class="${a === "Differenza" ? segno(rendCert - rendIndice) : ""}">${v}</b><small>${x}</small></div>`).join("");
+
+  // tabella: righe = mesi, colonne = anni (si legge bene anche sul telefono)
+  const anni = Object.keys(indice.mensili).sort();
+  const tot = indice.totali_leonteq || {};
+  $("indice-mesi").innerHTML = `<thead><tr><th>Mese</th>${anni.map((a) => `<th>${a}</th>`).join("")}</tr></thead>
+    <tbody>${MESI_BREVI.map((nome, i) => {
+      const celle = anni.map((a) => indice.mensili[a][i + 1]);
+      if (celle.every((v) => v === undefined)) return "";
+      return `<tr><td>${nome}</td>${celle.map((v) => `<td class="${v == null ? "" : segno(v)}">${v == null ? "—" : perc(v)}</td>`).join("")}</tr>`;
+    }).join("")}</tbody>
+    <tfoot><tr><td>Totale</td>${anni.map((a) => `<td class="forte ${segno(tot[a])}">${tot[a] == null ? "—" : perc(tot[a])}</td>`).join("")}</tr></tfoot>`;
+  $("indice-nota").textContent = `Fonte: ${indice.fonte}; dati fino al ${dataIt(indice.aggiornato_al)}. ` +
+    "La differenza tra indice e certificato comprende le commissioni del certificato e il fatto che il prezzo del certificato " +
+    "è quello di Borsa Italiana (riferimento o ultimo scambio), non il valore dell'indice.";
+
+  const box = $("indice-grafico");
+  if (box.offsetParent === null) return;
+  const scambi = (storico.certificato_scambi || []).map((p) => ({ t: new Date(p.data).getTime(), v: p.prezzo / emis * 100 }));
+  const rif = (storico.certificato || []).map((p) => ({ t: new Date(p.data).getTime(), v: p.prezzo / emis * 100 }));
+  const tutti = serie.concat(scambi, rif);
+  const W = box.clientWidth || 600, H = box.clientHeight || 220, m = { l: 40, r: 8, t: 10, b: 22 };
+  const t0 = Math.min(...tutti.map((p) => p.t)), t1 = Math.max(...tutti.map((p) => p.t));
+  let v0 = Math.min(100, ...tutti.map((p) => p.v)), v1 = Math.max(100, ...tutti.map((p) => p.v));
+  const pad = (v1 - v0) * 0.1 || 1; v0 -= pad; v1 += pad;
+  const x = (t) => m.l + (t - t0) / (t1 - t0) * (W - m.l - m.r);
+  const y = (v) => m.t + (1 - (v - v0) / (v1 - v0)) * (H - m.t - m.b);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  for (let i = 0; i <= 3; i++) {
+    const v = v0 + (v1 - v0) * i / 3;
+    svg += `<line class="griglia" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="asse" x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${fmt(v, 0)}</text>`;
+  }
+  svg += `<line class="base" x1="${m.l}" x2="${W - m.r}" y1="${y(100)}" y2="${y(100)}"/>`;
+  for (let i = 0; i <= 4; i++) {
+    const t = t0 + (t1 - t0) * i / 4;
+    svg += `<text class="asse" x="${x(t)}" y="${H - 4}" text-anchor="${i === 0 ? "start" : i === 4 ? "end" : "middle"}">${new Date(t).toLocaleDateString("it-IT", { month: "short", year: "2-digit" })}</text>`;
+  }
+  if (scambi.length) {
+    let d = `M${x(scambi[0].t).toFixed(1)},${y(scambi[0].v).toFixed(1)}`;
+    for (let i = 1; i < scambi.length; i++) d += `H${x(scambi[i].t).toFixed(1)}V${y(scambi[i].v).toFixed(1)}`;
+    svg += `<path d="${d}" fill="none" stroke="var(--azzurro)" stroke-width="1.4" opacity=".9"/>`;
+  }
+  rif.forEach((p) => { svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="3" fill="var(--linea-cert)"/>`; });
+  svg += `<path d="${serie.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("")}" fill="none" stroke="#F0A030" stroke-width="2.2" stroke-linejoin="round"/>`;
+  serie.forEach((p) => { svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="2.2" fill="#F0A030"/>`; });
   box.innerHTML = svg + "</svg>";
 }
 
@@ -978,7 +1064,7 @@ function mostraScheda(nome) {
   scrivi(K.scheda, nome);
   chiudiMenu();
   window.scrollTo({ top: 0 });
-  if (nome === "andamento" && dati) { mostraGrafico(); mostraStoriaCertificato(); }
+  if (nome === "andamento" && dati) { mostraGrafico(); mostraStoriaCertificato(); mostraIndice(); }
 }
 
 function apriMenu() {
@@ -1095,7 +1181,7 @@ document.querySelectorAll("[data-det-periodo]").forEach((b) => b.addEventListene
   mostraDettaglio();
 }));
 ["sl-azioni", "sl-tassi", "sl-oro", "sl-dollaro"].forEach((id) => $(id).addEventListener("input", calcolaStressLibero));
-window.addEventListener("resize", () => { if (dati) { mostraGrafico(); mostraStoriaCertificato(); } });
+window.addEventListener("resize", () => { if (dati) { mostraGrafico(); mostraStoriaCertificato(); mostraIndice(); } });
 document.addEventListener("visibilitychange", () => { if (!document.hidden) carica(); });
 setInterval(() => { if (!document.hidden) carica(); }, RICARICA_MS);
 

@@ -1,0 +1,12 @@
+{
+ "nome": "VICIGROW Index",
+ "fonte": "Leonteq (indices.leonteq.com), inserito a mano dalla tabella «Yearly return since start date»",
+ "aggiornato_al": "2026-09-30",
+ "media_annua_leonteq": 3.77,
+ "_istruzioni": "Rendimenti mensili dell'indice in %, come nella tabella Leonteq. Ogni mese si aggiunge il mese nuovo (anno → mese 1-12). null = mese senza dato.",
+ "mensili": {
+  "2025": {"6": 0.00, "7": null, "8": 0.03, "9": 0.43, "10": 0.81, "11": 0.19, "12": 0.68},
+  "2026": {"1": 1.88, "2": 1.14, "3": -4.24, "4": 2.88, "5": 1.88, "6": -0.48, "7": -0.98, "8": 2.67, "9": -1.73}
+ },
+ "totali_leonteq": {"2025": 2.16, "2026": 2.84}
+}
