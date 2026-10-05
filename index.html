@@ -204,6 +204,17 @@
 
     <!-- ===================== GESTIONE ===================== -->
     <section data-pannello="gestione" hidden>
+      <div class="riquadro principale" id="programmato" hidden>
+        <h2>Ribilanciamento programmato</h2>
+        <p class="nota" id="programmato-nota"></p>
+        <div class="tabella-box">
+          <table class="tabella compatta">
+            <thead><tr><th>Posizione</th><th>Peso oggi</th><th>Nuovo peso</th><th>Differenza</th></tr></thead>
+            <tbody id="programmato-righe"></tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="riquadro">
         <h2>Scostamento dai pesi obiettivo</h2>
         <p class="nota" id="scost-nota"></p>

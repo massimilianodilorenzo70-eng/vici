@@ -42,7 +42,7 @@ jobs:
         run: |
           git config user.name "vici-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add data/prezzi.json data/storico.json data/simboli.json
+          git add data/prezzi.json data/storico.json data/simboli.json data/portafoglio.json
           git add data/avvisi.json 2>/dev/null || true
           git add debug/ 2>/dev/null || true
           git diff --cached --quiet || git commit -m "Aggiorna prezzi [bot]"

@@ -3,8 +3,14 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "1.1";
+const VERSIONE = "1.2";
 const NOVITA = [
+  { v: "1.2", voci: [
+    "Ribilanciamento di ottobre: esecuzione il 7 ottobre 2026, prezzi di carico = chiusure di quel giorno, compilati in automatico.",
+    "Entra iShares Nasdaq 100 (7%), esce iShares MSCI USA Small Cap; nuovi pesi per tutte le posizioni, liquidità al 3%.",
+    "In Gestione il riquadro «Ribilanciamento programmato» mostra i nuovi pesi rispetto a quelli di oggi, finché non diventa attivo.",
+    "I ribilanciamenti mensili si importano dall'Excel della composizione (anche caricandolo su GitHub nella cartella ribilanciamenti/).",
+  ] },
   { v: "1.1", voci: [
     "Menu (☰) e quattro sezioni: Portafoglio, Andamento, Gestione, Report.",
     "Confronto con un benchmark bilanciato 60/40 (MSCI World + Euro Aggregate Bond).",
@@ -71,7 +77,8 @@ async function carica() {
     mostra();
     $("stato").className = "stato";
     $("stato").textContent = `Prezzi aggiornati il ${oraIt(dati.aggiornato)}` +
-      (dati.mancanti && dati.mancanti.length ? ` · senza prezzo: ${dati.mancanti.join(", ")}` : "");
+      (dati.mancanti && dati.mancanti.length ? ` · senza prezzo: ${dati.mancanti.join(", ")}` : "") +
+      ((dati.programmati || []).length ? ` · ribilanciamento del ${dataIt(dati.programmati[0].data)} programmato (vedi Gestione)` : "");
   } catch (e) {
     $("stato").className = "stato errore";
     $("stato").textContent = navigator.onLine
@@ -358,9 +365,33 @@ function mostraRischio() {
 
 /* ================= GESTIONE ================= */
 function mostraGestione() {
+  mostraProgrammati();
   mostraScostamenti();
   preparaSimulatore();
   mostraPeriodi();
+}
+
+function mostraProgrammati() {
+  const prog = (dati.programmati || [])[0];
+  $("programmato").hidden = !prog;
+  if (!prog) return;
+  const oggi = Object.fromEntries(dati.posizioni.map((p) => [p.isin || p.nome, p]));
+  const chiave = (p) => p.isin || p.nome;
+  const nuovi = new Set(prog.posizioni.map(chiave));
+  const righe = prog.posizioni.map((p) => {
+    const o = oggi[chiave(p)];
+    return { nome: p.nome, att: o ? o.peso_attuale : 0, nuovo: p.peso, stato: o ? "" : "entra" };
+  }).concat(dati.posizioni.filter((p) => !nuovi.has(chiave(p)))
+    .map((p) => ({ nome: p.nome, att: p.peso_attuale, nuovo: 0, stato: "esce" })));
+  righe.sort((a, b) => b.nuovo - a.nuovo);
+  $("programmato-nota").textContent = `Esecuzione il ${dataIt(prog.data)}. I prezzi di carico saranno le chiusure di quel giorno, ` +
+    "prese in automatico: da allora questo diventa il portafoglio attivo e le performance ripartono dal valore raggiunto.";
+  $("programmato-righe").innerHTML = righe.map((r) => {
+    const diff = r.nuovo - r.att;
+    return `<tr><td>${esc(breve(r.nome))}${r.stato ? ` <span class="etichetta">${r.stato}</span>` : ""}</td>
+      <td>${fmt(r.att)}%</td><td class="forte">${fmt(r.nuovo)}%</td>
+      <td class="${segno(diff)}">${diff > 0 ? "+" : ""}${fmt(diff)}</td></tr>`;
+  }).join("");
 }
 
 function mostraScostamenti() {
@@ -472,8 +503,8 @@ function mostraPeriodi() {
   const periodi = dati.periodi || [];
   $("periodi").innerHTML = periodi.map((p) => `<tr>
     <td>${dataIt(p.data)}</td><td>${p.fino_al ? dataIt(p.fino_al) : "oggi"}</td><td>${p.posizioni}</td>
-    <td>${fmt(p.base)}</td><td>${fmt(p.fine)}</td><td class="forte ${segno(p.perf)}">${perc(p.perf)}</td></tr>`).join("") ||
-    `<tr><td colspan="6">Nessun ribilanciamento registrato.</td></tr>`;
+    <td>${fmt(p.base)}</td><td>${fmt(p.fine)}</td><td class="forte ${segno(p.perf)}">${perc(p.perf)}</td></tr>`).join("") +
+    (dati.programmati || []).map((p) => `<tr><td>${dataIt(p.data)}</td><td colspan="5"><span class="etichetta">programmato</span> ${p.posizioni.length} posizioni, in attesa delle chiusure</td></tr>`).join("");
 }
 
 /* ================= REPORT ================= */
