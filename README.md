@@ -86,8 +86,11 @@ Le posizioni nuove prendono classe e area dal nome (da controllare in
 Il numero di versione è nel menu e in fondo alla pagina; le novità di ogni
 versione sono nel menu → «Novità della versione». A ogni apertura l'app legge
 `versione.json` dal sito e, se è cambiata, si aggiorna e si ricarica da sola.
-Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`.
+Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
+funzioni nuove → versione successiva (1.9 → 1.10), correzioni → terzo numero
+(1.9 → 1.9.1).
 
+- **1.9.1** — correzioni (variazione giornaliera, dettaglio posizione).
 - **1.9** — dettaglio posizione; storico del certificato dall'emissione.
 - **1.8** — menu più semplice, correzioni su scenario libero e attribuzione.
 - **1.7** — attribuzione della performance e stress test.
