@@ -3,8 +3,13 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "1.3";
+const VERSIONE = "1.4";
 const NOVITA = [
+  { v: "1.4", voci: [
+    "Controllo completo e correzioni: data giusta della quotazione del certificato (seduta precedente), niente punti nel fine settimana, virgola decimale accettata nei campi, simulatore che non perde quello che stai scrivendo, data dell'ultimo NAV per i fondi, tabella del rischio leggibile sul telefono.",
+    "Avviso di aggiornamento più semplice.",
+    "Importazione dei ribilanciamenti: un file con problemi viene saltato con un avviso, senza bloccare gli altri.",
+  ] },
   { v: "1.3", voci: [
     "A ogni apertura, e quando la riapri dallo sfondo, l'app controlla se c'è una versione nuova e si aggiorna da sola.",
   ] },
@@ -52,6 +57,14 @@ const oraIt = (s) => s ? new Date(s).toLocaleString("it-IT", { day: "numeric", m
 const meseIt = (m) => new Date(m + "-15").toLocaleDateString("it-IT", { month: "long", year: "numeric" });
 const decPrezzo = (v) => v < 10 ? 4 : 2;
 const breve = (nome) => nome.replace(/^(iShares|Amundi|WisdomTree|PIMCO GIS|Schroder ISF|T\. Rowe Price|Muzinich)\s+/, "");
+// Accetta sia "9,5" sia "9.5" (e "5.000.000" come migliaia)
+const numero = (v) => {
+  let t = String(v ?? "").trim().replace(/\s/g, "");
+  if (/,/.test(t)) t = t.replace(/\./g, "").replace(",", ".");
+  else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, "");
+  const n = parseFloat(t);
+  return isNaN(n) ? 0 : n;
+};
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 function leggi(k, ripiego = null) {
@@ -111,7 +124,8 @@ function mostraPortafoglio() {
     const pc = (c.prezzo / emis - 1) * 100;
     $("cert-perf").innerHTML = `${colorato(pc)} dall'emissione a ${fmt(emis, 0)}`;
     const range = c.min_oggi && c.max_oggi ? ` · oggi ${fmt(c.min_oggi)}–${fmt(c.max_oggi)}` : "";
-    $("cert-fonte").textContent = `${c.tipo === "ultimo contratto" ? "Ultimo contratto" : "Prezzo di riferimento"}${range} · ${c.fonte}, ${oraIt(c.ora)}`;
+    const quando = c.tipo === "ultimo contratto" ? `ultimo contratto, letto ${oraIt(c.ora)}` : `prezzo di riferimento del ${dataIt(c.data || c.ora)}`;
+    $("cert-fonte").textContent = `${quando[0].toUpperCase() + quando.slice(1)}${range} · ${c.fonte}`;
   } else {
     $("cert-prezzo").textContent = "—";
     $("cert-perf").textContent = "Quotazione non disponibile";
@@ -135,7 +149,7 @@ function mostraPosizioni() {
   $("posizioni").innerHTML = righe.map((r) => `<tr>
       <td>
         <div class="pos-nome">${esc(r.nome)}${r.mancante ? ' <span class="etichetta">senza prezzo</span>' : ""}</div>
-        <div class="pos-codice">${esc(r.bloomberg || "")} · oggi ${colorato(r.var_giorno)}</div>
+        <div class="pos-codice">${esc(r.bloomberg || "")} · ${etichettaGiorno(r)} ${colorato(r.var_giorno)}</div>
       </td>
       <td data-l="Peso">${fmt(r.peso_iniziale)}%</td>
       <td data-l="Carico">${fmt(r.prezzo_carico, decPrezzo(r.prezzo_carico))}</td>
@@ -154,6 +168,14 @@ function mostraPosizioni() {
       <td data-l="Var. %" class="var forte ${segno(perf)}">${perc(perf)}</td>
       <td data-l="Contributo" class="forte ${segno(contrTot)}">${perc(contrTot)}</td>
     </tr>`;
+}
+
+// "oggi" se il prezzo è di oggi; per i fondi (NAV con qualche giorno di
+// ritardo) la data dell'ultimo prezzo
+function etichettaGiorno(r) {
+  if (!r.data_prezzo || r.liquidita) return "oggi";
+  const oggi = new Date().toISOString().slice(0, 10);
+  return r.data_prezzo >= oggi ? "oggi" : new Date(r.data_prezzo).toLocaleDateString("it-IT", { day: "numeric", month: "short" });
 }
 
 function barraAllocazione(id, valori, colore) {
@@ -344,8 +366,9 @@ function mostraRischio() {
 
   const pesi = Object.fromEntries(dati.posizioni.map((p) => [p.nome, p.peso_attuale]));
   $("rischio-posizioni").innerHTML = [...r.posizioni].sort((a, b) => (b.contributo_rischio ?? 0) - (a.contributo_rischio ?? 0)).map((p) =>
-    `<tr><td>${esc(breve(p.nome))}</td><td>${fmt(pesi[p.nome])}%</td><td>${fmt(p.vol)}%</td><td>${colorato(p.rend_1a)}</td>
-      <td class="forte">${fmt(p.contributo_rischio, 1)}%</td></tr>`).join("");
+    `<tr><td>${esc(breve(p.nome))}</td><td data-l="Peso">${fmt(pesi[p.nome])}%</td><td data-l="Volatilità">${fmt(p.vol)}%</td>
+      <td data-l="Rend. 1 anno">${colorato(p.rend_1a)}</td>
+      <td class="var forte" title="Quota di rischio">${fmt(p.contributo_rischio, 1)}%<small class="sotto-var">del rischio</small></td></tr>`).join("");
 
   const c = r.correlazioni;
   const sigle = c.nomi.map((n) => {
@@ -423,10 +446,22 @@ function mostraScostamenti() {
 
 let simPesi = null;
 function preparaSimulatore() {
-  const salvati = leggi(K.sim);
   const chiavi = dati.posizioni.map((p) => p.chiave || p.nome);
-  if (!simPesi) {
-    simPesi = salvati && chiavi.every((k) => k in salvati) ? salvati
+  const stesse = (o) => o && chiavi.length === Object.keys(o).length && chiavi.every((k) => k in o);
+  const righeOra = [...$("sim-righe").querySelectorAll("tr")].map((tr) => tr.dataset.k);
+  // Stesse posizioni già in tabella: si aggiornano solo i numeri, così chi sta
+  // scrivendo un peso non perde il campo al ricaricamento automatico dei dati
+  if (stesse(simPesi) && righeOra.length === chiavi.length && chiavi.every((k, i) => righeOra[i] === k)) {
+    dati.posizioni.forEach((p) => {
+      const tr = $("sim-righe").querySelector(`tr[data-k="${CSS.escape(p.chiave || p.nome)}"]`);
+      if (tr) tr.querySelector("td[data-l='Attuale']").textContent = fmt(p.peso_attuale) + "%";
+    });
+    calcolaSimulatore();
+    return;
+  }
+  if (!stesse(simPesi)) {
+    const salvati = leggi(K.sim);
+    simPesi = stesse(salvati) ? salvati
       : Object.fromEntries(dati.posizioni.map((p) => [p.chiave || p.nome, tondo(p.peso_obiettivo ?? p.peso_iniziale)]));
   }
   const pat = leggi(K.patrimonio);
@@ -436,12 +471,12 @@ function preparaSimulatore() {
     return `<tr data-k="${esc(k)}">
       <td>${esc(breve(p.nome))}</td>
       <td data-l="Attuale">${fmt(p.peso_attuale)}%</td>
-      <td class="var"><input type="number" step="0.01" min="0" inputmode="decimal" value="${simPesi[k]}" aria-label="Nuovo peso ${esc(p.nome)}"></td>
+      <td class="var"><input type="text" inputmode="decimal" value="${fmt(simPesi[k])}" aria-label="Nuovo peso ${esc(p.nome)}"></td>
       <td class="op" data-l="Operazione"></td><td class="qta" data-l="Quantità"></td>
     </tr>`;
   }).join("");
   $("sim-righe").querySelectorAll("input").forEach((inp) => inp.addEventListener("input", () => {
-    simPesi[inp.closest("tr").dataset.k] = Number(inp.value) || 0;
+    simPesi[inp.closest("tr").dataset.k] = numero(inp.value);
     scrivi(K.sim, simPesi);
     calcolaSimulatore();
   }));
@@ -449,7 +484,7 @@ function preparaSimulatore() {
 }
 
 function calcolaSimulatore() {
-  const pat = Number($("sim-patrimonio").value) || 0;
+  const pat = numero($("sim-patrimonio").value);
   let acquisti = 0, vendite = 0, somma = 0;
   const classi = {};
   dati.posizioni.forEach((p) => {
@@ -479,6 +514,7 @@ function calcolaSimulatore() {
 function impostaPesiSim(campo) {
   simPesi = Object.fromEntries(dati.posizioni.map((p) => [p.chiave || p.nome, tondo(p[campo] ?? p.peso_iniziale)]));
   scrivi(K.sim, simPesi);
+  $("sim-righe").innerHTML = "";
   preparaSimulatore();
 }
 
@@ -589,7 +625,6 @@ function mostraNovita() {
   $("novita-elenco").innerHTML = NOVITA.map((n) =>
     `<h3>Versione ${n.v}</h3><ul>${n.voci.map((v) => `<li>${esc(v)}</li>`).join("")}</ul>`).join("");
   $("novita").hidden = false;
-  scrivi(K.versioneVista, VERSIONE);
   chiudiMenu();
 }
 
@@ -665,11 +700,11 @@ $("modifica-mio").addEventListener("click", () => apriFormMio(true));
 $("mio-annulla").addEventListener("click", () => apriFormMio(false));
 $("mio-form").addEventListener("submit", (e) => {
   e.preventDefault();
-  scrivi(K.mio, { qta: Number($("mio-qta").value) || 0, carico: Number($("mio-carico").value) || 0 });
+  scrivi(K.mio, { qta: numero($("mio-qta").value), carico: numero($("mio-carico").value) });
   apriFormMio(false);
   if (dati) mostraMio();
 });
-$("sim-patrimonio").addEventListener("input", () => { scrivi(K.patrimonio, Number($("sim-patrimonio").value) || null); if (dati) calcolaSimulatore(); });
+$("sim-patrimonio").addEventListener("input", () => { scrivi(K.patrimonio, numero($("sim-patrimonio").value) || null); if (dati) calcolaSimulatore(); });
 $("sim-obiettivo").addEventListener("click", () => dati && impostaPesiSim("peso_obiettivo"));
 $("sim-attuali").addEventListener("click", () => dati && impostaPesiSim("peso_attuale"));
 $("sim-esporta").addEventListener("click", () => dati && esportaRibilanciamento());
@@ -683,10 +718,12 @@ setInterval(() => { if (!document.hidden) carica(); }, RICARICA_MS);
 mostraScheda(leggi(K.scheda, "portafoglio"));
 preparaInstallazione();
 const vista = leggi(K.versioneVista);
-let appenaAggiornata = false;
-try { appenaAggiornata = !!sessionStorage.getItem("vici-aggiornata-a"); } catch { /* niente */ }
-if (vista && vista !== VERSIONE && !appenaAggiornata) mostraNovita();
-else scrivi(K.versioneVista, VERSIONE);
+if (vista !== VERSIONE) {
+  // primo avvio di una versione nuova (aggiornata senza passare dal controllo
+  // automatico): basta l'avviso breve
+  if (vista) { try { sessionStorage.setItem("vici-aggiornata-a", VERSIONE); } catch { /* niente */ } }
+  scrivi(K.versioneVista, VERSIONE);
+}
 
 /* ================= aggiornamento automatico ================= */
 // All'apertura (e al ritorno dallo sfondo, al massimo ogni 10 minuti) legge
@@ -728,8 +765,7 @@ function avvisoAggiornata() {
   try { sessionStorage.removeItem("vici-aggiornata-a"); } catch { /* niente */ }
   const t = document.createElement("div");
   t.className = "avviso-versione";
-  t.innerHTML = `App aggiornata alla versione ${VERSIONE} · <button class="link">Novità</button>`;
-  t.querySelector("button").addEventListener("click", () => { t.remove(); mostraNovita(); });
+  t.textContent = `App aggiornata alla versione ${VERSIONE}`;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 6000);
 }

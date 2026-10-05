@@ -33,13 +33,24 @@ jobs:
         run: pip install openpyxl
 
       - name: Importa i file nuovi
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           for f in ribilanciamenti/*.xlsx; do
             nome=$(basename "$f")
             if grep -qF "\"file\": \"$nome\"" data/portafoglio.json; then
               echo "$nome già importato"
+            elif ! esito=$(python scripts/importa_ribilanciamento.py "$f" 2>&1); then
+              # file con problemi (es. senza data nel nome): si salta e si avvisa
+              echo "$esito"
+              gh issue create --title "VICI: ribilanciamento non importato ($nome)" \
+                --body "Il file \`ribilanciamenti/$nome\` non è stato importato:
+
+          > $esito
+
+          Rinomina il file mettendo la data di esecuzione all'inizio (es. \`2026-11-06.xlsx\`) oppure correggilo e caricalo di nuovo." || true
             else
-              python scripts/importa_ribilanciamento.py "$f"
+              echo "$esito"
             fi
           done
 

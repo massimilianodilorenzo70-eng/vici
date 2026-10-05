@@ -632,6 +632,7 @@ def main():
             "peso_iniziale": pos["peso"], "peso_obiettivo": pos["peso"] / att["somma"] * 100,
             "prezzo_carico": p0, "quote": q, "prezzo": prezzo, "prezzo_prec": prec,
             "var_giorno": (prezzo / prec - 1) * 100 if prec else None,
+            "data_prezzo": (g.get("ora") or "")[:10] or (g["chiusure"][-1][0] if ok and g["chiusure"] else None) if ok else None,
             "var_carico": (prezzo / p0 - 1) * 100,
             "valore": q * prezzo,
             "simbolo": g.get("simbolo") if ok else None,
@@ -651,7 +652,7 @@ def main():
         r["oltre_soglia"] = abs(r["scostamento"]) > soglia
     if serie_nav and serie_nav[-1][0] == oggi.isoformat():
         serie_nav[-1] = (serie_nav[-1][0], nav)
-    else:
+    elif oggi.weekday() < 5:  # nel fine settimana niente punto in più
         serie_nav.append((oggi.isoformat(), nav))
 
     classi, aree = {}, {}
@@ -684,7 +685,15 @@ def main():
     vecchio = json.loads(st_file.read_text(encoding="utf-8")) if st_file.exists() else {}
     cert_storico = {p["data"]: p["prezzo"] for p in vecchio.get("certificato", [])}
     if cert:
-        cert_storico[oggi.isoformat()] = cert["prezzo"]
+        # Il prezzo di riferimento è quello della seduta precedente: va
+        # registrato con quella data, non con oggi
+        giorno = oggi
+        if cert["tipo"] == "prezzo di riferimento":
+            giorno = oggi - timedelta(days=1)
+            while giorno.weekday() >= 5:
+                giorno -= timedelta(days=1)
+        cert["data"] = giorno.isoformat()
+        cert_storico[giorno.isoformat()] = cert["prezzo"]
 
     # Premio/sconto: quotazione del certificato contro il valore che avrebbe
     # se seguisse esattamente il paniere da un giorno di riferimento
