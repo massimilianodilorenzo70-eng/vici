@@ -3,8 +3,11 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "1.9";
+const VERSIONE = "1.9.1";
 const NOVITA = [
+  { v: "1.9.1", voci: [
+    "Correzioni: variazione giornaliera calcolata correttamente (prima risultava quasi sempre zero); link e testi del dettaglio posizione; il grafico del dettaglio mantiene il periodo scelto.",
+  ] },
   { v: "1.9", voci: [
     "Dettaglio posizione: tocca una posizione per grafico dal carico o a 1 anno, minimo e massimo, contributo, rischio, sensibilità dello stress test, nuovo peso del ribilanciamento e link a justETF, Morningstar e Yahoo Finance.",
     "Certificato dall'emissione: prezzi degli scambi da luglio 2025 (Borsa Italiana), prezzo di riferimento e date dei ribilanciamenti; rendimento dall'emissione e annuo.",
