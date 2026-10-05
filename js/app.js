@@ -158,7 +158,8 @@ function mostraGrafico() {
   const mesi = 4;
   for (let i = 0; i <= mesi; i++) {
     const t = t0 + (t1 - t0) * i / mesi;
-    const lab = new Date(t).toLocaleDateString("it-IT", { month: "short", year: "2-digit" });
+    const breve = t1 - t0 < 120 * 86400000;
+    const lab = new Date(t).toLocaleDateString("it-IT", breve ? { day: "numeric", month: "short" } : { month: "short", year: "2-digit" });
     svg += `<text class="asse" x="${x(t)}" y="${H - 4}" text-anchor="${i === 0 ? "start" : i === mesi ? "end" : "middle"}">${lab}</text>`;
   }
   const linea = (pts) => pts.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
