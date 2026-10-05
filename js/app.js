@@ -3,8 +3,11 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "1.2";
+const VERSIONE = "1.3";
 const NOVITA = [
+  { v: "1.3", voci: [
+    "A ogni apertura, e quando la riapri dallo sfondo, l'app controlla se c'è una versione nuova e si aggiorna da sola.",
+  ] },
   { v: "1.2", voci: [
     "Ribilanciamento di ottobre: esecuzione il 7 ottobre 2026, prezzi di carico = chiusure di quel giorno, compilati in automatico.",
     "Entra iShares Nasdaq 100 (7%), esce iShares MSCI USA Small Cap; nuovi pesi per tutte le posizioni, liquidità al 3%.",
@@ -680,8 +683,60 @@ setInterval(() => { if (!document.hidden) carica(); }, RICARICA_MS);
 mostraScheda(leggi(K.scheda, "portafoglio"));
 preparaInstallazione();
 const vista = leggi(K.versioneVista);
-if (vista && vista !== VERSIONE) mostraNovita();
-else if (!vista) scrivi(K.versioneVista, VERSIONE);
+let appenaAggiornata = false;
+try { appenaAggiornata = !!sessionStorage.getItem("vici-aggiornata-a"); } catch { /* niente */ }
+if (vista && vista !== VERSIONE && !appenaAggiornata) mostraNovita();
+else scrivi(K.versioneVista, VERSIONE);
+
+/* ================= aggiornamento automatico ================= */
+// All'apertura (e al ritorno dallo sfondo, al massimo ogni 10 minuti) legge
+// versione.json dal sito: se è diversa da quella in uso aggiorna il service
+// worker, svuota la copia offline e ricarica la pagina. Dopo il ricaricamento
+// un avviso dice a quale versione è passata.
+let ultimoControllo = 0;
+async function controllaVersione() {
+  if (!navigator.onLine || Date.now() - ultimoControllo < 10 * 60 * 1000) return;
+  ultimoControllo = Date.now();
+  try {
+    const r = await fetch(`versione.json?t=${Date.now()}`, { cache: "no-store" });
+    if (!r.ok) return;
+    const online = (await r.json()).versione;
+    if (!online || online === VERSIONE) return;
+    // evita di ricaricare all'infinito se il sito non è ancora allineato
+    try {
+      if (sessionStorage.getItem("vici-aggiornata-a") === online) return;
+      sessionStorage.setItem("vici-aggiornata-a", online);
+    } catch { /* niente */ }
+    $("stato").className = "stato";
+    $("stato").textContent = `Aggiornamento alla versione ${online}…`;
+    if ("serviceWorker" in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) await reg.update().catch(() => {});
+    }
+    if (window.caches) {
+      const chiavi = await caches.keys();
+      await Promise.all(chiavi.map((k) => caches.delete(k)));
+    }
+    location.reload();
+  } catch { /* offline o sito non raggiungibile: si riprova alla prossima apertura */ }
+}
+
+function avvisoAggiornata() {
+  let a = null;
+  try { a = sessionStorage.getItem("vici-aggiornata-a"); } catch { /* niente */ }
+  if (!a || a !== VERSIONE) return;
+  try { sessionStorage.removeItem("vici-aggiornata-a"); } catch { /* niente */ }
+  const t = document.createElement("div");
+  t.className = "avviso-versione";
+  t.innerHTML = `App aggiornata alla versione ${VERSIONE} · <button class="link">Novità</button>`;
+  t.querySelector("button").addEventListener("click", () => { t.remove(); mostraNovita(); });
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 6000);
+}
+
+document.addEventListener("visibilitychange", () => { if (!document.hidden) controllaVersione(); });
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+avvisoAggiornata();
+controllaVersione();
 carica();

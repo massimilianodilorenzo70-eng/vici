@@ -76,8 +76,11 @@ Le posizioni nuove prendono classe e area dal nome (da controllare in
 ## Versioni
 
 Il numero di versione è nel menu e in fondo alla pagina; le novità di ogni
-versione sono nel menu → «Novità della versione».
+versione sono nel menu → «Novità della versione». A ogni apertura l'app legge
+`versione.json` dal sito e, se è cambiata, si aggiorna e si ricarica da sola.
+Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`.
 
+- **1.3** — aggiornamento automatico all'apertura.
 - **1.2** — ribilanciamento di ottobre (7/10/2026) con prezzi di carico
   automatici dalle chiusure; importazione dell'Excel mensile; riquadro del
   ribilanciamento programmato.

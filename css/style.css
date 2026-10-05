@@ -441,3 +441,11 @@ body.con-invito main { padding-bottom: 130px; }
   .tabella.sim.schede-mobile .sim-somma { grid-column: 1 / -1; text-align: left !important; }
   .scost { grid-template-columns: minmax(0, 1fr) 58px 58px 52px; font-size: 12.5px; }
 }
+
+/* avviso dopo l'aggiornamento automatico */
+.avviso-versione {
+  position: fixed; left: 50%; top: calc(12px + env(safe-area-inset-top)); transform: translateX(-50%);
+  z-index: 40; background: var(--testo); color: var(--carta); border-radius: 10px;
+  padding: 10px 14px; font-size: 14px; box-shadow: 0 6px 20px rgba(0, 0, 0, .25); white-space: nowrap;
+}
+.avviso-versione .link { color: var(--azzurro); font-weight: 600; }
