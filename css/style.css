@@ -413,7 +413,6 @@ code { font-size: 12px; background: var(--sfondo); padding: 1px 4px; border-radi
 .report th:first-child, .report td:first-child { text-align: left; }
 .report tfoot td { font-weight: 600; border-top: 1.5px solid #12183A; }
 .report .su { color: #0F8A4B; } .report .giu { color: #C42032; }
-.report .r-commento { white-space: pre-wrap; line-height: 1.5; }
 .report .r-piede { margin-top: 16px; font-size: 10px; color: #5A6185; }
 @media (max-width: 600px) { .report .r-cifre { grid-template-columns: 1fr 1fr; } .report { padding: 14px; } .report .r-testa { margin: -14px -14px 12px; padding: 14px; } }
 

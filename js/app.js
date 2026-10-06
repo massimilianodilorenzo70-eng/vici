@@ -1,10 +1,15 @@
 /* app.js — legge data/prezzi.json e data/storico.json (scritti ogni ora da
  * GitHub Actions) e li mostra. Nessun server: i dati personali (il mio
- * investimento, patrimonio del simulatore, commento del report) restano nel
+ * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.2";
+const VERSIONE = "3.2.1";
 const NOVITA = [
+  { v: "3.2.1", voci: [
+    "Attribuzione «Da acquisto»: ora usa il costo medio effettivo (prezzo medio ponderato degli acquisti, che tiene conto degli aumenti di posizione nei ribilanciamenti) invece del prezzo di carico originale.",
+    "Dettaglio posizione: costo medio e rendimento da acquisto.",
+    "Report: tolto il commento del gestore.",
+  ] },
   { v: "3.2", voci: [
     "Attribuzione: nuova scelta «Da acquisto (carico originale)», con il rendimento di ogni posizione dal suo primo ingresso, ai prezzi di carico originali che non si azzerano a ogni ribilanciamento.",
     "Dettaglio posizione: carico originale, data di acquisto e rendimento da acquisto.",
@@ -73,7 +78,7 @@ const NOVITA = [
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
-const K = { mio: "vici-mio", patrimonio: "vici-patrimonio", commento: "vici-commento",
+const K = { mio: "vici-mio", patrimonio: "vici-patrimonio",
   scheda: "vici-scheda", versioneVista: "vici-versione-vista", sim: "vici-sim" };
 const RICARICA_MS = 5 * 60 * 1000;
 
@@ -506,7 +511,7 @@ function mostraIndice() {
 /* ---------- attribuzione della performance ---------- */
 const etichettaPeriodo = (a) => a.mese ? meseIt(a.id)
   : a.id === "ribilanciamento" ? `Dal ribilanciamento (${dataIt(dati.data_esecuzione)})`
-  : a.id === "acquisto" ? "Da acquisto (carico originale)"
+  : a.id === "acquisto" ? "Da acquisto (costo medio effettivo)"
   : `Dall'inizio (${dataIt(dati.data_inizio)})`;
 
 function barreContributi(id, voci) {
@@ -529,7 +534,7 @@ function mostraAttribuzione() {
   const a = lista.find((x) => x.id === sel.value);
   $("attr-totale").innerHTML = `<b class="${segno(a.rend)}">${perc(a.rend)}</b> ${esc(etichettaPeriodo(a).toLowerCase())}`;
   $("attr-nota").textContent = a.id === "acquisto"
-    ? "Da acquisto: valore attuale delle posizioni in portafoglio rispetto al loro costo ai prezzi di carico originali, cioè quelli del primo ingresso di ciascuna (non si azzerano a ogni ribilanciamento). Il contributo di ogni parte si somma al totale."
+    ? "Da acquisto: valore attuale delle posizioni in portafoglio rispetto al loro costo medio effettivo, cioè il prezzo medio ponderato di tutti gli acquisti (se un ribilanciamento aumenta una posizione la parte comprata entra nella media, se la riduce il costo medio non cambia). È l'utile o la perdita non realizzati: i guadagni già incassati con le vendite non sono inclusi. Il contributo di ogni parte si somma al totale."
     : "Contributo = quanto ogni parte ha aggiunto o tolto alla performance del periodo; la somma dà la performance totale, anche con un ribilanciamento in mezzo.";
   const ord = (o) => Object.entries(o || {}).sort((x, y) => y[1] - x[1]);
   barreContributi("attr-classi", ord(a.classi));
@@ -938,7 +943,6 @@ function mostraReport() {
   const b = d.benchmark;
   const r = d.rischio;
   const righe = [...d.posizioni].sort((a, x) => x.peso_iniziale - a.peso_iniziale);
-  const commento = $("commento").value.trim();
   const titolo = ultimo ? meseIt(ultimo.mese) : "";
   $("report").innerHTML = `
     <div class="r-testa">
@@ -952,7 +956,6 @@ function mostraReport() {
       <div><span>Mese in corso</span><b class="${segno(ultimo && ultimo.paniere)}">${ultimo ? perc(ultimo.paniere) : "—"}</b><span>${ultimo && ultimo.bench != null ? "benchmark " + perc(ultimo.bench) : ""}</span></div>
       <div><span>${b ? esc(b.nome) : "Benchmark"}</span><b class="${segno(b && b.perf)}">${b ? perc(b.perf) : "—"}</b><span>dal ${dataIt(d.data_inizio)}</span></div>
     </div>
-    ${commento ? `<h2>Commento del gestore</h2><div class="r-commento">${esc(commento)}</div>` : ""}
     <h2>Posizioni</h2>
     <table>
       <thead><tr><th>Posizione</th><th>Classe</th><th>Peso</th><th>Carico</th><th>Attuale</th><th>Var. %</th><th>Contributo</th></tr></thead>
@@ -1070,10 +1073,12 @@ function mostraDettaglio() {
       min == null ? "—" : `${fmt(min, decPrezzo(min))} – ${fmt(max, decPrezzo(max))}`,
       min == null ? "" : `oggi ${perc((r.prezzo / min - 1) * 100, 1)} dal minimo, ${perc((r.prezzo / max - 1) * 100, 1)} dal massimo`],
   ];
-  // posizione entrata prima dell'ultimo ribilanciamento: carico originale e rendimento da acquisto
-  if (r.data_acquisto && r.prezzo_carico_originale && (r.data_acquisto < dati.data_esecuzione || Math.abs(r.prezzo_carico_originale - r.prezzo_carico) > 1e-9)) {
-    met.splice(2, 0, ["Carico originale", fmt(r.prezzo_carico_originale, decPrezzo(r.prezzo_carico_originale)), `acquisto del ${dataIt(r.data_acquisto)}`]);
-    met.splice(3, 0, ["Da acquisto", perc(r.var_acquisto), "rispetto al carico originale"]);
+  // costo medio effettivo e rendimento da acquisto, se diversi dal carico dell'ultimo ribilanciamento
+  if (r.costo_medio && (r.data_acquisto < dati.data_esecuzione || Math.abs(r.costo_medio - r.prezzo_carico) > 1e-9)) {
+    const orig = r.prezzo_carico_originale && Math.abs(r.prezzo_carico_originale - r.costo_medio) > 1e-9
+      ? `, carico originale ${fmt(r.prezzo_carico_originale, decPrezzo(r.prezzo_carico_originale))}` : "";
+    met.splice(2, 0, ["Costo medio", fmt(r.costo_medio, decPrezzo(r.costo_medio)), `primo acquisto del ${dataIt(r.data_acquisto)}${orig}`]);
+    met.splice(3, 0, ["Da acquisto", perc(r.var_acquisto), "rispetto al costo medio"]);
   }
   if (rischio) {
     met.push(["Volatilità 1 anno", fmt(rischio.vol) + "%", ""]);
@@ -1244,8 +1249,6 @@ $("sim-patrimonio").addEventListener("input", () => { scrivi(K.patrimonio, numer
 $("sim-obiettivo").addEventListener("click", () => dati && impostaPesiSim("peso_obiettivo"));
 $("sim-attuali").addEventListener("click", () => dati && impostaPesiSim("peso_attuale"));
 $("sim-esporta").addEventListener("click", () => dati && esportaRibilanciamento());
-$("commento").value = leggi(K.commento, "") || "";
-$("commento").addEventListener("input", () => { scrivi(K.commento, $("commento").value); if (dati) mostraReport(); });
 $("stampa").addEventListener("click", () => window.print());
 $("attr-periodo").addEventListener("change", () => dati && mostraAttribuzione());
 ["posizioni", "rischio-posizioni"].forEach((id) => $(id).addEventListener("click", (e) => {

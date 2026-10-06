@@ -787,15 +787,23 @@ def main():
                  for p in rib["posizioni"]}
         periodi.append({"data": rib["data"], "base": b, "quote": quote, "rib": rib, "somma": somma})
 
-    # Primo ingresso di ogni posizione e suo prezzo di carico ORIGINALE: non si
-    # azzera a ogni ribilanciamento, ma solo se la posizione esce e poi rientra
+    # Primo ingresso e COSTO MEDIO EFFETTIVO di ogni posizione. A ogni
+    # ribilanciamento: se la quantità aumenta, la parte comprata entra nella
+    # media al prezzo di quel giorno; se diminuisce, il costo medio non cambia;
+    # se la posizione esce e poi rientra, si riparte da capo.
     origine = {}
     for per in periodi:
         presenti = set(per["quote"])
         for k in [k for k in origine if k not in presenti]:
             del origine[k]
         for k, (q, p0) in per["quote"].items():
-            origine.setdefault(k, (per["data"], p0))
+            o = origine.get(k)
+            if o is None:
+                origine[k] = {"data": per["data"], "carico": p0, "q": q, "costo": p0}
+                continue
+            if q > o["q"] + 1e-12:
+                o["costo"] = (o["q"] * o["costo"] + (q - o["q"]) * p0) / q
+            o["q"] = q
 
     giorni = sorted({d for g in dati.values() if g for d, _ in g["chiusure"] if d >= inizio})
     serie_nav = []
@@ -818,8 +826,9 @@ def main():
             "classe": pos.get("classe"), "area": pos.get("area"), "liquidita": bool(pos.get("liquidita")),
             "peso_iniziale": pos["peso"], "peso_obiettivo": pos["peso"] / att["somma"] * 100,
             "prezzo_carico": p0, "quote": q, "prezzo": prezzo, "prezzo_prec": prec,
-            "data_acquisto": origine[k][0], "prezzo_carico_originale": origine[k][1],
-            "var_acquisto": (prezzo / origine[k][1] - 1) * 100,
+            "data_acquisto": origine[k]["data"], "prezzo_carico_originale": origine[k]["carico"],
+            "costo_medio": origine[k]["costo"],
+            "var_acquisto": (prezzo / origine[k]["costo"] - 1) * 100,
             "var_giorno": (prezzo / prec - 1) * 100 if prec else None,
             "data_prezzo": (g.get("ora") or "")[:10] or (g["chiusure"][-1][0] if ok and g["chiusure"] else None) if ok else None,
             "var_carico": (prezzo / p0 - 1) * 100,
@@ -835,12 +844,13 @@ def main():
     nav_prec = sum(r["quote"] * (r["prezzo_prec"] or r["prezzo"]) for r in righe)
     soglia = float(port.get("soglia_scostamento", 2.0))
     # «Da acquisto»: valore attuale delle posizioni in portafoglio rispetto al
-    # loro costo ai prezzi di carico originali; i contributi si sommano al totale
-    costo_acquisto = sum(r["quote"] * r["prezzo_carico_originale"] for r in righe)
+    # loro costo medio effettivo (utile o perdita non realizzati); i contributi
+    # si sommano al totale. Gli utili già realizzati con le vendite non entrano.
+    costo_acquisto = sum(r["quote"] * r["costo_medio"] for r in righe)
     for r in righe:
         r["peso_attuale"] = r["valore"] / nav * 100
         r["contributo"] = r["quote"] * (r["prezzo"] - r["prezzo_carico"]) / att["base"] * 100
-        r["contributo_acquisto"] = (r["quote"] * (r["prezzo"] - r["prezzo_carico_originale"]) / costo_acquisto * 100
+        r["contributo_acquisto"] = (r["quote"] * (r["prezzo"] - r["costo_medio"]) / costo_acquisto * 100
                                     if costo_acquisto else 0.0)
         r["scostamento"] = r["peso_attuale"] - r["peso_obiettivo"]
         r["oltre_soglia"] = abs(r["scostamento"]) > soglia
@@ -917,7 +927,7 @@ def main():
             cl_a[r["classe"]] = cl_a.get(r["classe"], 0) + r["contributo_acquisto"]
             ar_a[r["area"]] = ar_a.get(r["area"], 0) + r["contributo_acquisto"]
         attrib.append({
-            "id": "acquisto", "etichetta": "Da acquisto (prezzi di carico originali)",
+            "id": "acquisto", "etichetta": "Da acquisto (costo medio effettivo)",
             "rend": sum(r["contributo_acquisto"] for r in righe), "classi": cl_a, "aree": ar_a,
             "posizioni": sorted(({"nome": r["nome"], "classe": r["classe"], "contributo": r["contributo_acquisto"]}
                                  for r in righe), key=lambda x: -x["contributo"]),
