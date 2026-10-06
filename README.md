@@ -18,7 +18,6 @@ L'app ha un menu (☰) e quattro sezioni.
 
 **Andamento**
 - Paniere contro un benchmark bilanciato 60/40 (MSCI World + Euro Aggregate Bond).
-- Premio/sconto del certificato rispetto al paniere (sui prezzi di riferimento).
 - Certificato dall'emissione: prezzi degli scambi da Borsa Italiana, prezzo di
   riferimento registrato ogni giorno, date dei ribilanciamenti.
 - Indice VICIGROW: rendimenti mensili da Leonteq (inseriti a mano in
@@ -96,6 +95,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.2.2** — tolti il riquadro «Certificato vs paniere» e la nota sotto il simulatore.
 - **3.2.1** — «Da acquisto» con il costo medio effettivo; tolto il commento del gestore dal report.
 - **3.2** — attribuzione «Da acquisto» con prezzi di carico originali; carico originale nel dettaglio posizione.
 - **3.1.2** — menu: tolto il link al book di Borsa Italiana, aggiunta la scheda Leonteq.
