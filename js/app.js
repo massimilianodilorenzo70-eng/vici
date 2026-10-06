@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.2.1";
+const VERSIONE = "3.2.2";
 const NOVITA = [
+  { v: "3.2.2", voci: ["Tolti il riquadro «Certificato vs paniere» e la nota sotto il simulatore."] },
   { v: "3.2.1", voci: [
     "Attribuzione «Da acquisto»: ora usa il costo medio effettivo (prezzo medio ponderato degli acquisti, che tiene conto degli aumenti di posizione nei ribilanciamenti) invece del prezzo di carico originale.",
     "Dettaglio posizione: costo medio e rendimento da acquisto.",
@@ -311,19 +312,6 @@ function mostraAndamento() {
   } else {
     $("a-bench").textContent = "—";
     $("a-bench-dett").textContent = "Benchmark non disponibile";
-  }
-  const pr = d.premio;
-  if (pr && pr.data_confronto && pr.data_confronto <= pr.data) {
-    $("a-premio").textContent = "—";
-    $("a-premio-dett").textContent = `Il confronto parte dalla quotazione del ${dataIt(pr.data)}: il risultato arriva con la prossima quotazione del certificato.`;
-  } else if (pr) {
-    $("a-premio").innerHTML = colorato(pr.premio);
-    $("a-premio-dett").textContent = `${pr.premio >= 0 ? "Premio" : "Sconto"} del certificato rispetto al paniere: ` +
-      `se lo seguisse alla perfezione dal ${dataIt(pr.data)}, il ${dataIt(pr.data_confronto || dati.aggiornato)} varrebbe ${fmt(pr.valore_implicito)} invece di ${fmt(dati.certificato.prezzo)}` +
-      (pr.da_configurazione ? "." : " (riferimento: prima quotazione registrata dall'app).");
-  } else {
-    $("a-premio").textContent = "—";
-    $("a-premio-dett").textContent = "Serve la quotazione del certificato.";
   }
   mostraGrafico();
   mostraStoriaCertificato();
