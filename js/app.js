@@ -3,8 +3,12 @@
  * investimento, patrimonio del simulatore, commento del report) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.1.2";
+const VERSIONE = "3.2";
 const NOVITA = [
+  { v: "3.2", voci: [
+    "Attribuzione: nuova scelta «Da acquisto (carico originale)», con il rendimento di ogni posizione dal suo primo ingresso, ai prezzi di carico originali che non si azzerano a ogni ribilanciamento.",
+    "Dettaglio posizione: carico originale, data di acquisto e rendimento da acquisto.",
+  ] },
   { v: "3.1.2", voci: ["Menu: tolto il link al book di Borsa Italiana, aggiunto il link alla scheda del certificato su Leonteq."] },
   { v: "3.1.1", voci: ["Menu: i link portano alla quotazione su Euronext e al book di Borsa Italiana (la scheda mostrava solo l'ultimo contratto, vuoto nei giorni senza scambi)."] },
   { v: "3.1", voci: [
@@ -500,8 +504,10 @@ function mostraIndice() {
 }
 
 /* ---------- attribuzione della performance ---------- */
-const etichettaPeriodo = (a) => a.mese ? meseIt(a.id) : a.id === "ribilanciamento"
-  ? `Dal ribilanciamento (${dataIt(dati.data_esecuzione)})` : `Dall'inizio (${dataIt(dati.data_inizio)})`;
+const etichettaPeriodo = (a) => a.mese ? meseIt(a.id)
+  : a.id === "ribilanciamento" ? `Dal ribilanciamento (${dataIt(dati.data_esecuzione)})`
+  : a.id === "acquisto" ? "Da acquisto (carico originale)"
+  : `Dall'inizio (${dataIt(dati.data_inizio)})`;
 
 function barreContributi(id, voci) {
   const max = Math.max(0.01, ...voci.map(([, v]) => Math.abs(v)));
@@ -522,6 +528,9 @@ function mostraAttribuzione() {
   sel.value = lista.some((a) => a.id === scelto) ? scelto : lista[0].id;
   const a = lista.find((x) => x.id === sel.value);
   $("attr-totale").innerHTML = `<b class="${segno(a.rend)}">${perc(a.rend)}</b> ${esc(etichettaPeriodo(a).toLowerCase())}`;
+  $("attr-nota").textContent = a.id === "acquisto"
+    ? "Da acquisto: valore attuale delle posizioni in portafoglio rispetto al loro costo ai prezzi di carico originali, cioè quelli del primo ingresso di ciascuna (non si azzerano a ogni ribilanciamento). Il contributo di ogni parte si somma al totale."
+    : "Contributo = quanto ogni parte ha aggiunto o tolto alla performance del periodo; la somma dà la performance totale, anche con un ribilanciamento in mezzo.";
   const ord = (o) => Object.entries(o || {}).sort((x, y) => y[1] - x[1]);
   barreContributi("attr-classi", ord(a.classi));
   barreContributi("attr-aree", ord(a.aree));
@@ -1061,6 +1070,11 @@ function mostraDettaglio() {
       min == null ? "—" : `${fmt(min, decPrezzo(min))} – ${fmt(max, decPrezzo(max))}`,
       min == null ? "" : `oggi ${perc((r.prezzo / min - 1) * 100, 1)} dal minimo, ${perc((r.prezzo / max - 1) * 100, 1)} dal massimo`],
   ];
+  // posizione entrata prima dell'ultimo ribilanciamento: carico originale e rendimento da acquisto
+  if (r.data_acquisto && r.prezzo_carico_originale && (r.data_acquisto < dati.data_esecuzione || Math.abs(r.prezzo_carico_originale - r.prezzo_carico) > 1e-9)) {
+    met.splice(2, 0, ["Carico originale", fmt(r.prezzo_carico_originale, decPrezzo(r.prezzo_carico_originale)), `acquisto del ${dataIt(r.data_acquisto)}`]);
+    met.splice(3, 0, ["Da acquisto", perc(r.var_acquisto), "rispetto al carico originale"]);
+  }
   if (rischio) {
     met.push(["Volatilità 1 anno", fmt(rischio.vol) + "%", ""]);
     met.push(["Rendimento 1 anno", perc(rischio.rend_1a), ""]);

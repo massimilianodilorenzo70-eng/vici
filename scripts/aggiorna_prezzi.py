@@ -787,6 +787,16 @@ def main():
                  for p in rib["posizioni"]}
         periodi.append({"data": rib["data"], "base": b, "quote": quote, "rib": rib, "somma": somma})
 
+    # Primo ingresso di ogni posizione e suo prezzo di carico ORIGINALE: non si
+    # azzera a ogni ribilanciamento, ma solo se la posizione esce e poi rientra
+    origine = {}
+    for per in periodi:
+        presenti = set(per["quote"])
+        for k in [k for k in origine if k not in presenti]:
+            del origine[k]
+        for k, (q, p0) in per["quote"].items():
+            origine.setdefault(k, (per["data"], p0))
+
     giorni = sorted({d for g in dati.values() if g for d, _ in g["chiusure"] if d >= inizio})
     serie_nav = []
     for d in giorni:
@@ -808,6 +818,8 @@ def main():
             "classe": pos.get("classe"), "area": pos.get("area"), "liquidita": bool(pos.get("liquidita")),
             "peso_iniziale": pos["peso"], "peso_obiettivo": pos["peso"] / att["somma"] * 100,
             "prezzo_carico": p0, "quote": q, "prezzo": prezzo, "prezzo_prec": prec,
+            "data_acquisto": origine[k][0], "prezzo_carico_originale": origine[k][1],
+            "var_acquisto": (prezzo / origine[k][1] - 1) * 100,
             "var_giorno": (prezzo / prec - 1) * 100 if prec else None,
             "data_prezzo": (g.get("ora") or "")[:10] or (g["chiusure"][-1][0] if ok and g["chiusure"] else None) if ok else None,
             "var_carico": (prezzo / p0 - 1) * 100,
@@ -822,9 +834,14 @@ def main():
     nav = sum(r["valore"] for r in righe)
     nav_prec = sum(r["quote"] * (r["prezzo_prec"] or r["prezzo"]) for r in righe)
     soglia = float(port.get("soglia_scostamento", 2.0))
+    # «Da acquisto»: valore attuale delle posizioni in portafoglio rispetto al
+    # loro costo ai prezzi di carico originali; i contributi si sommano al totale
+    costo_acquisto = sum(r["quote"] * r["prezzo_carico_originale"] for r in righe)
     for r in righe:
         r["peso_attuale"] = r["valore"] / nav * 100
         r["contributo"] = r["quote"] * (r["prezzo"] - r["prezzo_carico"]) / att["base"] * 100
+        r["contributo_acquisto"] = (r["quote"] * (r["prezzo"] - r["prezzo_carico_originale"]) / costo_acquisto * 100
+                                    if costo_acquisto else 0.0)
         r["scostamento"] = r["peso_attuale"] - r["peso_obiettivo"]
         r["oltre_soglia"] = abs(r["scostamento"]) > soglia
     if serie_nav and serie_nav[-1][0] == oggi.isoformat():
@@ -894,6 +911,17 @@ def main():
     a_rib = attribuzione(att["data"], None)
     if a_rib:
         attrib.append({"id": "ribilanciamento", "etichetta": f"Dal ribilanciamento del {att['data']}", **a_rib})
+    if costo_acquisto:
+        cl_a, ar_a = {}, {}
+        for r in righe:
+            cl_a[r["classe"]] = cl_a.get(r["classe"], 0) + r["contributo_acquisto"]
+            ar_a[r["area"]] = ar_a.get(r["area"], 0) + r["contributo_acquisto"]
+        attrib.append({
+            "id": "acquisto", "etichetta": "Da acquisto (prezzi di carico originali)",
+            "rend": sum(r["contributo_acquisto"] for r in righe), "classi": cl_a, "aree": ar_a,
+            "posizioni": sorted(({"nome": r["nome"], "classe": r["classe"], "contributo": r["contributo_acquisto"]}
+                                 for r in righe), key=lambda x: -x["contributo"]),
+        })
     if len(periodi) > 1:
         a_ini = attribuzione(inizio, None)
         if a_ini:
@@ -1003,6 +1031,7 @@ def main():
         "benchmark": bench,
         "rischio": rischio,
         "attribuzione": attrib,
+        "perf_acquisto": (nav / costo_acquisto - 1) * 100 if costo_acquisto else None,
         "stress": stress,
         "realizzato": realizzato,
         "mensili": {
