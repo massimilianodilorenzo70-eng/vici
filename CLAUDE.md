@@ -32,9 +32,12 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
   controlla `data/prezzi.json` con i dati veri prima di unire.
 - Non aggirare protezioni anti-bot dei siti (es. Leonteq/Incapsula): l'utente
   l'ha chiesto ed è stato rifiutato; proponi strade corrette.
-- L'app per ora resta **pubblica** (repo e GitHub Pages pubblici). L'utente ha
-  rimandato l'accesso riservato (impronta + approvazione via Cloudflare, oppure
-  Cloudflare Access con email): non farlo senza richiesta.
+- **Il progetto resta pubblico** (decisione dell'utente del 6/10/2026, anche
+  dopo aver preso GitHub Pro): repository e GitHub Pages pubblici. Quindi i
+  minuti di GitHub Actions sono gratuiti: NON ridurre la frequenza dei controlli
+  (quotazione ogni 15 minuti, prezzi ogni ora) e non proporre il repository
+  privato. L'accesso riservato (impronta + approvazione via Cloudflare, oppure
+  Cloudflare Access con email) è rimandato: non farlo senza richiesta.
 
 ## Il certificato
 
