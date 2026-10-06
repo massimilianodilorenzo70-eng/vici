@@ -14,7 +14,7 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
 - **Rispondi e scrivi SEMPRE in italiano**: messaggi all'utente, aggiornamenti
   mentre lavori, commit, pull request, commenti nel codice.
 - L'utente è il **gestore** del certificato VICI Balanced Growth AMC.
-- **Numero di versione** (oggi **3.1**): si scrive sempre con i punti.
+- **Numero di versione** (oggi **3.2.1**): si scrive sempre con i punti.
   - funzioni nuove → sale il secondo numero: 3.0 → 3.1 → 3.2 …
   - correzioni di errori → terzo numero: 3.1 → 3.1.1 → 3.1.2; 3.2 → 3.2.1 …
   - se l'utente dice "non aumentare la versione", non aumentarla.
@@ -58,7 +58,7 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
   premio/sconto, certificato dall'emissione, indice VICIGROW e costi, grafico,
   rendimenti mensili, attribuzione, stress test, rischio), Gestione
   (ribilanciamento programmato, scostamenti, simulatore, storico ribilanciamenti),
-  Report (PDF mensile con commento). Menu ☰, versione in alto a destra.
+  Report (PDF mensile, senza commento del gestore: l'utente l'ha voluto togliere). Menu ☰, versione in alto a destra.
 - `scripts/aggiorna_prezzi.py` (solo libreria standard): prezzi, calcoli, file in
   `data/`. `scripts/importa_ribilanciamento.py` (openpyxl): Excel → ribilanciamento.
 - Workflow: `aggiorna-prezzi.yml` (giorni feriali ogni ora 8-19 + sera; anche al
@@ -111,6 +111,14 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
   (IUSE.L, coperto dal cambio), tassi (IEAG.AS, duration 6,5), oro (4GLD.DE),
   dollaro (inverso di EURUSD=X).
 - Nel fine settimana nessun punto aggiunto alla serie del paniere.
+- Attribuzione «Da acquisto» = **costo medio effettivo** (non il carico originale:
+  l'utente l'ha chiesto): media ponderata degli acquisti; se un ribilanciamento
+  aumenta la posizione la parte comprata entra nella media al prezzo di quel
+  giorno, se la riduce il costo medio non cambia, se esce e rientra si riparte.
+  È utile/perdita non realizzati (le vendite già incassate non entrano). Nel
+  dettaglio posizione compaiono costo medio, primo acquisto e carico originale.
+- Menu: link «Quotazione su Euronext» e «Scheda Leonteq» (tolto il book di Borsa
+  Italiana, che l'utente non voleva).
 
 ## Procedure ricorrenti
 
@@ -124,7 +132,17 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
   «Yearly return since start date» di Leonteq → aggiorna `data/indice.json`
   (mesi, `totali_leonteq`, `media_annua_leonteq`, `aggiornato_al`).
 
-## Stato e cose in sospeso (al 5 ottobre 2026)
+## Trucchi operativi
+
+- Se la pull request ha conflitti, quasi sempre sono nei file generati in
+  `data/` (prezzi, storico, posizioni_storico) perché i workflow girano sia su
+  `main` sia sul ramo di lavoro: porta `main` nel ramo (`git merge origin/main`),
+  per quei file tieni la versione del ramo (`git checkout --ours`), verifica che
+  i JSON siano validi, committa e riprova; il workflow li rigenera comunque.
+- Il ramo `memoria` si scarica con `git fetch origin memoria` e poi
+  `git checkout memoria` (se manca in locale: `git checkout -b memoria FETCH_HEAD`).
+
+## Stato e cose in sospeso (al 6 ottobre 2026)
 
 - Ribilanciamento del **7 ottobre 2026** (file Composizione_10.26.xlsx) inserito
   e **programmato**: entra Nasdaq 100 (7%), esce USA Small Cap, liquidità 3%.
