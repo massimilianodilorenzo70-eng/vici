@@ -26,7 +26,7 @@ L'app ha un menu (☰) e quattro sezioni.
   andamento dall'avvio e confronto con il certificato.
 - Grafico, rendimenti mensili.
 - Attribuzione della performance per classe, area e posizione (dal ribilanciamento,
-  da acquisto con i prezzi di carico originali, dall'inizio, per mese).
+  da acquisto con il costo medio effettivo, dall'inizio, per mese).
 - Stress test: sensibilità di ogni posizione ad azioni (S&P 500 coperto), tassi euro, oro e
   dollaro (regressione sui rendimenti settimanali dell'ultimo anno) e impatto di
   scenari pronti o liberi, sul portafoglio attuale e su quello programmato.
@@ -42,7 +42,7 @@ L'app ha un menu (☰) e quattro sezioni.
 - Storico dei ribilanciamenti con la performance di ogni periodo.
 
 **Report**
-- Report mensile con commento del gestore, da stampare o salvare in PDF.
+- Report mensile da stampare o salvare in PDF.
 
 All'apertura l'app propone di installarsi sul telefono (Android: pulsante
 «Installa»; iPhone: istruzioni per «Aggiungi alla schermata Home»).
@@ -96,6 +96,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.2.1** — «Da acquisto» con il costo medio effettivo; tolto il commento del gestore dal report.
 - **3.2** — attribuzione «Da acquisto» con prezzi di carico originali; carico originale nel dettaglio posizione.
 - **3.1.2** — menu: tolto il link al book di Borsa Italiana, aggiunta la scheda Leonteq.
 - **3.1.1** — link del menu a Euronext e al book di Borsa Italiana.
