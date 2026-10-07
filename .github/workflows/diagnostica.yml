@@ -38,6 +38,25 @@ jobs:
           grep -o -E '(src|href|data-[a-z-]+)="[^"]*(api|json|chart|price|quote)[^"]*"' debug/fonti/leonteq_it.html | head -40 > debug/fonti/leonteq_indirizzi.txt || true
           grep -o -E 'https?://[^"'"'"' ]*(api|json|chart|price|quote)[^"'"'"' ]*' debug/fonti/leonteq_it.html | sort -u | head -40 >> debug/fonti/leonteq_indirizzi.txt || true
 
+      - name: Il browser può leggere i dati direttamente? (intestazioni CORS)
+        run: |
+          ISIN=CH1453363652
+          ORIGINE="https://massimilianodilorenzo70-eng.github.io"
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+          cors() {
+            echo "=== $1"
+            echo "$2"
+            curl -s -o /dev/null -D /tmp/h --max-time 40 -A "$UA" -H "Origin: $ORIGINE" "$2" || echo "errore di rete"
+            grep -i -E '^(HTTP/|content-type:|access-control-[a-z-]+:|cache-control:|last-modified:|date:)' /tmp/h | tr -d '\r'
+            grep -qi '^access-control-allow-origin:' /tmp/h && echo ">> CORS PRESENTE: il browser può leggere" || echo ">> nessun CORS: il browser NON può leggere da un altro sito"
+          }
+          BI="https://www.borsaitaliana.it/borsa/cw-e-certificates"
+          cors "Borsa Italiana - Dati mercato" "$BI/dati-mercato.html?isin=$ISIN&mic=SEDX&lang=it"
+          cors "Borsa Italiana - scheda" "$BI/scheda/$ISIN-SEDX.html?lang=it"
+          cors "Euronext - pagina prodotto" "https://live.euronext.com/en/product/structured-products/$ISIN-SEDX"
+          cors "Euronext - quotazione (ajax)" "https://live.euronext.com/en/ajax/getDetailedQuote/$ISIN-SEDX"
+          cors "Euronext - grafico intraday (ajax)" "https://live.euronext.com/en/intraday_chart/getChartData/$ISIN-SEDX/max"
+
       - name: Salva la copia nel repository
         run: |
           git config user.name "vici-bot"
