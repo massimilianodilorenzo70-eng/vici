@@ -136,13 +136,21 @@ async function quotazioneDiretta() {
     }
     const url = configurazione.quotazione_url;
     if (!url) return null;
+    // il dato di borsa ha 15 minuti di ritardo: non serve rileggerlo più spesso
+    // di ogni 5 minuti (si riusa l'ultima lettura salvata sul dispositivo)
+    try {
+      const salvata = JSON.parse(sessionStorage.getItem("vici-quotazione") || "null");
+      if (salvata && Date.now() - salvata.letta < 5 * 60000) return salvata.q;
+    } catch {}
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 7000);
     const r = await fetch(url, { signal: ctrl.signal, cache: "no-store" });
     clearTimeout(timer);
     if (!r.ok) return null;
     const q = await r.json();
-    return q && q.ora && q.prezzo ? q : null;
+    if (!(q && q.ora && q.prezzo)) return null;
+    try { sessionStorage.setItem("vici-quotazione", JSON.stringify({ letta: Date.now(), q })); } catch {}
+    return q;
   } catch { return null; }
 }
 

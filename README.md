@@ -59,7 +59,7 @@ ogni ora dalle 8 alle 19 e una volta la sera. Esegue
 3. scrive `data/prezzi.json` e `data/storico.json`, che l'app legge.
 
 Il workflow `quotazione-certificato.yml` legge solo la quotazione del certificato
-ogni 15 minuti durante la seduta e la salva in `data/certificato.json`.
+ogni 30 minuti durante la seduta e la salva in `data/certificato.json`.
 
 **Quotazione diretta (facoltativa):** `cloudflare/quotazione/worker.js` è un piccolo
 Worker gratuito di Cloudflare che legge Borsa Italiana quando l'app lo chiede. Dopo
