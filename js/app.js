@@ -3,8 +3,12 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.2.2";
+const VERSIONE = "3.3";
 const NOVITA = [
+  { v: "3.3", voci: [
+    "Quotazione del certificato letta nel momento in cui apri o aggiorni l'app (servizio gratuito su Cloudflare che legge Borsa Italiana), con ripiego sull'ultimo dato salvato.",
+    "Avviso in cima quando in orario di borsa l'aggiornamento automatico è in ritardo di oltre 3 ore.",
+  ] },
   { v: "3.2.2", voci: ["Tolti il riquadro «Certificato vs paniere» e la nota sotto il simulatore."] },
   { v: "3.2.1", voci: [
     "Attribuzione «Da acquisto»: ora usa il costo medio effettivo (prezzo medio ponderato degli acquisti, che tiene conto degli aumenti di posizione nei ribilanciamenti) invece del prezzo di carico originale.",
@@ -120,20 +124,45 @@ let storico = null;
 let indice = null; // rendimenti mensili dell'indice VICIGROW (data/indice.json)
 
 /* ================= caricamento ================= */
+// Quotazione diretta: servizio gratuito (Cloudflare Worker) che legge Borsa
+// Italiana nel momento della richiesta. L'indirizzo sta in data/config.json
+// (campo quotazione_url); se manca o non risponde si usa l'ultimo dato salvato.
+let configurazione = null;
+async function quotazioneDiretta() {
+  try {
+    if (configurazione === null) {
+      const r = await fetch(`data/config.json?t=${Date.now()}`);
+      configurazione = r.ok ? await r.json() : {};
+    }
+    const url = configurazione.quotazione_url;
+    if (!url) return null;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 7000);
+    const r = await fetch(url, { signal: ctrl.signal, cache: "no-store" });
+    clearTimeout(timer);
+    if (!r.ok) return null;
+    const q = await r.json();
+    return q && q.ora && q.prezzo ? q : null;
+  } catch { return null; }
+}
+
 async function carica() {
   const bottone = $("aggiorna");
   bottone.classList.add("gira");
   try {
     const t = Date.now();
-    const [p, s, ind, q] = await Promise.all([
+    const [p, s, ind, q, diretta] = await Promise.all([
       fetch(`data/prezzi.json?t=${t}`).then((r) => r.ok ? r.json() : null),
       fetch(`data/storico.json?t=${t}`).then((r) => r.ok ? r.json() : null),
       fetch(`data/indice.json?t=${t}`).then((r) => r.ok ? r.json() : null).catch(() => null),
       fetch(`data/certificato.json?t=${t}`).then((r) => r.ok ? r.json() : null).catch(() => null),
+      quotazioneDiretta(),
     ]);
     indice = ind;
-    // quotazione aggiornata ogni 15 minuti: se è più recente prevale
-    if (p && q && q.ora && (!p.certificato || !p.certificato.ora || q.ora > p.certificato.ora)) p.certificato = q;
+    // la quotazione diretta (letta adesso) prevale; altrimenti quella salvata
+    // dal controllo automatico, se è più recente di quella dentro prezzi.json
+    if (p && diretta) p.certificato = diretta;
+    else if (p && q && q.ora && (!p.certificato || !p.certificato.ora || q.ora > p.certificato.ora)) p.certificato = q;
     if (!p || !p.posizioni) throw new Error("dati non ancora disponibili");
     dati = p;
     storico = s || { nav: [], benchmark: [], certificato: [] };
@@ -178,10 +207,18 @@ function mostraPortafoglio() {
     const oraDati = c.ora ? new Date(new Date(c.ora).getTime() - 15 * 60000).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : "";
     const giornoLettura = c.ora ? dataIt(c.ora) : "";
     const rifTesto = c.riferimento ? ` · riferimento del ${dataIt(c.data_riferimento || c.data)}: ${fmt(c.riferimento)}` : "";
+    // in seduta (giorni feriali, 10-18 ora italiana) un dato più vecchio di 3 ore
+    // vuol dire che l'aggiornamento automatico è in ritardo: lo si dice
+    const adesso = new Date();
+    const giornoSett = adesso.toLocaleDateString("en-US", { timeZone: "Europe/Rome", weekday: "short" });
+    const oraRoma = Number(adesso.toLocaleString("en-GB", { timeZone: "Europe/Rome", hour: "2-digit", hour12: false }));
+    const inSeduta = !["Sat", "Sun"].includes(giornoSett) && oraRoma >= 10 && oraRoma < 18;
+    const inRitardo = inSeduta && c.ora && (adesso.getTime() - new Date(c.ora).getTime()) > 3 * 3600000;
+    const avvisoRitardo = inRitardo ? ` · ⚠ dato delle ${new Date(c.ora).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })} del ${dataIt(c.ora)}: aggiornamento automatico in ritardo` : "";
     const quando = c.tipo_corrente === "ultimo contratto" ? `Ultimo contratto, ${giornoLettura} ore ${oraDati} circa`
       : c.tipo_corrente === "medio denaro/lettera" ? `Medio tra denaro e lettera, ${giornoLettura} ore ${oraDati} circa`
       : `Prezzo di riferimento del ${dataIt(c.data_riferimento || c.data || c.ora)}`;
-    $("cert-fonte").textContent = `${quando}${c.tipo_corrente && c.tipo_corrente !== "prezzo di riferimento" ? rifTesto : ""}${c.denaro ? "" : range} · ${c.fonte}`;
+    $("cert-fonte").textContent = `${quando}${c.tipo_corrente && c.tipo_corrente !== "prezzo di riferimento" ? rifTesto : ""}${c.denaro ? "" : range} · ${c.fonte}${avvisoRitardo}`;
     $("cert-book").hidden = !(c.denaro && c.lettera);
     if (c.denaro && c.lettera) {
       $("cert-book").innerHTML = `<div>Denaro<b>${fmt(c.denaro)}</b></div><div>Lettera<b>${fmt(c.lettera)}</b></div>

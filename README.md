@@ -61,6 +61,13 @@ ogni ora dalle 8 alle 19 e una volta la sera. Esegue
 Il workflow `quotazione-certificato.yml` legge solo la quotazione del certificato
 ogni 15 minuti durante la seduta e la salva in `data/certificato.json`.
 
+**Quotazione diretta (facoltativa):** `cloudflare/quotazione/worker.js` è un piccolo
+Worker gratuito di Cloudflare che legge Borsa Italiana quando l'app lo chiede. Dopo
+averlo creato, l'indirizzo va in `data/config.json` (`quotazione_url`); se è vuoto o
+non risponde l'app usa l'ultimo dato salvato da GitHub. I lavori programmati di GitHub
+non hanno orari garantiti (a volte saltano ore), per questo la lettura diretta è più
+affidabile.
+
 Si può avviare a mano da GitHub → **Actions** → *Aggiorna prezzi* → **Run workflow**.
 
 `Diagnostica fonti` salva in `debug/fonti/` una copia delle pagine di Leonteq,
@@ -95,6 +102,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.3** — quotazione del certificato letta all'apertura (Cloudflare Worker) e avviso se l'aggiornamento automatico è in ritardo.
 - **3.2.2** — tolti il riquadro «Certificato vs paniere» e la nota sotto il simulatore.
 - **3.2.1** — «Da acquisto» con il costo medio effettivo; tolto il commento del gestore dal report.
 - **3.2** — attribuzione «Da acquisto» con prezzi di carico originali; carico originale nel dettaglio posizione.

@@ -1091,8 +1091,15 @@ def salva_quotazione(cert):
     f = DATA / "certificato.json"
     vecchio = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
     if {k: v for k, v in vecchio.items() if k != "ora"} == {k: v for k, v in cert.items() if k != "ora"}:
-        log("Quotazione invariata")
-        return False
+        # invariata: non si riscrive, ma almeno ogni 20 minuti si aggiorna l'ora di
+        # lettura, così l'app capisce che i controlli girano e il dato è fresco
+        try:
+            eta = (datetime.now(timezone.utc) - datetime.fromisoformat(vecchio["ora"])).total_seconds()
+        except (KeyError, ValueError):
+            eta = 1e9
+        if eta < 20 * 60:
+            log("Quotazione invariata")
+            return False
     f.write_text(json.dumps(cert, ensure_ascii=False, indent=1), encoding="utf-8")
     return True
 
