@@ -6,7 +6,7 @@ name: Quotazione certificato
 on:
   schedule:
     # giorni feriali, ogni 15 minuti dalle 9 alle 18 circa (ora italiana)
-    - cron: "*/15 7-16 * * 1-5"
+    - cron: "*/30 7-16 * * 1-5"
   workflow_dispatch: {}
 
 permissions:
