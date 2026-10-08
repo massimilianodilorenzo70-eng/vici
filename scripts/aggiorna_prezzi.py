@@ -445,6 +445,23 @@ def scarica_strumenti(port, cache, dal_storia):
     return dati
 
 
+def chiusura_da_barre_orarie(simbolo, giorno):
+    """Ultimo prezzo del giorno dalle barre orarie di Yahoo. Serve quando la
+    serie giornaliera salta quel giorno (succede per alcuni listini europei)."""
+    if not simbolo:
+        return None
+    try:
+        j = json.loads(scarica(f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(simbolo)}"
+                               "?range=1mo&interval=1h&includePrePost=false"))
+        r = j["chart"]["result"][0]
+        q = r["indicators"]["quote"][0]["close"]
+        barre = [c for t, c in zip(r["timestamp"], q)
+                 if c is not None and datetime.fromtimestamp(t, timezone.utc).date().isoformat() == giorno]
+        return float(barre[-1]) if barre else None
+    except Exception:
+        return None
+
+
 def completa_prezzi_di_carico(port, ribs, dati, oggi):
     """Ribilanciamenti senza prezzi di carico: si usano le chiusure del giorno
     di esecuzione appena ci sono tutte (i NAV dei fondi possono arrivare con
@@ -466,6 +483,10 @@ def completa_prezzi_di_carico(port, ribs, dati, oggi):
             g = dati.get(chiave(p))
             ch = g["chiusure"] if g else []
             esatta = next((c for gg, c in ch if gg == d), None)
+            if esatta is None and g and date.fromisoformat(d) < oggi and g.get("simbolo"):
+                esatta = chiusura_da_barre_orarie(g["simbolo"], d)
+                if esatta is not None:
+                    log(f"  {p['nome']}: manca la chiusura giornaliera del {d}, uso l'ultima barra oraria")
             if esatta is not None:
                 prezzi[id(p)] = esatta
             elif scaduto and ch and ch[0][0] <= d:
