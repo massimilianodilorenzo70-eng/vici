@@ -5,7 +5,7 @@
 
 const VERSIONE = "3.5";
 const NOVITA = [
-  { v: "3.5", voci: ["Nuovo stile sobrio da banca privata."] },
+  { v: "3.5", voci: ["Nuovo stile."] },
   { v: "3.4.1", voci: ["Fascia blu e schede fisse in alto."] },
   { v: "3.4", voci: ["Sottovoci nel menu: salto diretto a stress test, rischio e altre sezioni."] },
   { v: "3.3", voci: ["Quotazione letta a ogni apertura (Cloudflare); avviso se i dati automatici sono in ritardo."] },
