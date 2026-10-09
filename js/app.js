@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.5";
+const VERSIONE = "3.5.1";
 const NOVITA = [
+  { v: "3.5.1", voci: ["Installazione: VICI non si confonde più con cacciaTI."] },
   { v: "3.5", voci: ["Nuovo stile."] },
   { v: "3.4.1", voci: ["Fascia blu e schede fisse in alto."] },
   { v: "3.4", voci: ["Sottovoci nel menu: salto diretto a stress test, rischio e altre sezioni."] },

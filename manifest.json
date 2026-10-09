@@ -4,7 +4,7 @@
   "description": "Posizioni e andamento del certificato VICI Balanced Growth AMC.",
   "start_url": "./index.html",
   "scope": "./",
-  "id": "./index.html",
+  "id": "/vici/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0A2283",
