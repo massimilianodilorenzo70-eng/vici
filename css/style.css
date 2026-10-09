@@ -577,3 +577,55 @@ body.con-invito main { padding-bottom: 130px; }
 .novita-testa { position: sticky; top: -18px; margin: -18px -18px 8px; padding: 14px 18px 8px; background: var(--carta);
   display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--bordo); z-index: 1; }
 .novita-testa h2 { margin: 0; }
+
+/* ===== Stile "banca privata": sobrio, linee sottili, niente ombre né gradienti ===== */
+:root {
+  --sfondo: #F6F4EF;
+  --carta: #FFFFFF;
+  --testo: #14183A;
+  --testo-2: #6A6F86;
+  --bordo: #D9D5CA;
+  --oro: #A98A52;
+  --azzurro: #0A2283;
+  --ombra: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --sfondo: #0A1030; --carta: #0F1840; --bordo: #2A3466; --oro: #C9AB72; --azzurro: #9FB2F5; }
+}
+:root[data-theme="dark"] { --sfondo: #0A1030; --carta: #0F1840; --bordo: #2A3466; --oro: #C9AB72; --azzurro: #9FB2F5; }
+
+body { font-size: 14.5px; letter-spacing: .005em; }
+.testata { background: var(--blu); padding-top: calc(10px + env(safe-area-inset-top)); padding-bottom: 12px; border-bottom: 2px solid var(--oro); }
+.marchio-icona { width: 44px; height: 44px; }
+.marchio-nome { font-size: 24px; letter-spacing: .3em; }
+.marchio-righe { display: none; }
+.marchio-sotto { font-size: 14px; letter-spacing: .08em; color: #D9C9A6; margin-top: 4px; }
+.bottone-icona { background: transparent; border: 1px solid rgba(255, 255, 255, .3); border-radius: 4px; }
+.versione-testata { color: #D9C9A6; }
+
+.schede { border-bottom: 1px solid var(--bordo); background: var(--carta); }
+.schede button { text-transform: uppercase; letter-spacing: .12em; font-size: 12px; padding: 14px 16px; }
+.schede button.attiva { border-bottom: 2px solid var(--oro); color: var(--blu); font-weight: 600; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .schede button.attiva { color: #fff; } }
+
+main { max-width: 900px; }
+.riquadro {
+  border: 0; border-top: 1px solid var(--bordo); border-radius: 0; background: transparent;
+  padding: 18px 2px 14px; box-shadow: none; margin-bottom: 8px;
+}
+.riquadri { gap: 0 28px; }
+.riquadri .riquadro { border-top: 1px solid var(--bordo); }
+.riquadro.principale { border-top: 2px solid var(--blu); background: transparent; }
+.riquadro h2 {
+  font-family: "Cormorant Garamond", Georgia, serif; font-size: 20px; font-weight: 600;
+  letter-spacing: .01em; text-transform: none; color: var(--testo); margin-bottom: 8px;
+}
+.cifra { font-family: "Cormorant Garamond", Georgia, serif; font-feature-settings: "lnum" 1, "tnum" 1; font-size: 42px; font-weight: 600; letter-spacing: 0; line-height: 1.05; }
+.cifra.piccola { font-size: 30px; }
+.nota { color: var(--testo-2); }
+.mio-azioni button[type="submit"] { background: var(--blu); border-radius: 2px; letter-spacing: .06em; text-transform: uppercase; font-size: 12.5px; }
+.mio-form input, .ordina select { border-radius: 2px; background: var(--carta); }
+.link { color: var(--blu); text-transform: uppercase; letter-spacing: .08em; font-size: 11.5px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .link { color: var(--azzurro); } }
+.menu { border-radius: 0; }
+.menu-voci button.attiva { color: var(--blu); background: var(--sfondo); border-left: 2px solid var(--oro); }
