@@ -102,6 +102,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.5.2** — posizioni: con «Var. oggi» la colonna mostra la variazione di oggi.
 - **3.5.1** — correzione all'installazione dell'app.
 - **3.5** — nuovo stile.
 - **3.4.1** — fascia blu e schede fisse in alto scorrendo la pagina.

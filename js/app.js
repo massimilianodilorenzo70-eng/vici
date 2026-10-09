@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.5.1";
+const VERSIONE = "3.5.2";
 const NOVITA = [
+  { v: "3.5.2", voci: ["Posizioni: con «Var. oggi» la colonna mostra la variazione di oggi."] },
   { v: "3.5.1", voci: ["Correzione all'installazione dell'app."] },
   { v: "3.5", voci: ["Nuovo stile."] },
   { v: "3.4.1", voci: ["Fascia blu e schede fisse in alto."] },
@@ -217,22 +218,25 @@ function mostraBanner() {
 function mostraPosizioni() {
   const chiave = $("ordina").value;
   const righe = [...dati.posizioni].sort((a, b) => (b[chiave] ?? -1e9) - (a[chiave] ?? -1e9));
+  // con «Var. oggi» la colonna Var. % mostra la variazione di oggi, altrimenti quella dal carico
+  const oggiModo = chiave === "var_giorno";
+  document.querySelector("#posizioni").closest("table").querySelector("thead th:nth-child(5)").textContent = oggiModo ? "Var. oggi" : "Var. dal carico";
   $("posizioni").innerHTML = righe.map((r) => `<tr data-k="${esc(r.chiave || r.nome)}">
       <td>
         <div class="pos-nome">${esc(r.nome)}${r.mancante ? ' <span class="etichetta">senza prezzo</span>' : ""}</div>
-        <div class="pos-codice">${esc(r.bloomberg || "")} · ${etichettaGiorno(r)} ${colorato(r.var_giorno)}</div>
+        <div class="pos-codice">${esc(r.bloomberg || "")} · ${oggiModo ? "dal carico " + colorato(r.var_carico) : etichettaGiorno(r) + " " + colorato(r.var_giorno)}</div>
       </td>
       <td data-l="Peso">${fmt(r.peso_iniziale)}%</td>
       <td data-l="Carico">${fmt(r.prezzo_carico, decPrezzo(r.prezzo_carico))}</td>
       <td data-l="Attuale">${fmt(r.prezzo, decPrezzo(r.prezzo))}</td>
-      <td data-l="Var. %" class="var forte ${segno(r.var_carico)}">${perc(r.var_carico)}</td>
+      <td data-l="${oggiModo ? "Var. oggi" : "Var. %"}" class="var forte ${segno(oggiModo ? r.var_giorno : r.var_carico)}">${perc(oggiModo ? r.var_giorno : r.var_carico)}</td>
       <td data-l="Contributo" class="forte ${segno(r.contributo)}">${perc(r.contributo)}</td>
     </tr>`).join("");
   const pesoTot = righe.reduce((a, r) => a + r.peso_iniziale, 0);
   const contrTot = righe.reduce((a, r) => a + r.contributo, 0);
-  const perf = dati.perf_periodo ?? dati.perf_totale;
+  const perf = oggiModo ? dati.perf_giorno : (dati.perf_periodo ?? dati.perf_totale);
   $("totale").innerHTML = `<tr>
-      <td>Totale portafoglio<div class="pos-codice">oggi ${colorato(dati.perf_giorno)}</div></td>
+      <td>Totale portafoglio<div class="pos-codice">${oggiModo ? "dal ribilanciamento " + colorato(dati.perf_periodo ?? dati.perf_totale) : "oggi " + colorato(dati.perf_giorno)}</div></td>
       <td data-l="Peso">${fmt(pesoTot)}%</td>
       <td data-l="Base">${fmt(dati.base_periodo ?? dati.base)}</td>
       <td data-l="Valore">${fmt(dati.nav)}</td>
