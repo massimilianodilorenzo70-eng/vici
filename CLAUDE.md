@@ -14,7 +14,7 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
 - **Rispondi e scrivi SEMPRE in italiano**: messaggi all'utente, aggiornamenti
   mentre lavori, commit, pull request, commenti nel codice.
 - L'utente è il **gestore** del certificato VICI Balanced Growth AMC.
-- **Numero di versione** (oggi **3.4.1**): si scrive sempre con i punti.
+- **Numero di versione** (oggi **3.5**): si scrive sempre con i punti.
   - funzioni nuove → sale il secondo numero: 3.0 → 3.1 → 3.2 …
   - correzioni di errori → terzo numero: 3.1 → 3.1.1 → 3.1.2; 3.2 → 3.2.1 …
   - se l'utente dice "non aumentare la versione", non aumentarla.
@@ -33,6 +33,7 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
   (workflow ogni 30 min). Euronext è cifrato: non si legge e non si decifra.
   I cron di GitHub a volte saltano ore. Prezzi di carico: se Yahoo non ha la
   chiusura del giorno si usa l'ultima barra oraria (i fondi NAV aspettano).
+- Stile grafico (v3.5): «banca privata» scelto dall'utente (avorio, blu pieno con filo oro, titoli/cifre in Cormorant, linee sottili, niente ombre). Il blocco è in fondo a `css/style.css`. Alternativa scartata: «terminale finanziario». Prima di cambiare stile mostrare sempre immagini di prova.
 - Header + schede sono fissi in alto (`.alto` sticky); menu con sottovoci (`SOTTOVOCI`).
 - Avviso di aggiornamento: solo la riga «App aggiornata alla versione X», senza
   elenco delle modifiche e senza aprire da sola la finestra Novità.
