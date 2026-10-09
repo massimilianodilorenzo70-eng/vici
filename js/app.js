@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.4";
+const VERSIONE = "3.4.1";
 const NOVITA = [
+  { v: "3.4.1", voci: ["La fascia blu in alto con il menu resta ferma anche scorrendo la pagina."] },
   { v: "3.4", voci: [
     "Menu con sottovoci: dalle schede Portafoglio, Andamento e Gestione si va direttamente a stress test, rischio, attribuzione e alle altre sezioni.",
   ] },
