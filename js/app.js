@@ -5,84 +5,30 @@
 
 const VERSIONE = "3.4.1";
 const NOVITA = [
-  { v: "3.4.1", voci: ["La fascia blu in alto con il menu resta ferma anche scorrendo la pagina."] },
-  { v: "3.4", voci: [
-    "Menu con sottovoci: dalle schede Portafoglio, Andamento e Gestione si va direttamente a stress test, rischio, attribuzione e alle altre sezioni.",
-  ] },
-  { v: "3.3", voci: [
-    "Quotazione del certificato letta nel momento in cui apri o aggiorni l'app (servizio gratuito su Cloudflare che legge Borsa Italiana), con ripiego sull'ultimo dato salvato.",
-    "Avviso in cima quando in orario di borsa l'aggiornamento automatico è in ritardo di oltre 3 ore.",
-  ] },
-  { v: "3.2.2", voci: ["Tolti il riquadro «Certificato vs paniere» e la nota sotto il simulatore."] },
-  { v: "3.2.1", voci: [
-    "Attribuzione «Da acquisto»: ora usa il costo medio effettivo (prezzo medio ponderato degli acquisti, che tiene conto degli aumenti di posizione nei ribilanciamenti) invece del prezzo di carico originale.",
-    "Dettaglio posizione: costo medio e rendimento da acquisto.",
-    "Report: tolto il commento del gestore.",
-  ] },
-  { v: "3.2", voci: [
-    "Attribuzione: nuova scelta «Da acquisto (carico originale)», con il rendimento di ogni posizione dal suo primo ingresso, ai prezzi di carico originali che non si azzerano a ogni ribilanciamento.",
-    "Dettaglio posizione: carico originale, data di acquisto e rendimento da acquisto.",
-  ] },
-  { v: "3.1.2", voci: ["Menu: tolto il link al book di Borsa Italiana, aggiunto il link alla scheda del certificato su Leonteq."] },
-  { v: "3.1.1", voci: ["Menu: i link portano alla quotazione su Euronext e al book di Borsa Italiana (la scheda mostrava solo l'ultimo contratto, vuoto nei giorni senza scambi)."] },
-  { v: "3.1", voci: [
-    "In cima il prezzo corrente del certificato (ultimo contratto di oggi o medio tra denaro e lettera, come su Euronext) con l'ora; il prezzo di riferimento resta come informazione.",
-    "Quotazione del certificato aggiornata ogni 15 minuti durante la seduta e letta a ogni apertura dell'app.",
-  ] },
-  { v: "3.0.1", voci: ["Finestra delle novità: ✕ in alto per chiuderla senza scorrere fino in fondo."] },
-  { v: "3.0", voci: [
-    "Certificato: book del market maker da Borsa Italiana (denaro, lettera, spread), data ufficiale della quotazione e performance a 1 settimana, 1 mese, 6 mesi e 1 anno.",
-    "Il mio investimento: quanto incasseresti vendendo ora al prezzo denaro.",
-    "Indice e certificato: scomposizione della differenza tra commissione di gestione (2,5% annuo) e di performance (15%) dal KID.",
-  ] },
-  { v: "2.0", voci: ["Indice VICIGROW (Leonteq): rendimenti mensili, andamento dall'avvio e confronto con il certificato, con la differenza tra i due."] },
-  { v: "1.9.2", voci: ["Certificato vs paniere: il prezzo del certificato è confrontato con il paniere alla stessa data (prima con il valore di adesso)."] },
-  { v: "1.9.1", voci: [
-    "Correzioni: variazione giornaliera calcolata correttamente (prima risultava quasi sempre zero); link e testi del dettaglio posizione; il grafico del dettaglio mantiene il periodo scelto.",
-  ] },
-  { v: "1.9", voci: [
-    "Dettaglio posizione: tocca una posizione per grafico dal carico o a 1 anno, minimo e massimo, contributo, rischio, sensibilità dello stress test, nuovo peso del ribilanciamento e link a justETF, Morningstar e Yahoo Finance.",
-    "Certificato dall'emissione: prezzi degli scambi da luglio 2025 (Borsa Italiana), prezzo di riferimento e date dei ribilanciamenti; rendimento dall'emissione e annuo.",
-    "Premio/sconto calcolato solo sui prezzi di riferimento (non sugli scambi, che possono essere fermi da giorni).",
-  ] },
-  { v: "1.8", voci: ["Tolta dal menu la voce «Aggiornamenti dei prezzi (GitHub)»; corretti scenario libero e attribuzione sul telefono."] },
-  { v: "1.7", voci: [
-    "Attribuzione della performance per classe, area e posizione: dal ribilanciamento, dall'inizio e mese per mese.",
-    "Stress test: impatto stimato di scenari (azioni, tassi, oro, dollaro) sul portafoglio attuale e su quello programmato, con dettaglio per posizione e scenario libero.",
-    "Attribuzione e stress test anche nel report mensile.",
-  ] },
-  { v: "1.6", voci: ["In Portafoglio un riquadro avvisa quando c'è un ribilanciamento programmato non ancora in vigore."] },
-  { v: "1.5", voci: ["Numero di versione anche in alto, nella fascia blu, in azzurro tenue.", "Intestazione sistemata sui telefoni stretti: il pulsante di ricarica non copre più la scritta VICI."] },
-  { v: "1.4", voci: [
-    "Controllo completo e correzioni: data giusta della quotazione del certificato (seduta precedente), niente punti nel fine settimana, virgola decimale accettata nei campi, simulatore che non perde quello che stai scrivendo, data dell'ultimo NAV per i fondi, tabella del rischio leggibile sul telefono.",
-    "Avviso di aggiornamento più semplice.",
-    "Importazione dei ribilanciamenti: un file con problemi viene saltato con un avviso, senza bloccare gli altri.",
-  ] },
-  { v: "1.3", voci: [
-    "A ogni apertura, e quando la riapri dallo sfondo, l'app controlla se c'è una versione nuova e si aggiorna da sola.",
-  ] },
-  { v: "1.2", voci: [
-    "Ribilanciamento di ottobre: esecuzione il 7 ottobre 2026, prezzi di carico = chiusure di quel giorno, compilati in automatico.",
-    "Entra iShares Nasdaq 100 (7%), esce iShares MSCI USA Small Cap; nuovi pesi per tutte le posizioni, liquidità al 3%.",
-    "In Gestione il riquadro «Ribilanciamento programmato» mostra i nuovi pesi rispetto a quelli di oggi, finché non diventa attivo.",
-    "I ribilanciamenti mensili si importano dall'Excel della composizione (anche caricandolo su GitHub nella cartella ribilanciamenti/).",
-  ] },
-  { v: "1.1", voci: [
-    "Menu (☰) e quattro sezioni: Portafoglio, Andamento, Gestione, Report.",
-    "Confronto con un benchmark bilanciato 60/40 (MSCI World + Euro Aggregate Bond).",
-    "Premio o sconto del certificato rispetto al paniere.",
-    "Rischio del portafoglio: volatilità, perdita massima, VaR, quota di rischio per posizione e correlazioni.",
-    "Rendimenti mensili del paniere e del benchmark.",
-    "Scostamento dai pesi obiettivo, con avviso via email (issue GitHub) oltre la soglia.",
-    "Simulatore di ribilanciamento con operazioni in euro e quantità, esportabile come nuovo ribilanciamento.",
-    "Storico dei ribilanciamenti: la curva resta continua da un ribilanciamento all'altro.",
-    "Report mensile da stampare o salvare in PDF, con il commento del gestore.",
-    "All'apertura l'app propone di installarsi sul telefono.",
-    "Numero di versione nel menu e in fondo alla pagina.",
-  ] },
-  { v: "1", voci: [
-    "Prima versione: quotazione del certificato, posizioni con prezzo attuale, variazione dal carico e contributo, paniere stimato, grafico e allocazione.",
-  ] },
+  { v: "3.4.1", voci: ["Fascia blu e schede fisse in alto."] },
+  { v: "3.4", voci: ["Sottovoci nel menu: salto diretto a stress test, rischio e altre sezioni."] },
+  { v: "3.3", voci: ["Quotazione letta a ogni apertura (Cloudflare); avviso se i dati automatici sono in ritardo."] },
+  { v: "3.2.2", voci: ["Tolti «Certificato vs paniere» e la nota del simulatore."] },
+  { v: "3.2.1", voci: ["«Da acquisto» con il costo medio effettivo; tolto il commento del gestore dal report."] },
+  { v: "3.2", voci: ["Attribuzione «Da acquisto» con carico originale; carico originale nel dettaglio posizione."] },
+  { v: "3.1.2", voci: ["Menu: tolto il book di Borsa Italiana, aggiunta la scheda Leonteq."] },
+  { v: "3.1.1", voci: ["Link del menu a Euronext e al book di Borsa Italiana."] },
+  { v: "3.1", voci: ["Prezzo corrente del certificato in cima; quotazione ogni 15 minuti."] },
+  { v: "3.0.1", voci: ["✕ per chiudere la finestra delle novità."] },
+  { v: "3.0", voci: ["Book denaro/lettera e performance da Borsa Italiana; costi del KID e scomposizione della differenza con l'indice."] },
+  { v: "2.0", voci: ["Indice VICIGROW: rendimenti mensili e confronto con il certificato."] },
+  { v: "1.9.2", voci: ["Premio/sconto confrontato alla stessa data."] },
+  { v: "1.9.1", voci: ["Correzioni: variazione giornaliera e dettaglio posizione."] },
+  { v: "1.9", voci: ["Dettaglio posizione; storico del certificato dall'emissione."] },
+  { v: "1.8", voci: ["Menu più semplice; corretti scenario libero e attribuzione."] },
+  { v: "1.7", voci: ["Attribuzione della performance e stress test."] },
+  { v: "1.6", voci: ["Avviso del ribilanciamento programmato in Portafoglio."] },
+  { v: "1.5", voci: ["Numero di versione nella fascia blu."] },
+  { v: "1.4", voci: ["Controllo completo e correzioni."] },
+  { v: "1.3", voci: ["Aggiornamento automatico all'apertura."] },
+  { v: "1.2", voci: ["Ribilanciamento di ottobre con carichi automatici; importazione dell'Excel mensile."] },
+  { v: "1.1", voci: ["Menu e sezioni, benchmark, rischio, scostamenti, simulatore, storico ribilanciamenti, report PDF."] },
+  { v: "1", voci: ["Prima versione."] },
 ];
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
