@@ -187,7 +187,7 @@
      "classe": "Azioni",
      "area": "USA",
      "peso": 15.0,
-     "prezzo_carico": null
+     "prezzo_carico": 159.710007
     },
     {
      "nome": "iShares EUR Floating Rate Bond Advanced",
@@ -196,7 +196,7 @@
      "classe": "Obbligazioni",
      "area": "Europa",
      "peso": 9.0,
-     "prezzo_carico": null
+     "prezzo_carico": 5.2148
     },
     {
      "nome": "PIMCO GIS Capital Securities EUR Hdg Acc",
@@ -205,7 +205,7 @@
      "classe": "Obbligazioni",
      "area": "Globale",
      "peso": 9.0,
-     "prezzo_carico": null
+     "prezzo_carico": 14.11
     },
     {
      "nome": "T. Rowe Price Global Value Equity A EUR",
@@ -214,7 +214,7 @@
      "classe": "Azioni",
      "area": "Globale",
      "peso": 9.0,
-     "prezzo_carico": null
+     "prezzo_carico": 28.75
     },
     {
      "nome": "iShares Core EURO STOXX 50",
@@ -223,7 +223,7 @@
      "classe": "Azioni",
      "area": "Europa",
      "peso": 8.0,
-     "prezzo_carico": null
+     "prezzo_carico": 241.25
     },
     {
      "nome": "Muzinich Enhancedyield Short-Term H EUR R Acc",
@@ -232,7 +232,7 @@
      "classe": "Obbligazioni",
      "area": "Globale",
      "peso": 8.0,
-     "prezzo_carico": null
+     "prezzo_carico": 157.470001
     },
     {
      "nome": "WisdomTree Physical Gold",
@@ -245,7 +245,7 @@
       "nome": "Xetra-Gold"
      },
      "peso": 7.5,
-     "prezzo_carico": null
+     "prezzo_carico": 340.68
     },
     {
      "nome": "Schroder ISF EURO Corporate Bond A Acc",
@@ -258,7 +258,7 @@
       "nome": "iShares Core EUR Corp Bond"
      },
      "peso": 7.5,
-     "prezzo_carico": null
+     "prezzo_carico": 24.236
     },
     {
      "nome": "iShares Nasdaq 100 (Acc)",
@@ -267,7 +267,7 @@
      "classe": "Azioni",
      "area": "USA",
      "peso": 7.0,
-     "prezzo_carico": null
+     "prezzo_carico": 1595.72998
     },
     {
      "nome": "Amundi Euro Government Bond 3-5Y",
@@ -276,7 +276,7 @@
      "classe": "Obbligazioni",
      "area": "Europa",
      "peso": 5.0,
-     "prezzo_carico": null
+     "prezzo_carico": 149.770004
     },
     {
      "nome": "Amundi MSCI Emerging Markets",
@@ -285,7 +285,7 @@
      "classe": "Azioni",
      "area": "Emergenti",
      "peso": 5.0,
-     "prezzo_carico": null
+     "prezzo_carico": 105.489998
     },
     {
      "nome": "iShares S&P 500 Health Care EUR Hdg",
@@ -294,7 +294,7 @@
      "classe": "Azioni",
      "area": "USA",
      "peso": 5.0,
-     "prezzo_carico": null
+     "prezzo_carico": 7.685
     },
     {
      "nome": "Liquidità EUR",
@@ -313,9 +313,10 @@
      "classe": "Azioni",
      "area": "Emergenti",
      "peso": 2.0,
-     "prezzo_carico": null
+     "prezzo_carico": 4.9315
     }
-   ]
+   ],
+   "prezzi_carico_da": "chiusure del 2026-10-07 (automatico)"
   }
  ],
  "_istruzioni": {
