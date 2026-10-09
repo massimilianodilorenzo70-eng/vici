@@ -3,8 +3,11 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.3";
+const VERSIONE = "3.4";
 const NOVITA = [
+  { v: "3.4", voci: [
+    "Menu con sottovoci: dalle schede Portafoglio, Andamento e Gestione si va direttamente a stress test, rischio, attribuzione e alle altre sezioni.",
+  ] },
   { v: "3.3", voci: [
     "Quotazione del certificato letta nel momento in cui apri o aggiorni l'app (servizio gratuito su Cloudflare che legge Borsa Italiana), con ripiego sull'ultimo dato salvato.",
     "Avviso in cima quando in orario di borsa l'aggiornamento automatico è in ritardo di oltre 3 ore.",
@@ -1182,7 +1185,52 @@ function mostraScheda(nome) {
   if (nome === "andamento" && dati) { mostraGrafico(); mostraStoriaCertificato(); mostraIndice(); }
 }
 
+// Voci secondarie del menu: aprono la scheda e portano alla sezione (cerca il
+// titolo che inizia con il testo indicato)
+const SOTTOVOCI = {
+  portafoglio: [["Posizioni", "Posizioni investite"], ["Allocazione", "Allocazione"], ["Il mio investimento", "Il mio investimento"]],
+  andamento: [["Certificato dall'emissione", "Certificato dall'emissione"], ["Indice VICIGROW", "Indice VICIGROW"],
+    ["Andamento del paniere", "Andamento dal"], ["Rendimenti mensili", "Rendimenti mensili"],
+    ["Attribuzione", "Attribuzione"], ["Stress test", "Stress test"], ["Rischio", "Rischio del portafoglio"]],
+  gestione: [["Ribilanciamento programmato", "Ribilanciamento programmato"], ["Scostamenti", "Scostamento"],
+    ["Simulatore", "Simulatore"], ["Storico ribilanciamenti", "Storico dei ribilanciamenti"]],
+};
+function bersaglio(nome, testo) {
+  const h = [...document.querySelectorAll(`[data-pannello="${nome}"] h2`)].find((x) => x.textContent.trim().startsWith(testo));
+  return h ? h.closest(".riquadro") : null;
+}
+function costruisciSottovoci() {
+  document.querySelectorAll(".menu-voci [data-scheda]").forEach((b) => {
+    const voci = SOTTOVOCI[b.dataset.scheda];
+    if (!voci) return;
+    const box = document.createElement("div");
+    box.className = "sotto";
+    voci.forEach(([etichetta, titolo]) => {
+      const v = document.createElement("button");
+      v.textContent = etichetta;
+      v.dataset.titolo = titolo;
+      v.addEventListener("click", () => {
+        mostraScheda(b.dataset.scheda);
+        const el = bersaglio(b.dataset.scheda, titolo);
+        if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+      });
+      box.appendChild(v);
+    });
+    b.after(box);
+  });
+}
+function aggiornaSottovoci() {
+  document.querySelectorAll(".menu-voci .sotto").forEach((box) => {
+    const nome = box.previousElementSibling.dataset.scheda;
+    box.querySelectorAll("button").forEach((v) => {
+      const el = bersaglio(nome, v.dataset.titolo);
+      v.hidden = !el || el.hidden;
+    });
+  });
+}
+
 function apriMenu() {
+  aggiornaSottovoci();
   $("menu").hidden = false;
   $("velo").hidden = false;
   $("apri-menu").setAttribute("aria-expanded", "true");
@@ -1259,6 +1307,7 @@ function preparaInstallazione() {
 
 /* ================= avvio ================= */
 document.querySelectorAll(".versione").forEach((el) => { el.textContent = VERSIONE; });
+costruisciSottovoci();
 document.querySelectorAll("[data-scheda]").forEach((b) => b.addEventListener("click", () => mostraScheda(b.dataset.scheda)));
 $("apri-menu").addEventListener("click", apriMenu);
 $("velo").addEventListener("click", chiudiMenu);
