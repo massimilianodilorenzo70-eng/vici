@@ -102,6 +102,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.4.1** — fascia blu e schede fisse in alto scorrendo la pagina.
 - **3.4** — menu con sottovoci che portano direttamente alle sezioni (stress test, rischio, attribuzione…).
 - **3.3** — quotazione del certificato letta all'apertura (Cloudflare Worker) e avviso se l'aggiornamento automatico è in ritardo.
 - **3.2.2** — tolti il riquadro «Certificato vs paniere» e la nota sotto il simulatore.

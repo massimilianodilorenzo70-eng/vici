@@ -60,6 +60,8 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* testata e schede restano in alto anche scorrendo la pagina */
+.alto { position: sticky; top: 0; z-index: 5; }
 .testata {
   position: relative;
   background: radial-gradient(120% 140% at 85% 0%, #1638B8 0%, var(--blu) 55%, var(--blu-scuro) 100%);
@@ -246,9 +248,6 @@ main { max-width: 860px; margin: 0 auto; padding: 14px 16px 40px; }
 
 /* ---------- schede (menu in alto) ---------- */
 .schede {
-  position: sticky;
-  top: 0;
-  z-index: 5;
   display: flex;
   background: var(--carta);
   border-bottom: 1px solid var(--bordo);
@@ -311,7 +310,7 @@ main { max-width: 860px; margin: 0 auto; padding: 14px 16px 40px; }
 .menu-voci .sotto { display: flex; flex-direction: column; padding-bottom: 4px; }
 .menu-voci .sotto button { font-weight: 400; font-size: 13.5px; padding: 6px 20px 6px 36px; color: var(--testo-2); }
 .menu-voci .sotto button:hover { color: var(--blu); }
-.riquadro { scroll-margin-top: 72px; }
+.riquadro { scroll-margin-top: 160px; }
 .menu-voci small { display: block; font-size: 12px; font-weight: 400; color: var(--testo-2); }
 .menu-piede { margin-top: auto; padding: 12px 20px 0; font-size: 12px; color: var(--testo-2); }
 
@@ -423,7 +422,7 @@ code { font-size: 12px; background: var(--sfondo); padding: 1px 4px; border-radi
 @media print {
   @page { size: A4; margin: 12mm; }
   body { background: #fff; }
-  .testata, .schede, .menu, .velo, .installa, .stato, .non-stampare, .finestra { display: none !important; }
+  .alto, .testata, .schede, .menu, .velo, .installa, .stato, .non-stampare, .finestra { display: none !important; }
   main { padding: 0; max-width: none; }
   section[data-pannello]:not([data-pannello="report"]) { display: none !important; }
   section[data-pannello="report"] { display: block !important; }
