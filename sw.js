@@ -1,7 +1,7 @@
 /* sw.js — l'app funziona anche offline con gli ultimi dati scaricati.
  * A ogni rilascio aumenta CACHE_NAME insieme a VERSIONE in js/app.js e in
  * versione.json: all'apertura l'app vede la versione nuova e si aggiorna. */
-const CACHE_NAME = "vici-v3.5.2";
+const CACHE_NAME = "vici-v3.5.3";
 const ASSETS = [
   "./", "./index.html", "./manifest.json", "./css/style.css", "./js/app.js",
   "./icons/logo.svg", "./icons/icon-192.png", "./icons/icon-512.png",
