@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.5.2";
+const VERSIONE = "3.5.3";
 const NOVITA = [
+  { v: "3.5.3", voci: ["Correzioni: niente «+0,00»; «Ricarica» rilegge sempre la quotazione."] },
   { v: "3.5.2", voci: ["Posizioni: con «Var. oggi» la colonna mostra la variazione di oggi."] },
   { v: "3.5.1", voci: ["Correzione all'installazione dell'app."] },
   { v: "3.5", voci: ["Nuovo stile."] },
@@ -81,7 +82,7 @@ let indice = null; // rendimenti mensili dell'indice VICIGROW (data/indice.json)
 // Italiana nel momento della richiesta. L'indirizzo sta in data/config.json
 // (campo quotazione_url); se manca o non risponde si usa l'ultimo dato salvato.
 let configurazione = null;
-async function quotazioneDiretta() {
+async function quotazioneDiretta(forza) {
   try {
     if (configurazione === null) {
       const r = await fetch(`data/config.json?t=${Date.now()}`);
@@ -93,7 +94,7 @@ async function quotazioneDiretta() {
     // di ogni 5 minuti (si riusa l'ultima lettura salvata sul dispositivo)
     try {
       const salvata = JSON.parse(sessionStorage.getItem("vici-quotazione") || "null");
-      if (salvata && Date.now() - salvata.letta < 5 * 60000) return salvata.q;
+      if (!forza && salvata && Date.now() - salvata.letta < 5 * 60000) return salvata.q;
     } catch {}
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 7000);
@@ -107,7 +108,7 @@ async function quotazioneDiretta() {
   } catch { return null; }
 }
 
-async function carica() {
+async function carica(forza) {
   const bottone = $("aggiorna");
   bottone.classList.add("gira");
   try {
@@ -117,7 +118,7 @@ async function carica() {
       fetch(`data/storico.json?t=${t}`).then((r) => r.ok ? r.json() : null),
       fetch(`data/indice.json?t=${t}`).then((r) => r.ok ? r.json() : null).catch(() => null),
       fetch(`data/certificato.json?t=${t}`).then((r) => r.ok ? r.json() : null).catch(() => null),
-      quotazioneDiretta(),
+      quotazioneDiretta(forza),
     ]);
     indice = ind;
     // la quotazione diretta (letta adesso) prevale; altrimenti quella salvata
@@ -278,13 +279,13 @@ function mostraMio() {
   const diff = valore - investito;
   $("mio-investito").textContent = eur(investito, 0);
   $("mio-valore").textContent = eur(valore, 0);
-  $("mio-risultato").innerHTML = `<span class="${segno(diff)}">${diff > 0 ? "+" : ""}${eur(diff, 0)}<br>${perc(diff / investito * 100)}</span>`;
+  $("mio-risultato").innerHTML = `<span class="${segno(diff)}">${tondo(diff, 0) > 0 ? "+" : ""}${eur(diff, 0)}<br>${perc(diff / investito * 100)}</span>`;
   const c = dati.certificato;
   $("mio-vendita").hidden = !(c && c.denaro);
   if (c && c.denaro) {
     const incasso = mio.qta * c.denaro, d2 = incasso - investito;
     $("mio-vendita").innerHTML = `Valore al prezzo corrente. Vendendo ora al denaro (${fmt(c.denaro)}) incasseresti ${eur(incasso, 0)}: ` +
-      `<span class="${segno(d2)}">${d2 > 0 ? "+" : ""}${eur(d2, 0)} (${perc(d2 / investito * 100)})</span>.`;
+      `<span class="${segno(d2)}">${tondo(d2, 0) > 0 ? "+" : ""}${eur(d2, 0)} (${perc(d2 / investito * 100)})</span>.`;
   }
 }
 
@@ -559,7 +560,7 @@ function pesiProgrammati() {
 function testoShock(sh) {
   const parti = [];
   if (sh.azioni) parti.push(`azioni ${perc(sh.azioni, 0)}`);
-  if (sh.tassi) parti.push(`tassi ${sh.tassi > 0 ? "+" : ""}${fmt(sh.tassi, 1)} punti`);
+  if (sh.tassi) parti.push(`tassi ${tondo(sh.tassi, 1) > 0 ? "+" : ""}${fmt(sh.tassi, 1)} punti`);
   if (sh.oro) parti.push(`oro ${perc(sh.oro, 0)}`);
   if (sh.dollaro) parti.push(`dollaro ${perc(sh.dollaro, 0)}`);
   return parti.join(", ");
@@ -792,7 +793,7 @@ function mostraProgrammati() {
     const diff = r.nuovo - r.att;
     return `<tr><td>${esc(breve(r.nome))}${r.stato ? ` <span class="etichetta">${r.stato}</span>` : ""}</td>
       <td>${fmt(r.att)}%</td><td class="forte">${fmt(r.nuovo)}%</td>
-      <td class="${segno(diff)}">${diff > 0 ? "+" : ""}${fmt(diff)}</td></tr>`;
+      <td class="${segno(diff)}">${tondo(diff) > 0 ? "+" : ""}${fmt(diff)}</td></tr>`;
   }).join("");
 }
 
@@ -814,7 +815,7 @@ function mostraScostamenti() {
         <span class="nome" title="${esc(r.nome)}">${esc(breve(r.nome))}</span>
         <span class="num">${fmt(r.peso_obiettivo)}%</span>
         <span class="num">${fmt(r.peso_attuale)}%</span>
-        <span class="num ${r.oltre_soglia ? "giu forte" : ""}">${r.scostamento > 0 ? "+" : ""}${fmt(r.scostamento)}</span>
+        <span class="num ${r.oltre_soglia ? "giu forte" : ""}">${tondo(r.scostamento) > 0 ? "+" : ""}${fmt(r.scostamento)}</span>
         <div class="scost-barra"><i style="left:${left}%;width:${w}%;background:${col}"></i><span class="centro"></span></div>
       </div>`;
     }).join("");
@@ -1055,7 +1056,7 @@ function mostraDettaglio() {
   const valori = punti.map((p) => p.v);
   const min = valori.length ? Math.min(...valori) : null, max = valori.length ? Math.max(...valori) : null;
   const met = [
-    ["Peso attuale", fmt(r.peso_attuale) + "%", `obiettivo ${fmt(r.peso_obiettivo)}% (${r.scostamento > 0 ? "+" : ""}${fmt(r.scostamento)})`],
+    ["Peso attuale", fmt(r.peso_attuale) + "%", `obiettivo ${fmt(r.peso_obiettivo)}% (${tondo(r.scostamento) > 0 ? "+" : ""}${fmt(r.scostamento)})`],
     ["Carico", fmt(r.prezzo_carico, decPrezzo(r.prezzo_carico)), `dal ${dataIt(dati.data_esecuzione)}`],
     ["Contributo", perc(r.contributo), "alla performance del periodo"],
     [dettaglioPeriodo === "carico" ? "Min – max dal carico" : "Min – max 1 anno",
@@ -1265,12 +1266,12 @@ document.querySelectorAll("[data-scheda]").forEach((b) => b.addEventListener("cl
 $("apri-menu").addEventListener("click", apriMenu);
 $("velo").addEventListener("click", chiudiMenu);
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { chiudiMenu(); chiudiDettaglio(); $("novita").hidden = true; } });
-$("menu-aggiorna").addEventListener("click", () => { chiudiMenu(); carica(); });
+$("menu-aggiorna").addEventListener("click", () => { chiudiMenu(); carica(true); });
 $("menu-novita").addEventListener("click", mostraNovita);
 $("novita-chiudi").addEventListener("click", () => { $("novita").hidden = true; });
 $("novita-x").addEventListener("click", () => { $("novita").hidden = true; });
 $("novita").addEventListener("click", (e) => { if (e.target === $("novita")) $("novita").hidden = true; });
-$("aggiorna").addEventListener("click", carica);
+$("aggiorna").addEventListener("click", () => carica(true));
 $("ordina").addEventListener("change", () => dati && mostraPosizioni());
 $("modifica-mio").addEventListener("click", () => apriFormMio(true));
 $("mio-annulla").addEventListener("click", () => apriFormMio(false));
