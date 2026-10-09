@@ -14,7 +14,7 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
 - **Rispondi e scrivi SEMPRE in italiano**: messaggi all'utente, aggiornamenti
   mentre lavori, commit, pull request, commenti nel codice.
 - L'utente è il **gestore** del certificato VICI Balanced Growth AMC.
-- **Numero di versione** (oggi **3.2.2**): si scrive sempre con i punti.
+- **Numero di versione** (oggi **3.4.1**): si scrive sempre con i punti.
   - funzioni nuove → sale il secondo numero: 3.0 → 3.1 → 3.2 …
   - correzioni di errori → terzo numero: 3.1 → 3.1.1 → 3.1.2; 3.2 → 3.2.1 …
   - se l'utente dice "non aumentare la versione", non aumentarla.
@@ -24,6 +24,16 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
     `versione.json` del sito con la sua e si aggiorna da sola.
 - Scritta «Sviluppato da VCIAM» accanto al numero di versione, SOLO in fondo alla
   pagina e in fondo al menu, mai in alto nella fascia blu (richiesta dell'utente).
+- Cronologia «Novità della versione» (`NOVITA`): una riga breve e sintetica per
+  versione (poche parole, niente spiegazioni lunghe). Vale per ogni nuova voce.
+- Quotazione del certificato: Cloudflare Worker `vici-quotazione`
+  (https://vici-quotazione.massimilianodilorenzo70.workers.dev, codice in
+  `cloudflare/quotazione/worker.js`, indirizzo in `data/config.json`) legge Borsa
+  Italiana a ogni apertura (cache app 5 min); ripiego su `data/certificato.json`
+  (workflow ogni 30 min). Euronext è cifrato: non si legge e non si decifra.
+  I cron di GitHub a volte saltano ore. Prezzi di carico: se Yahoo non ha la
+  chiusura del giorno si usa l'ultima barra oraria (i fondi NAV aspettano).
+- Header + schede sono fissi in alto (`.alto` sticky); menu con sottovoci (`SOTTOVOCI`).
 - Avviso di aggiornamento: solo la riga «App aggiornata alla versione X», senza
   elenco delle modifiche e senza aprire da sola la finestra Novità.
 - Rilascio: lavora sul ramo indicato dalla sessione, poi apri la pull request
