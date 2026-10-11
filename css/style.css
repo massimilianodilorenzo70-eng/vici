@@ -186,7 +186,7 @@ main { max-width: 860px; margin: 0 auto; padding: 14px 16px 40px; }
 .legenda span { display: inline-block; width: 16px; height: 3px; border-radius: 2px; }
 .legenda span + * { margin-right: 10px; }
 .l-nav { background: var(--linea-nav); }
-.l-cert { background: var(--linea-cert); margin-left: 10px; }
+.l-cert { background: var(--linea-cert); }
 /* legenda del grafico Andamento: campioni di linea disegnati (continua, tratteggiata, punteggiata) */
 .legenda .leg { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; width: auto; height: auto; border-radius: 0; margin: 0 10px 0 0; font-size: 12.5px; color: var(--testo); }
 
@@ -553,8 +553,8 @@ body.con-invito main { padding-bottom: 130px; }
 
 /* ---------- certificato dall'emissione ---------- */
 .l-scambi { background: var(--azzurro); }
-.l-rif { background: var(--linea-cert); margin-left: 10px; }
-.l-rib { background: repeating-linear-gradient(90deg, var(--giallo) 0 4px, transparent 4px 7px); margin-left: 10px; }
+.l-rif { background: var(--linea-cert); }
+.l-rib { background: repeating-linear-gradient(90deg, var(--giallo) 0 4px, transparent 4px 7px); }
 .grafico .rib { stroke: var(--giallo); stroke-dasharray: 3 4; stroke-width: 1.2; }
 .grafico .rib-testo { font-size: 10px; fill: var(--testo-2); }
 

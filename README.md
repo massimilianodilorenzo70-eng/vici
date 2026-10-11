@@ -102,6 +102,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.7.1** — legende dei grafici: testo e colore restano insieme.
 - **3.7** — spiegazione del benchmark 60/40 sotto il grafico Andamento.
 - **3.6.1** — grafico più chiaro: legenda con tutte le linee e spiegazione.
 - **3.6** — l'app ricorda l'ultimo ordinamento delle posizioni.
