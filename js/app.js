@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.5.3";
+const VERSIONE = "3.5.4";
 const NOVITA = [
+  { v: "3.5.4", voci: ["Posizioni ordinate di default per variazione dal carico."] },
   { v: "3.5.3", voci: ["Correzioni: niente «+0,00»; «Ricarica» rilegge sempre la quotazione."] },
   { v: "3.5.2", voci: ["Posizioni: con «Var. oggi» la colonna mostra la variazione di oggi."] },
   { v: "3.5.1", voci: ["Correzione all'installazione dell'app."] },
