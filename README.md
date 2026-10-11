@@ -49,7 +49,7 @@ All'apertura l'app propone di installarsi sul telefono (Android: pulsante
 ## Come si aggiornano i dati
 
 Il workflow `.github/workflows/aggiorna-prezzi.yml` gira nei giorni feriali
-ogni ora dalle 8 alle 19 e una volta la sera. Esegue
+ogni ora dalle 8 alle 19, una volta la sera e sabato e domenica mattina (per i NAV dei fondi). Esegue
 `scripts/aggiorna_prezzi.py`, che:
 
 1. per ogni posizione cerca il prezzo su Yahoo Finance (simbolo da Bloomberg
