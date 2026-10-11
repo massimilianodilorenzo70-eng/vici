@@ -14,7 +14,7 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
 - **Rispondi e scrivi SEMPRE in italiano**: messaggi all'utente, aggiornamenti
   mentre lavori, commit, pull request, commenti nel codice.
 - L'utente è il **gestore** del certificato VICI Balanced Growth AMC.
-- **Numero di versione** (oggi **3.5**): si scrive sempre con i punti.
+- **Numero di versione** (oggi **3.7**): si scrive sempre con i punti.
   - funzioni nuove → sale il secondo numero: 3.0 → 3.1 → 3.2 …
   - correzioni di errori → terzo numero: 3.1 → 3.1.1 → 3.1.2; 3.2 → 3.2.1 …
   - se l'utente dice "non aumentare la versione", non aumentarla.
@@ -34,6 +34,21 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
   I cron di GitHub a volte saltano ore. Prezzi di carico: se Yahoo non ha la
   chiusura del giorno si usa l'ultima barra oraria (i fondi NAV aspettano).
 - Stile grafico (v3.5): «banca privata» scelto dall'utente (avorio, blu pieno con filo oro, titoli/cifre in Cormorant, linee sottili, niente ombre). Il blocco è in fondo a `css/style.css`. Alternativa scartata: «terminale finanziario». Prima di cambiare stile mostrare sempre immagini di prova.
+- Storia versioni recenti: 3.3 quotazione diretta (Worker); 3.4 sottovoci del menu;
+  3.4.1 header fisso; 3.5 stile banca privata; 3.5.1 `id` del manifest `/vici/`;
+  3.5.2 colonna «Var. %» segue l'ordinamento (oggi / dal carico); 3.5.3 niente
+  «+0,00», «Ricarica» salta la cache di 5 min; 3.5.4/3.6 ordinamento di default
+  «Var. dal carico» e ricordato (localStorage `vici-ordina`); 3.6.1 grafico
+  Andamento con legenda completa e valori finali; 3.7 spiegazione benchmark 60/40
+  (`<details class="spiega">`).
+- PWA: l'`id` del manifest si risolve sull'ORIGINE (github.io), non sulla cartella:
+  VICI e cacciaTI con `./index.html` erano la stessa app per Chrome (apriva
+  cacciaTI). VICI ora ha `"id": "/vici/"`; cacciaTI non va toccata. Dopo il cambio
+  l'utente deve reinstallare VICI (chrome://apps → rimuovi → installa da /vici/).
+- Se Yahoo manca di una chiusura giornaliera, `chiusura_da_barre_orarie` usa l'ultima
+  barra oraria (il 7/10 mancava per i listini europei). Fondi NAV aspettano.
+- Benchmark 60/40 = IWDA.AS 60% + IEAG.AS 40%. Le legende dei grafici usano
+  `.legenda span` come campioni: per nuove legende con SVG usare `.leg`.
 - Header + schede sono fissi in alto (`.alto` sticky); menu con sottovoci (`SOTTOVOCI`).
 - Avviso di aggiornamento: solo la riga «App aggiornata alla versione X», senza
   elenco delle modifiche e senza aprire da sola la finestra Novità.
@@ -158,14 +173,12 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
 - Il ramo `memoria` si scarica con `git fetch origin memoria` e poi
   `git checkout memoria` (se manca in locale: `git checkout -b memoria FETCH_HEAD`).
 
-## Stato e cose in sospeso (al 6 ottobre 2026)
+## Stato e cose in sospeso (all'11 ottobre 2026)
 
 - Ribilanciamento del **7 ottobre 2026** (file Composizione_10.26.xlsx) inserito
-  e **programmato**: entra Nasdaq 100 (7%), esce USA Small Cap, liquidità 3%.
-  Diventa attivo da solo dall'8 ottobre con le chiusure del 7.
-- **Controllo promesso venerdì 9 ottobre alle 10:00** (routine
-  `trig_01PRW2HthWQA7qhiDRBuUEU1`): verificare che il ribilanciamento sia attivo,
-  prezzi di carico = chiusure del 7, curva continua, nessun prezzo mancante.
+  e **ATTIVO dal 9 ottobre** (controllo fatto: 14 prezzi di carico compilati, curva
+  continua, nessun mancante). Entra Nasdaq 100 (7%), esce USA Small Cap, liquidità 3%.
+- Prossimo ribilanciamento mensile: caricare l'Excel in `ribilanciamenti/AAAA-MM-GG.xlsx`.
 - Premio/sconto: il primo confronto vero arriva con la seconda quotazione di
   riferimento registrata (dopo il 2 ottobre).
 - Idee proposte e non ancora fatte: riepilogo serale su Telegram, report
