@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.7";
+const VERSIONE = "3.7.1";
 const NOVITA = [
+  { v: "3.7.1", voci: ["Legende dei grafici: testo e colore restano sempre insieme."] },
   { v: "3.7", voci: ["Spiegazione del benchmark 60/40 sotto il grafico Andamento."] },
   { v: "3.6.1", voci: ["Grafico più chiaro: legenda con tutte le linee e spiegazione."] },
   { v: "3.6", voci: ["L'app ricorda l'ultimo ordinamento delle posizioni."] },
