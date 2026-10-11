@@ -167,7 +167,8 @@ main { max-width: 860px; margin: 0 auto; padding: 14px 16px 40px; }
 .grafico { height: 220px; position: relative; }
 .grafico svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .grafico .asse { font-size: 11px; fill: var(--testo-2); }
-.grafico .griglia { stroke: var(--bordo); stroke-width: 1; }
+.grafico .fine { font-size: 11px; font-weight: 600; }
+.grafico .griglia { stroke: var(--bordo); stroke-width: 1; opacity: .6; }
 .grafico .base { stroke: var(--testo-2); stroke-dasharray: 3 4; stroke-width: 1; }
 .grafico .vuoto { display: grid; place-items: center; height: 100%; color: var(--testo-2); font-size: 13px; }
 .suggerimento {
@@ -186,6 +187,8 @@ main { max-width: 860px; margin: 0 auto; padding: 14px 16px 40px; }
 .legenda span + * { margin-right: 10px; }
 .l-nav { background: var(--linea-nav); }
 .l-cert { background: var(--linea-cert); margin-left: 10px; }
+/* legenda del grafico Andamento: campioni di linea disegnati (continua, tratteggiata, punteggiata) */
+.legenda .leg { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; width: auto; height: auto; border-radius: 0; margin: 0 10px 0 0; font-size: 12.5px; color: var(--testo); }
 
 .barra { display: flex; height: 14px; border-radius: 7px; overflow: hidden; gap: 2px; margin: 6px 0 10px; }
 .barra div { min-width: 2px; }
