@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.5.4";
+const VERSIONE = "3.6";
 const NOVITA = [
+  { v: "3.6", voci: ["L'app ricorda l'ultimo ordinamento delle posizioni."] },
   { v: "3.5.4", voci: ["Posizioni ordinate di default per variazione dal carico."] },
   { v: "3.5.3", voci: ["Correzioni: niente «+0,00»; «Ricarica» rilegge sempre la quotazione."] },
   { v: "3.5.2", voci: ["Posizioni: con «Var. oggi» la colonna mostra la variazione di oggi."] },
@@ -39,7 +40,7 @@ const NOVITA = [
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
 const K = { mio: "vici-mio", patrimonio: "vici-patrimonio",
-  scheda: "vici-scheda", versioneVista: "vici-versione-vista", sim: "vici-sim" };
+  scheda: "vici-scheda", ordina: "vici-ordina", versioneVista: "vici-versione-vista", sim: "vici-sim" };
 const RICARICA_MS = 5 * 60 * 1000;
 
 const $ = (id) => document.getElementById(id);
@@ -1273,7 +1274,12 @@ $("novita-chiudi").addEventListener("click", () => { $("novita").hidden = true; 
 $("novita-x").addEventListener("click", () => { $("novita").hidden = true; });
 $("novita").addEventListener("click", (e) => { if (e.target === $("novita")) $("novita").hidden = true; });
 $("aggiorna").addEventListener("click", () => carica(true));
-$("ordina").addEventListener("change", () => dati && mostraPosizioni());
+// ricorda l'ultimo ordinamento scelto (se non è più valido resta quello di default)
+{
+  const salvato = leggi(K.ordina);
+  if (salvato && [...$("ordina").options].some((o) => o.value === salvato)) $("ordina").value = salvato;
+}
+$("ordina").addEventListener("change", () => { scrivi(K.ordina, $("ordina").value); dati && mostraPosizioni(); });
 $("modifica-mio").addEventListener("click", () => apriFormMio(true));
 $("mio-annulla").addEventListener("click", () => apriFormMio(false));
 $("mio-form").addEventListener("submit", (e) => {
