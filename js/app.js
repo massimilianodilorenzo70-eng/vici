@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.6";
+const VERSIONE = "3.6.1";
 const NOVITA = [
+  { v: "3.6.1", voci: ["Grafico più chiaro: legenda con tutte le linee e spiegazione."] },
   { v: "3.6", voci: ["L'app ricorda l'ultimo ordinamento delle posizioni."] },
   { v: "3.5.4", voci: ["Posizioni ordinate di default per variazione dal carico."] },
   { v: "3.5.3", voci: ["Correzioni: niente «+0,00»; «Ricarica» rilegge sempre la quotazione."] },
@@ -647,7 +648,7 @@ function mostraGrafico() {
     return;
   }
   const W = box.clientWidth || 600, H = box.clientHeight || 220;
-  const m = { l: 44, r: 8, t: 10, b: 22 };
+  const m = { l: 44, r: 46, t: 12, b: 22 };
   const tutti = nav.concat(bench, cert);
   const base = dati.base || 1000;
   const t0 = Math.min(...nav.map((p) => p.t));
@@ -672,10 +673,21 @@ function mostraGrafico() {
     svg += `<text class="asse" x="${x(t)}" y="${H - 4}" text-anchor="${i === 0 ? "start" : i === 4 ? "end" : "middle"}">${lab}</text>`;
   }
   const linea = (pts) => pts.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
-  if (bench.length > 1) svg += `<path d="${linea(bench)}" fill="none" stroke="var(--linea-bench)" stroke-width="1.6" stroke-dasharray="4 3"/>`;
-  svg += `<path d="${linea(nav)}" fill="none" stroke="var(--linea-nav)" stroke-width="2" stroke-linejoin="round"/>`;
+  if (bench.length > 1) svg += `<path d="${linea(bench)}" fill="none" stroke="var(--linea-bench)" stroke-width="2" stroke-dasharray="5 3"/>`;
+  svg += `<path d="${linea(nav)}" fill="none" stroke="var(--linea-nav)" stroke-width="2.6" stroke-linejoin="round"/>`;
   if (cert.length > 1) svg += `<path d="${linea(cert)}" fill="none" stroke="var(--linea-cert)" stroke-width="2"/>`;
-  cert.forEach((p) => { svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="2.5" fill="var(--linea-cert)"/>`; });
+  // valore finale di ogni linea, scritto a destra con il colore della linea
+  // (le etichette vengono distanziate se troppo vicine)
+  const fine = [[nav, "--linea-nav"], [cert, "--linea-cert"], [bench, "--linea-bench"]]
+    .filter(([pts]) => pts.length).map(([pts, col]) => ({ u: pts[pts.length - 1], col }))
+    .sort((a, b) => y(a.u.v) - y(b.u.v));
+  let ultimo = -1e9;
+  fine.forEach((f) => {
+    const py = Math.max(y(f.u.v), ultimo + 13);
+    ultimo = py;
+    svg += `<circle cx="${x(f.u.t)}" cy="${y(f.u.v)}" r="3.2" fill="var(${f.col})"/>`;
+    svg += `<text class="fine" x="${x(f.u.t) + 7}" y="${py + 4}" fill="var(${f.col})">${fmt(f.u.v, 0)}</text>`;
+  });
   svg += `<line id="cursore" class="griglia" y1="${m.t}" y2="${H - m.b}" x1="-10" x2="-10"/></svg><div id="sugg" class="suggerimento" hidden></div>`;
   box.innerHTML = svg;
 
