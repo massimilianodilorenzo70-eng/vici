@@ -189,6 +189,21 @@ def trova_prezzi(pos, cache, dal):
             break
     if migliore:
         cache[pos["isin"]] = migliore["simbolo"]
+        # Fondi non quotati (simboli Yahoo "0P..."): Yahoo ha il NAV con un giorno di
+        # ritardo in più del Financial Times; se l'FT ha un NAV più recente si usa quello
+        if migliore["simbolo"].startswith("0P") and pos.get("isin"):
+            try:
+                ft = ft_nav(pos["isin"])
+            except Exception as e:
+                ft = None
+                log(f"  FT {pos['isin']}: {e}")
+            giorno_yahoo = (migliore["ora"] or "")[:10] or (migliore["chiusure"][-1][0] if migliore["chiusure"] else "")
+            if ft and ft["ora"] and ft["ora"] > giorno_yahoo and (not p0 or abs(ft["prezzo"] / p0 - 1) <= SCARTO_MAX):
+                log(f"  NAV più recente dall'FT: {ft['prezzo']} del {ft['ora']} (Yahoo: {giorno_yahoo})")
+                migliore["chiusure"] = [c for c in migliore["chiusure"] if c[0] < ft["ora"]] + [(ft["ora"], ft["prezzo"])]
+                migliore["prezzo"] = ft["prezzo"]
+                migliore["ora"] = ft["ora"] + "T20:00:00+00:00"
+                migliore["fonte"] = "Yahoo Finance + Financial Times"
     return migliore
 
 
