@@ -632,3 +632,9 @@ main { max-width: 900px; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .link { color: var(--azzurro); } }
 .menu { border-radius: 0; }
 .menu-voci button.attiva { color: var(--blu); background: var(--sfondo); border-left: 2px solid var(--oro); }
+
+.spiega { margin-top: 8px; font-size: 13px; }
+.spiega summary { cursor: pointer; color: var(--blu); font-weight: 600; padding: 4px 0; }
+.spiega p { margin: 6px 0 0; color: var(--testo-2); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .spiega summary { color: var(--azzurro); } }
+:root[data-theme="dark"] .spiega summary { color: var(--azzurro); }
