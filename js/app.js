@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.9.2";
+const VERSIONE = "3.9.3";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -166,7 +166,7 @@ async function carica(forza) {
     // la quotazione diretta (letta adesso) prevale; altrimenti quella salvata
     // dal controllo automatico, se è più recente di quella dentro prezzi.json
     if (p) await prezziLive(p, forza);
-    if (p && diretta) p.certificato = diretta;
+    if (p && diretta) p.certificato = { ...diretta, live: true };
     else if (p && q && q.ora && (!p.certificato || !p.certificato.ora || q.ora > p.certificato.ora)) p.certificato = q;
     if (!p || !p.posizioni) throw new Error("dati non ancora disponibili");
     dati = p;
@@ -175,7 +175,12 @@ async function carica(forza) {
     mostra();
     if (dettaglioAperto) aggiornaDettaglio();
     $("stato").className = "stato";
-    $("stato").textContent = `Prezzi aggiornati il ${oraIt(dati.aggiornato)}` +
+    // data/ora davvero aggiornata: quella delle letture dirette se ci sono (ETF o
+    // certificato), altrimenti quella dell'ultimo calcolo automatico su GitHub
+    const letture = dati.posizioni.map((r) => r.live).concat(dati.certificato && dati.certificato.live ? [dati.certificato.ora] : []).filter(Boolean).sort();
+    $("stato").textContent = (letture.length
+      ? `Prezzi aggiornati il ${oraIt(letture[letture.length - 1])} (ritardo circa 15 minuti)`
+      : `Dati salvati il ${oraIt(dati.aggiornato)} (aggiornamento automatico)`) +
       (dati.mancanti && dati.mancanti.length ? ` · senza prezzo: ${dati.mancanti.join(", ")}` : "") +
       ((dati.programmati || []).length ? ` · ribilanciamento del ${dataIt(dati.programmati[0].data)} programmato (vedi Gestione)` : "");
   } catch (e) {
