@@ -41,6 +41,10 @@ export function leggiDatiMercato(html) {
   }
   const d = t.match(/Data Pr Rif e Uff (\d{2})\/(\d{2})\/(\d{2})/);
   const dataRif = d ? `20${d[3]}-${d[2]}-${d[1]}` : null;
+  // data e ora (italiane) dell'ultimo contratto di oggi, se c'è stato
+  const u = t.match(/Data - Ora Ultimo Contratto (\d{2})\/(\d{2})\/(\d{2}) - (\d{2})\.(\d{2})\.(\d{2})/);
+  const dataUltimo = u ? `20${u[3]}-${u[2]}-${u[1]}` : null;
+  const oraUltimo = u ? `${u[4]}:${u[5]}:${u[6]}` : null;
   const perf = {};
   [["giorno", "1 Giorno"], ["settimana", "1 Settimana"], ["mese", "1 mese"],
    ["sei_mesi", "6 mesi"], ["anno", "1 anno"], ["inizio", "Inizio Negoziazioni"]].forEach(([k, e]) => {
@@ -55,6 +59,7 @@ export function leggiDatiMercato(html) {
   return {
     corrente, tipo_corrente: tipoCorrente,
     prezzo, tipo: ultimo ? "ultimo contratto" : "prezzo di riferimento",
+    data_ultimo: dataUltimo, ora_ultimo: oraUltimo,
     riferimento: rif, data_riferimento: dataRif, ufficiale: cerca("Prezzo ufficiale"),
     denaro, lettera, volume_denaro: volDenaro, volume_lettera: volLettera,
     medio, spread: denaro && lettera ? (lettera / denaro - 1) * 100 : null,

@@ -276,6 +276,11 @@ def leggi_dati_mercato(pagina, url=""):
     m = re.search(r"Data Pr Rif e Uff (\d{2})/(\d{2})/(\d{2})", t)
     if m:
         data_rif = f"20{m.group(3)}-{m.group(2)}-{m.group(1)}"
+    data_ultimo = ora_ultimo = None
+    m = re.search(r"Data - Ora Ultimo Contratto (\d{2})/(\d{2})/(\d{2}) - (\d{2})\.(\d{2})\.(\d{2})", t)
+    if m:
+        data_ultimo = f"20{m.group(3)}-{m.group(2)}-{m.group(1)}"
+        ora_ultimo = f"{m.group(4)}:{m.group(5)}:{m.group(6)}"
     perf = {}
     for chiave, etichetta in [("giorno", "1 Giorno"), ("settimana", "1 Settimana"), ("mese", "1 mese"),
                               ("sei_mesi", "6 mesi"), ("anno", "1 anno"), ("inizio", "Inizio Negoziazioni")]:
@@ -295,6 +300,7 @@ def leggi_dati_mercato(pagina, url=""):
         "tipo_corrente": tipo_corrente,
         "prezzo": prezzo,
         "tipo": "ultimo contratto" if ultimo else "prezzo di riferimento",
+        "data_ultimo": data_ultimo, "ora_ultimo": ora_ultimo,
         "riferimento": rif,
         "data_riferimento": data_rif,
         "ufficiale": cerca("Prezzo ufficiale"),

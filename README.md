@@ -101,6 +101,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.11.1** — certificato: ora dell'ultimo contratto reale; se è vecchio il prezzo è il medio tra denaro e lettera.
 - **3.11** — tolti i prezzi degli scambi dai grafici e dai riquadri del certificato.
 - **3.10** — storico completo dei prezzi di riferimento del certificato (da Borsa Italiana) nei grafici.
 - **3.9.5** — legenda del grafico indice: aggiunti i punti rossi (prezzo di riferimento giornaliero).
