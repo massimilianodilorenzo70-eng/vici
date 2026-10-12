@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.11.1";
+const VERSIONE = "3.11.2";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -180,7 +180,12 @@ async function carica(forza) {
     // la quotazione diretta (letta adesso) prevale; altrimenti quella salvata
     // dal controllo automatico, se è più recente di quella dentro prezzi.json
     if (p) await prezziLive(p, forza);
-    if (p && diretta) p.certificato = { ...diretta, live: true };
+    if (p && diretta) {
+      // Worker non aggiornato: l'ora dell'ultimo contratto la prende dal dato salvato su GitHub,
+      // purché sia lo stesso contratto (stesso prezzo)
+      const salvato = [q, p.certificato].find((x) => x && x.ora_ultimo && x.corrente === diretta.corrente);
+      p.certificato = { ...(salvato && !diretta.ora_ultimo ? { data_ultimo: salvato.data_ultimo, ora_ultimo: salvato.ora_ultimo } : {}), ...diretta, live: true };
+    }
     if (p) scegliPrezzoCertificato(p.certificato);
     else if (p && q && q.ora && (!p.certificato || !p.certificato.ora || q.ora > p.certificato.ora)) p.certificato = q;
     if (!p || !p.posizioni) throw new Error("dati non ancora disponibili");
