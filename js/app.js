@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.9.1";
+const VERSIONE = "3.9.2";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -112,9 +112,13 @@ function applicaPrezziLive(p, live) {
     if (!v || v.valuta !== "EUR" || !(v.prezzo > 0) || !v.ora) continue;
     if (Math.abs(v.prezzo / r.prezzo - 1) > 0.15) continue;      // prezzo incoerente: si ignora
     if ((r.data_prezzo || "") > v.ora.slice(0, 10)) continue;    // il dato salvato è più recente
-    r.prezzo = v.prezzo;
+    // chiusura precedente: quella del servizio; se manca (titoli con pochi scambi) è il
+    // prezzo salvato, purché sia di un giorno precedente a quello letto adesso
+    const giornoLive = v.ora.slice(0, 10);
     if (v.prec > 0) r.prezzo_prec = v.prec;
-    r.data_prezzo = v.ora.slice(0, 10);
+    else if ((r.data_prezzo || "") < giornoLive) r.prezzo_prec = r.prezzo;
+    r.prezzo = v.prezzo;
+    r.data_prezzo = giornoLive;
     r.live = v.ora;
     r.var_giorno = r.prezzo_prec > 0 ? (r.prezzo / r.prezzo_prec - 1) * 100 : r.var_giorno;
     n++;
