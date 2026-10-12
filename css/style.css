@@ -638,3 +638,36 @@ main { max-width: 900px; }
 .spiega p { margin: 6px 0 0; color: var(--testo-2); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .spiega summary { color: var(--azzurro); } }
 :root[data-theme="dark"] .spiega summary { color: var(--azzurro); }
+
+/* ===== Menu compatto: sta in una schermata, titoli in corsivo-serif, sottovoci a "pillole" ===== */
+.menu { padding-top: calc(12px + env(safe-area-inset-top)); padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+.menu-testa { padding: 0 20px 10px; gap: 10px; }
+.menu-testa img { width: 34px; height: 34px; }
+.menu-testa b { font-size: 19px; letter-spacing: .28em; }
+.menu-testa span { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.menu-voci { padding: 4px 0; }
+nav.menu-voci > button {
+  font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; font-weight: 600; letter-spacing: .01em;
+  padding: 7px 20px 2px; line-height: 1.15; border-left: 3px solid transparent;
+}
+nav.menu-voci > button small { display: none; }
+nav.menu-voci > button.attiva { border-left-color: var(--oro, #A98A52); background: transparent; color: var(--blu); }
+.menu-voci .sotto { flex-direction: row; flex-wrap: wrap; gap: 5px 6px; padding: 3px 20px 8px; }
+.menu-voci .sotto button {
+  font-family: Inter, system-ui, sans-serif; font-size: 12px; font-weight: 500; letter-spacing: .02em;
+  padding: 3px 10px; border: 1px solid var(--bordo); border-radius: 999px; color: var(--testo-2); background: transparent;
+}
+.menu-voci .sotto button:hover { color: var(--blu); border-color: var(--blu); background: transparent; }
+.menu-voci.secondarie { display: grid; grid-template-columns: 1fr 1fr; padding: 6px 0 2px; }
+.menu-voci.secondarie button, .menu-voci.secondarie a { font-size: 13px; padding: 7px 20px; font-weight: 500; }
+.menu-piede { padding-top: 8px; font-size: 11px; letter-spacing: .04em; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) nav.menu-voci > button.attiva, :root:not([data-theme="light"]) .menu-voci .sotto button:hover { color: var(--azzurro); }
+  :root:not([data-theme="light"]) .menu-voci .sotto button:hover { border-color: var(--azzurro); }
+}
+:root[data-theme="dark"] nav.menu-voci > button.attiva, :root[data-theme="dark"] .menu-voci .sotto button:hover { color: var(--azzurro); }
+@media (max-height: 620px) {
+  nav.menu-voci > button { font-size: 20px; padding-top: 4px; }
+  .menu-voci .sotto { padding-bottom: 5px; }
+  .menu-testa { padding-bottom: 6px; }
+}

@@ -3,8 +3,9 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.7.1";
+const VERSIONE = "3.8";
 const NOVITA = [
+  { v: "3.8", voci: ["Menu compatto in una schermata, con sottovoci a pillole e titoli in carattere elegante."] },
   { v: "3.7.1", voci: ["Legende dei grafici: testo e colore restano sempre insieme."] },
   { v: "3.7", voci: ["Spiegazione del benchmark 60/40 sotto il grafico Andamento."] },
   { v: "3.6.1", voci: ["Grafico più chiaro: legenda con tutte le linee e spiegazione."] },
@@ -1158,12 +1159,12 @@ function mostraScheda(nome) {
 // Voci secondarie del menu: aprono la scheda e portano alla sezione (cerca il
 // titolo che inizia con il testo indicato)
 const SOTTOVOCI = {
-  portafoglio: [["Posizioni", "Posizioni investite"], ["Allocazione", "Allocazione"], ["Il mio investimento", "Il mio investimento"]],
-  andamento: [["Certificato dall'emissione", "Certificato dall'emissione"], ["Indice VICIGROW", "Indice VICIGROW"],
-    ["Andamento del paniere", "Andamento dal"], ["Rendimenti mensili", "Rendimenti mensili"],
+  portafoglio: [["Posizioni", "Posizioni investite"], ["Allocazione", "Allocazione"], ["Investimento", "Il mio investimento"]],
+  andamento: [["Certificato", "Certificato dall'emissione"], ["Indice", "Indice VICIGROW"],
+    ["Paniere", "Andamento dal"], ["Rendimenti", "Rendimenti mensili"],
     ["Attribuzione", "Attribuzione"], ["Stress test", "Stress test"], ["Rischio", "Rischio del portafoglio"]],
-  gestione: [["Ribilanciamento programmato", "Ribilanciamento programmato"], ["Scostamenti", "Scostamento"],
-    ["Simulatore", "Simulatore"], ["Storico ribilanciamenti", "Storico dei ribilanciamenti"]],
+  gestione: [["Programmato", "Ribilanciamento programmato"], ["Scostamenti", "Scostamento"],
+    ["Simulatore", "Simulatore"], ["Storico", "Storico dei ribilanciamenti"]],
 };
 function bersaglio(nome, testo) {
   const h = [...document.querySelectorAll(`[data-pannello="${nome}"] h2`)].find((x) => x.textContent.trim().startsWith(testo));
