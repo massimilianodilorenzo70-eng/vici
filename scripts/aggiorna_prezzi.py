@@ -313,8 +313,9 @@ def leggi_dati_mercato(pagina, url=""):
 
 
 def storico_certificato(isin, codice=None):
-    """Chiusure storiche del certificato dal servizio grafici di Borsa
-    Italiana (lo stesso usato dalle loro pagine). Restituisce [(data, prezzo)]."""
+    """Storico del certificato dal servizio grafici di Borsa Italiana (lo stesso
+    usato dalle loro pagine). Restituisce [(data, ultimo scambio, prezzo di
+    riferimento)]; le date sono quelle indicate da Borsa Italiana."""
     url = "https://charts.borsaitaliana.it/charts/services/ChartWService.asmx/GetPricesWithVolume"
     chiavi = [f"{isin}.SEDX"] + ([f"{codice}.SEDX"] if codice else []) + [isin]
     for k in chiavi:
@@ -344,7 +345,9 @@ def storico_certificato(isin, codice=None):
                 chiusura = r[4] if len(r) >= 5 else r[1]
                 if chiusura:
                     giorno = datetime.fromtimestamp(r[0] / 1000, timezone.utc).date().isoformat()
-                    out.append((giorno, float(chiusura)))
+                    # r[1] è il prezzo di riferimento ufficiale del giorno (r[4] l'ultimo scambio)
+                    rif = float(r[1]) if len(r) >= 2 and r[1] else None
+                    out.append((giorno, float(chiusura), rif))
         if out:
             log(f"  storico certificato ({k}): {len(out)} giorni dal {out[0][0]}")
             return sorted(out)
@@ -1004,9 +1007,17 @@ def main():
     # prezzo, quindi si tiene solo quando il prezzo cambia. Serie separata
     # dai prezzi di riferimento, che sono il valore ufficiale di ogni giorno.
     scambi = []
-    for giorno, prezzo in storico_certificato(port["isin_certificato"], port.get("codice_certificato")):
+    riferimenti = {}
+    for giorno, prezzo, rif in storico_certificato(port["isin_certificato"], port.get("codice_certificato")):
         if not scambi or abs(prezzo - scambi[-1][1]) > 1e-9:
             scambi.append((giorno, round(prezzo, 4)))
+        if rif:
+            riferimenti[giorno] = round(rif, 4)
+    if riferimenti:
+        # Borsa Italiana ha tutti i prezzi di riferimento dall'emissione, con le sue
+        # date: sostituiscono quelli registrati finora dall'app (stesse cifre, ma
+        # datate un giorno prima)
+        cert_storico = riferimenti
     if not scambi:
         scambi = [(p["data"], p["prezzo"]) for p in vecchio.get("certificato_scambi", [])]
     # Book del market maker (denaro/lettera): uno per giorno, l'ultimo letto
@@ -1026,7 +1037,8 @@ def main():
                 while giorno.weekday() >= 5:
                     giorno -= timedelta(days=1)
         cert["data"] = giorno.isoformat()
-        cert_storico[giorno.isoformat()] = cert["prezzo"]
+        if not riferimenti:  # con la serie di Borsa Italiana i prezzi di riferimento ci sono già tutti
+            cert_storico[giorno.isoformat()] = cert["prezzo"]
 
     # Premio/sconto: quotazione del certificato contro il valore che avrebbe
     # se seguisse esattamente il paniere da un giorno di riferimento

@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.9.5";
+const VERSIONE = "3.10";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -468,7 +468,7 @@ function mostraStoriaCertificato() {
   }
   if (rif.length) {
     if (rif.length > 1) svg += `<path d="${rif.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("")}" fill="none" stroke="var(--linea-cert)" stroke-width="2"/>`;
-    rif.forEach((p) => { svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="3" fill="var(--linea-cert)"/>`; });
+    if (rif.length <= 30) rif.forEach((p) => { svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="3" fill="var(--linea-cert)"/>`; });
   }
   box.innerHTML = svg + "</svg>";
 }
@@ -572,7 +572,9 @@ function mostraIndice() {
     for (let i = 1; i < scambi.length; i++) d += `H${x(scambi[i].t).toFixed(1)}V${y(scambi[i].v).toFixed(1)}`;
     svg += `<path d="${d}" fill="none" stroke="var(--azzurro)" stroke-width="1.4" opacity=".9"/>`;
   }
-  rif.forEach((p) => { svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="3" fill="var(--linea-cert)"/>`; });
+  // prezzi di riferimento: linea; i punti solo se sono pochi
+  if (rif.length > 1) svg += `<path d="${rif.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("")}" fill="none" stroke="var(--linea-cert)" stroke-width="1.6" stroke-linejoin="round"/>`;
+  if (rif.length <= 30) rif.forEach((p) => { svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="3" fill="var(--linea-cert)"/>`; });
   svg += `<path d="${serie.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("")}" fill="none" stroke="#F0A030" stroke-width="2.2" stroke-linejoin="round"/>`;
   serie.forEach((p) => { svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="2.2" fill="#F0A030"/>`; });
   box.innerHTML = svg + "</svg>";
