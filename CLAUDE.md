@@ -14,7 +14,7 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
 - **Rispondi e scrivi SEMPRE in italiano**: messaggi all'utente, aggiornamenti
   mentre lavori, commit, pull request, commenti nel codice.
 - L'utente è il **gestore** del certificato VICI Balanced Growth AMC.
-- **Numero di versione** (oggi **3.8.1**): si scrive sempre con i punti.
+- **Numero di versione** (oggi **3.9.2**): si scrive sempre con i punti.
   - funzioni nuove → sale il secondo numero: 3.0 → 3.1 → 3.2 …
   - correzioni di errori → terzo numero: 3.1 → 3.1.1 → 3.1.2; 3.2 → 3.2.1 …
   - se l'utente dice "non aumentare la versione", non aumentarla.
@@ -34,6 +34,15 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
   (workflow ogni 30 min). Euronext è cifrato: non si legge e non si decifra.
   I cron di GitHub a volte saltano ore. Prezzi di carico: se Yahoo non ha la
   chiusura del giorno si usa l'ultima barra oraria (i fondi NAV aspettano).
+- Prezzi live ETF (3.9): il Worker ha anche il percorso `/prezzi?s=SIMBOLO,…` (Yahoo
+  Finance, cache 60 s, max 20 simboli, CORS solo il sito). L'app (`prezziLive` /
+  `applicaPrezziLive`) aggiorna prezzo, var. giorno, var. dal carico, contributi, pesi,
+  nav con le stesse formule dello script; ignora prezzi >15% fuori; fondi NAV (simboli
+  `0P…`) esclusi; cache `sessionStorage` 5 min, «Ricarica» la salta. Se si modifica
+  `worker.js` l'utente deve rincollarlo su Cloudflare (Edit code → Deploy): ultimo
+  deploy fatto il 12/10/2026 (verificato con curl sul percorso /prezzi).
+- Fondi non quotati: se l'FT ha un NAV più recente di Yahoo si usa quello. Il workflow
+  prezzi gira anche sabato e domenica alle 09:11 UTC.
 - Stile grafico (v3.5): «banca privata» scelto dall'utente (avorio, blu pieno con filo oro, titoli/cifre in Cormorant, linee sottili, niente ombre). Il blocco è in fondo a `css/style.css`. Alternativa scartata: «terminale finanziario». Prima di cambiare stile mostrare sempre immagini di prova.
 - Storia versioni recenti: 3.3 quotazione diretta (Worker); 3.4 sottovoci del menu;
   3.4.1 header fisso; 3.5 stile banca privata; 3.5.1 `id` del manifest `/vici/`;
@@ -42,7 +51,11 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
   «Var. dal carico» e ricordato (localStorage `vici-ordina`); 3.6.1 grafico
   Andamento con legenda completa e valori finali; 3.7 spiegazione benchmark 60/40
   (`<details class="spiega">`); 3.7.1 legende grafici con `.leg`; 3.8 menu compatto
-  (sta in una schermata anche a 320×568, sottovoci a pillole); 3.8.1 tolta la cronologia.
+  (sta in una schermata anche a 320×568, sottovoci a pillole); 3.8.1 tolta la cronologia;
+  3.8.2 sottovoci del menu come semplice testo (l'utente non vuole bottoni/pillole);
+  3.9 prezzi ETF live all'apertura + riga con le date sotto «Posizioni investite»;
+  3.9.1 variazione del giorno del certificato («oggi +x%» = corrente / riferimento);
+  3.9.2 chiusura precedente anche per titoli con una sola barra (es. oro PHAU.MI).
 - PWA: l'`id` del manifest si risolve sull'ORIGINE (github.io), non sulla cartella:
   VICI e cacciaTI con `./index.html` erano la stessa app per Chrome (apriva
   cacciaTI). VICI ora ha `"id": "/vici/"`; cacciaTI non va toccata. Dopo il cambio
