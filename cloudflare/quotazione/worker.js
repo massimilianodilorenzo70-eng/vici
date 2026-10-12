@@ -5,6 +5,8 @@
 // Gratuito (fino a 100.000 richieste al giorno). I dati sono quelli di Borsa
 // Italiana, ritardati di 15 minuti. Borsa Italiana viene interrogata al massimo
 // una volta ogni 30 secondi, qualunque sia il numero di aperture dell'app.
+// Percorso /prezzi?s=SIMBOLO,SIMBOLO: ultimo prezzo e chiusura precedente degli
+// ETF da Yahoo Finance (cache di 60 secondi), per aggiornare le posizioni all'apertura.
 
 const ISIN = "CH1453363652";
 const PAGINA = `https://www.borsaitaliana.it/borsa/cw-e-certificates/dati-mercato.html?isin=${ISIN}&mic=SEDX&lang=it`;
@@ -63,6 +65,40 @@ export function leggiDatiMercato(html) {
   };
 }
 
+// Prezzo attuale e chiusura precedente di un titolo dal grafico giornaliero di Yahoo Finance
+export function leggiPrezzoYahoo(j) {
+  const r = j && j.chart && j.chart.result && j.chart.result[0];
+  if (!r || !r.meta || !r.timestamp) return null;
+  const prezzo = r.meta.regularMarketPrice, tempo = r.meta.regularMarketTime;
+  if (!(prezzo > 0) || !tempo) return null;
+  const giorno = (t) => new Date(t * 1000).toISOString().slice(0, 10);
+  const chiusure = r.indicators.quote[0].close;
+  let prec = null;
+  r.timestamp.forEach((t, i) => { if (chiusure[i] != null && giorno(t) < giorno(tempo)) prec = chiusure[i]; });
+  return { prezzo, prec, ora: new Date(tempo * 1000).toISOString(), valuta: r.meta.currency || null };
+}
+
+const SIMBOLO = /^[A-Za-z0-9.=^-]{1,20}$/;
+
+async function prezzi(url, cors) {
+  const simboli = (url.searchParams.get("s") || "").split(",").filter((x) => SIMBOLO.test(x)).slice(0, 20);
+  const out = {};
+  await Promise.all(simboli.map(async (sim) => {
+    try {
+      const r = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sim)}?range=5d&interval=1d&includePrePost=false`, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; vici-quotazione)" },
+        cf: { cacheTtl: 60, cacheEverything: true },
+      });
+      if (!r.ok) return;
+      const v = leggiPrezzoYahoo(await r.json());
+      if (v) out[sim] = v;
+    } catch { /* il simbolo manca dalla risposta */ }
+  }));
+  return new Response(JSON.stringify(out), {
+    headers: { ...cors, "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=30" },
+  });
+}
+
 export default {
   async fetch(request) {
     const origine = request.headers.get("Origin") || "";
@@ -72,6 +108,8 @@ export default {
       "Vary": "Origin",
     };
     if (request.method === "OPTIONS") return new Response(null, { headers: cors });
+    const url = new URL(request.url);
+    if (url.pathname.replace(/\/$/, "").endsWith("/prezzi")) return prezzi(url, cors);
     try {
       const r = await fetch(PAGINA, {
         headers: { "User-Agent": "Mozilla/5.0 (compatible; vici-quotazione)", "Accept-Language": "it-IT,it;q=0.9" },

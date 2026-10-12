@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.8.2";
+const VERSIONE = "3.9";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -78,6 +78,74 @@ async function quotazioneDiretta(forza) {
   } catch { return null; }
 }
 
+// Prezzi di oggi degli ETF: il Worker (percorso /prezzi) legge l'ultimo prezzo da
+// Yahoo Finance e l'app ricalcola variazioni, contributi e valore del paniere.
+// I fondi non quotati (NAV) restano quelli salvati. Senza Worker non cambia nulla.
+async function prezziLive(p, forza) {
+  const base = configurazione && configurazione.quotazione_url;
+  if (!base || !p.posizioni) return;
+  const simboli = p.posizioni.filter((r) => !r.liquidita && r.simbolo && !/^(0P|FT:)/.test(r.simbolo)).map((r) => r.simbolo);
+  if (!simboli.length) return;
+  let live = null;
+  try {
+    const salvata = JSON.parse(sessionStorage.getItem("vici-prezzi") || "null");
+    if (!forza && salvata && Date.now() - salvata.letta < 5 * 60000) live = salvata.live;
+  } catch {}
+  if (!live) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 8000);
+      const r = await fetch(`${base.replace(/\/$/, "")}/prezzi?s=${encodeURIComponent(simboli.join(","))}`, { signal: ctrl.signal, cache: "no-store" });
+      clearTimeout(timer);
+      if (!r.ok) return;
+      live = await r.json();
+      try { sessionStorage.setItem("vici-prezzi", JSON.stringify({ letta: Date.now(), live })); } catch {}
+    } catch { return; }
+  }
+  applicaPrezziLive(p, live);
+}
+
+function applicaPrezziLive(p, live) {
+  let n = 0;
+  for (const r of p.posizioni) {
+    const v = live && live[r.simbolo];
+    if (!v || v.valuta !== "EUR" || !(v.prezzo > 0) || !v.ora) continue;
+    if (Math.abs(v.prezzo / r.prezzo - 1) > 0.15) continue;      // prezzo incoerente: si ignora
+    if ((r.data_prezzo || "") > v.ora.slice(0, 10)) continue;    // il dato salvato è più recente
+    r.prezzo = v.prezzo;
+    if (v.prec > 0) r.prezzo_prec = v.prec;
+    r.data_prezzo = v.ora.slice(0, 10);
+    r.live = v.ora;
+    r.var_giorno = r.prezzo_prec > 0 ? (r.prezzo / r.prezzo_prec - 1) * 100 : r.var_giorno;
+    n++;
+  }
+  if (!n) return;
+  // ricalcolo di valore, contributi e pesi (stesse formule dello script)
+  const base = p.base_periodo ?? p.base;
+  let nav = 0, navPrec = 0;
+  for (const r of p.posizioni) {
+    r.valore = r.quote * r.prezzo;
+    nav += r.valore;
+    navPrec += r.quote * (r.prezzo_prec ?? r.prezzo);
+  }
+  const soglia = p.soglia_scostamento ?? 2;
+  for (const r of p.posizioni) {
+    r.var_carico = r.prezzo_carico > 0 ? (r.prezzo / r.prezzo_carico - 1) * 100 : r.var_carico;
+    r.contributo = r.quote * (r.prezzo - r.prezzo_carico) / base * 100;
+    r.peso_attuale = r.valore / nav * 100;
+    if (r.peso_obiettivo != null) {
+      r.scostamento = r.peso_attuale - r.peso_obiettivo;
+      r.oltre_soglia = Math.abs(r.scostamento) > soglia;
+    }
+  }
+  p.nav = nav;
+  p.nav_prec = navPrec;
+  p.perf_giorno = (nav / navPrec - 1) * 100;
+  p.perf_periodo = (nav / base - 1) * 100;
+  p.perf_totale = (nav / (p.base || 1000) - 1) * 100;
+  p.prezzi_live = n;
+}
+
 async function carica(forza) {
   const bottone = $("aggiorna");
   bottone.classList.add("gira");
@@ -93,6 +161,7 @@ async function carica(forza) {
     indice = ind;
     // la quotazione diretta (letta adesso) prevale; altrimenti quella salvata
     // dal controllo automatico, se è più recente di quella dentro prezzi.json
+    if (p) await prezziLive(p, forza);
     if (p && diretta) p.certificato = diretta;
     else if (p && q && q.ora && (!p.certificato || !p.certificato.ora || q.ora > p.certificato.ora)) p.certificato = q;
     if (!p || !p.posizioni) throw new Error("dati non ancora disponibili");
@@ -191,11 +260,12 @@ function mostraPosizioni() {
   const righe = [...dati.posizioni].sort((a, b) => (b[chiave] ?? -1e9) - (a[chiave] ?? -1e9));
   // con «Var. oggi» la colonna Var. % mostra la variazione di oggi, altrimenti quella dal carico
   const oggiModo = chiave === "var_giorno";
+  $("pos-nota").textContent = notaDate();
   document.querySelector("#posizioni").closest("table").querySelector("thead th:nth-child(5)").textContent = oggiModo ? "Var. oggi" : "Var. dal carico";
   $("posizioni").innerHTML = righe.map((r) => `<tr data-k="${esc(r.chiave || r.nome)}">
       <td>
         <div class="pos-nome">${esc(r.nome)}${r.mancante ? ' <span class="etichetta">senza prezzo</span>' : ""}</div>
-        <div class="pos-codice">${esc(r.bloomberg || "")} · ${oggiModo ? "dal carico " + colorato(r.var_carico) : etichettaGiorno(r) + " " + colorato(r.var_giorno)}</div>
+        <div class="pos-codice">${esc(r.bloomberg || "")} · ${oggiModo ? etichettaGiorno(r) + " · dal carico " + colorato(r.var_carico) : etichettaGiorno(r) + " " + colorato(r.var_giorno)}</div>
       </td>
       <td data-l="Peso">${fmt(r.peso_iniziale)}%</td>
       <td data-l="Carico">${fmt(r.prezzo_carico, decPrezzo(r.prezzo_carico))}</td>
@@ -214,6 +284,28 @@ function mostraPosizioni() {
       <td data-l="Var. %" class="var forte ${segno(perf)}">${perc(perf)}</td>
       <td data-l="Contributo" class="forte ${segno(contrTot)}">${perc(contrTot)}</td>
     </tr>`;
+}
+
+// Riga sotto il titolo delle posizioni: di che data sono i prezzi
+function notaDate() {
+  const nomeGiorno = (g) => new Date(g).toLocaleDateString("it-IT", { day: "numeric", month: "short" });
+  const quotati = dati.posizioni.filter((r) => !r.liquidita && r.data_prezzo && !/^(0P|FT:)/.test(r.simbolo || ""));
+  const fondi = dati.posizioni.filter((r) => !r.liquidita && r.data_prezzo && /^(0P|FT:)/.test(r.simbolo || ""));
+  const date = (a) => [...new Set(a.map((r) => r.data_prezzo))].sort();
+  const lives = quotati.map((r) => r.live).filter(Boolean).sort();
+  const parti = [];
+  if (lives.length) {
+    const ora = new Date(lives[lives.length - 1]).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+    parti.push(`ETF: prezzi di oggi alle ${ora} (ritardo circa 15 minuti)`);
+  } else if (quotati.length) {
+    const d = date(quotati);
+    parti.push(`ETF: ultima chiusura del ${nomeGiorno(d[d.length - 1])}`);
+  }
+  if (fondi.length) {
+    const d = date(fondi);
+    parti.push(`fondi: NAV del ${d.length > 1 ? nomeGiorno(d[0]) + "–" + nomeGiorno(d[d.length - 1]) : nomeGiorno(d[0])}`);
+  }
+  return parti.join(" · ") + ". «Var. oggi» = rispetto alla chiusura precedente.";
 }
 
 // "oggi" se il prezzo è di oggi; per i fondi (NAV con qualche giorno di
