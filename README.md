@@ -101,6 +101,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.9** — prezzi degli ETF aggiornati all'apertura (Worker /prezzi) e data dei prezzi sotto il titolo delle posizioni.
 - **3.8.2** — sottovoci del menu come semplice testo, senza bottoni.
 - **3.8.1** — tolta la finestra «Novità» dal menu.
 - **3.8** — menu compatto in una schermata, sottovoci a pillole.
