@@ -101,6 +101,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.10** — storico completo dei prezzi di riferimento del certificato (da Borsa Italiana) nei grafici.
 - **3.9.5** — legenda del grafico indice: aggiunti i punti rossi (prezzo di riferimento giornaliero).
 - **3.9.4** — etichetta «in diretta» su certificato e paniere quando i dati sono letti in tempo reale.
 - **3.9.3** — riga di stato: data e ora delle letture dirette, non dell'ultimo calcolo automatico.
