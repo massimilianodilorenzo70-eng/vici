@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.13.1";
+const VERSIONE = "3.14";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -241,6 +241,18 @@ function mostra() {
 }
 
 /* ================= PORTAFOGLIO ================= */
+// Premio/sconto aggiornato al prezzo mostrato: il valore implicito segue il valore stimato
+// delle posizioni (che con le letture dirette si aggiorna) a partire dal giorno di confronto.
+function premioSconto() {
+  const pr = dati.premio, c = dati.certificato;
+  if (!pr || !c || !(pr.prezzo_riferimento > 0)) return null;
+  const att = c.corrente || c.prezzo;
+  let implicito = pr.valore_implicito;
+  if (pr.data === dati.data_esecuzione && dati.base_periodo > 0) implicito = pr.prezzo_riferimento * dati.nav / dati.base_periodo;
+  if (!(implicito > 0) || !att) return null;
+  return { premio: (att / implicito - 1) * 100, implicito, att, data: pr.data, rif: pr.prezzo_riferimento };
+}
+
 function mostraPortafoglio() {
   const d = dati;
   const emis = (d.emissione && d.emissione.prezzo) || d.base || 1000;
@@ -286,19 +298,19 @@ function mostraPortafoglio() {
     $("cert-perf").textContent = "Quotazione non disponibile";
     $("cert-fonte").textContent = "";
   }
-  const perfPeriodo = d.perf_periodo ?? d.perf_totale;
-  $("nav").textContent = fmt(d.nav);
-  // il valore parte da 1000 alla data di inizio: la variazione principale è quella dall'inizio,
-  // coerente con il numero grande; il ribilanciamento in vigore e il giorno sono righe a parte
-  const inizio = d.data_inizio || d.data_esecuzione;
-  $("nav-perf").innerHTML = `${colorato(d.perf_totale)} dall'inizio (${dataIt(inizio)}, base ${fmt(d.base || 1000, 0)})`;
-  const navLive = (d.prezzi_live || 0) > 0;
-  $("nav-live").hidden = !navLive;
-  $("cert-live").hidden = !(c && c.live);
-  $("nav-oggi").innerHTML = `Oggi ${colorato(d.perf_giorno)}` +
-    (d.data_esecuzione && d.data_esecuzione !== inizio ? ` · dal ribilanciamento del ${dataIt(d.data_esecuzione)} ${colorato(perfPeriodo)}` : "") +
-    (navLive ? " · ETF in diretta (ritardo circa 15 minuti), fondi al NAV dell'ultimo giorno disponibile" : "");
-  $("nav-nota").textContent = `Stima del valore delle posizioni del certificato dal ${dataIt(inizio)} (partito da ${fmt(d.base || 1000, 0)}), con i prezzi di mercato e i ribilanciamenti. Non è il prezzo del certificato.`;
+  // premio/sconto: prezzo del certificato rispetto a quanto varrebbe se seguisse esattamente le sue posizioni
+  const pm = premioSconto();
+  $("premio-live").hidden = !(c && c.live);
+  if (pm) {
+    $("premio").innerHTML = colorato(pm.premio);
+    $("premio-testo").textContent = `${Math.abs(pm.premio) < 0.05 ? "In linea" : pm.premio > 0 ? "Premio" : "Sconto"}: il certificato vale ${fmt(pm.att)}, le sue posizioni lo porterebbero a ${fmt(pm.implicito)}`;
+    $("premio-nota").textContent = `Confronto con le posizioni dal ${dataIt(pm.data)} (prezzo di riferimento di quel giorno: ${fmt(pm.rif)}). ` +
+      `Premio = il certificato costa più delle sue posizioni, sconto = costa meno. Scarti entro l'1-2% sono normali: bastano lo spread tra denaro e lettera e i 15 minuti di ritardo dei dati.`;
+  } else {
+    $("premio").textContent = "—";
+    $("premio-testo").textContent = "Dati non ancora disponibili";
+    $("premio-nota").textContent = "";
+  }
 
   mostraBanner();
   mostraPosizioni();
