@@ -101,6 +101,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.12** — certificato: variazione del giorno anche in euro.
 - **3.11.2** — certificato: l'ora dell'ultimo contratto anche senza Worker aggiornato.
 - **3.11.1** — certificato: ora dell'ultimo contratto reale; se è vecchio il prezzo è il medio tra denaro e lettera.
 - **3.11** — tolti i prezzi degli scambi dai grafici e dai riquadri del certificato.
