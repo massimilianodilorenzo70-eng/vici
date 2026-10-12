@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.10";
+const VERSIONE = "3.11";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -407,24 +407,24 @@ function mostraAndamento() {
 /* ---------- certificato dall'emissione ---------- */
 function mostraStoriaCertificato() {
   const box = $("cert-storia-grafico");
-  const pt = (arr) => (arr || []).map((p) => ({ t: new Date(p.data).getTime(), v: p.prezzo, d: p.data }));
-  const scambi = pt(storico.certificato_scambi);
-  const rif = pt(storico.certificato);
+  const pt = (arr, campo) => (arr || []).map((p) => ({ t: new Date(p.data).getTime(), v: p[campo], d: p.data }));
+  const rif = pt(storico.certificato, "prezzo");
   const emis = dati.emissione || { prezzo: 1000 };
+  const base = emis.prezzo || 1000;
   const c = dati.certificato;
   const ultimoRif = rif.length ? rif[rif.length - 1] : null;
-  const ultimoSc = scambi.length ? scambi[scambi.length - 1] : null;
-  const attuale = (c && (c.corrente || c.prezzo)) || (ultimoRif && ultimoRif.v) || (ultimoSc && ultimoSc.v);
-  const inizioT = scambi.length ? scambi[0].t : new Date(emis.data || dati.data_inizio).getTime();
+  const attuale = (c && (c.corrente || c.prezzo)) || (ultimoRif && ultimoRif.v);
+  const inizioT = rif.length ? rif[0].t : new Date(emis.data || dati.data_inizio).getTime();
   const anni = (Date.now() - inizioT) / (365.25 * 86400000);
-  const rendTot = attuale ? (attuale / (emis.prezzo || 1000) - 1) * 100 : null;
-  const rendAnn = attuale && anni > 0.5 ? (Math.pow(attuale / (emis.prezzo || 1000), 1 / anni) - 1) * 100 : null;
-  const vals = scambi.map((p) => p.v);
+  const rendTot = attuale ? (attuale / base - 1) * 100 : null;
+  const rendAnn = attuale && anni > 0.5 ? (Math.pow(attuale / base, 1 / anni) - 1) * 100 : null;
+  const vals = rif.map((p) => p.v);
+  const picco = vals.length ? Math.max(...vals) : null;
   const met = [
-    ["Dall'emissione", perc(rendTot), `${fmt(emis.prezzo || 1000, 0)} → ${fmt(attuale)}`],
-    ["Rendimento annuo", rendAnn == null ? "—" : perc(rendAnn), scambi.length ? `in ${fmt(anni, 1)} anni` : ""],
-    ["Ultimo scambio", ultimoSc ? fmt(ultimoSc.v) : "—", ultimoSc ? dataIt(ultimoSc.d) : ""],
-    ["Massimo – minimo", vals.length ? `${fmt(Math.max(...vals), 0)} – ${fmt(Math.min(...vals), 0)}` : "—", "prezzi degli scambi"],
+    ["Dall'emissione", perc(rendTot), `${fmt(base, 0)} → ${fmt(attuale)}`],
+    ["Rendimento annuo", rendAnn == null ? "—" : perc(rendAnn), rif.length ? `in ${fmt(anni, 1)} anni` : ""],
+    ["Massimo – minimo", vals.length ? `${fmt(picco, 0)} – ${fmt(Math.min(...vals), 0)}` : "—", "prezzi di riferimento"],
+    ["Calo massimo", vals.length ? perc(-maxCalo(vals)) : "—", "dal picco, prezzi di riferimento"],
   ];
   const pf = (c && c.performance) || {};
   [["settimana", "1 settimana"], ["mese", "1 mese"], ["sei_mesi", "6 mesi"], ["anno", "1 anno"]].forEach(([k, n]) => {
@@ -432,14 +432,13 @@ function mostraStoriaCertificato() {
   });
   $("cert-storia-metriche").innerHTML = met.map(([a, v, x]) => `<div><span>${a}</span><b>${v}</b><small>${x}</small></div>`).join("");
   if (box.offsetParent === null) return;
-  if (scambi.length + rif.length < 2) { box.innerHTML = `<div class="vuoto">Storico non ancora disponibile.</div>`; return; }
+  if (rif.length < 2) { box.innerHTML = `<div class="vuoto">Storico non ancora disponibile.</div>`; return; }
 
-  const W = box.clientWidth || 600, H = box.clientHeight || 220, m = { l: 44, r: 8, t: 14, b: 22 };
-  const tutti = scambi.concat(rif);
+  const W = box.clientWidth || 600, H = box.clientHeight || 220, m = { l: 44, r: 46, t: 14, b: 22 };
+  const tutti = rif;
   const t0 = Math.min(...tutti.map((p) => p.t)), t1 = Math.max(Date.now(), ...tutti.map((p) => p.t));
-  const base = emis.prezzo || 1000;
   let v0 = Math.min(base, ...tutti.map((p) => p.v)), v1 = Math.max(base, ...tutti.map((p) => p.v));
-  const pad = (v1 - v0) * 0.1 || 5; v0 -= pad; v1 += pad;
+  const pad = (v1 - v0) * 0.08 || 5; v0 -= pad; v1 += pad;
   const x = (t) => m.l + (t - t0) / (t1 - t0) * (W - m.l - m.r);
   const y = (v) => m.t + (1 - (v - v0) / (v1 - v0)) * (H - m.t - m.b);
   let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
@@ -459,18 +458,25 @@ function mostraStoriaCertificato() {
     if (t < t0 || t > t1) return;
     svg += `<line class="rib" x1="${x(t)}" x2="${x(t)}" y1="${m.t}" y2="${H - m.b}"/>`;
   });
-  // scambi: gradini (il prezzo resta fermo fino allo scambio successivo)
-  if (scambi.length) {
-    let d = `M${x(scambi[0].t).toFixed(1)},${y(scambi[0].v).toFixed(1)}`;
-    for (let i = 1; i < scambi.length; i++) d += `H${x(scambi[i].t).toFixed(1)}V${y(scambi[i].v).toFixed(1)}`;
-    svg += `<path d="${d}" fill="none" stroke="var(--azzurro)" stroke-width="1.6"/>`;
-    scambi.forEach((p) => { svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="1.8" fill="var(--azzurro)"/>`; });
-  }
-  if (rif.length) {
-    if (rif.length > 1) svg += `<path d="${rif.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("")}" fill="none" stroke="var(--linea-cert)" stroke-width="2"/>`;
-    if (rif.length <= 30) rif.forEach((p) => { svg += `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="3" fill="var(--linea-cert)"/>`; });
-  }
+  const linea = (pts) => pts.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("");
+  svg += `<path d="${linea(rif)}" fill="none" stroke="var(--linea-cert)" stroke-width="2.2" stroke-linejoin="round"/>`;
+  // valore finale di ogni linea (etichette distanziate se vicine)
+  let ultimo = -1e9;
+  [[rif, "--linea-cert"]].filter(([pts]) => pts.length)
+    .map(([pts, col]) => ({ u: pts[pts.length - 1], col })).sort((a, b) => y(a.u.v) - y(b.u.v)).forEach((f) => {
+      const py = Math.max(y(f.u.v), ultimo + 13);
+      ultimo = py;
+      svg += `<circle cx="${x(f.u.t)}" cy="${y(f.u.v)}" r="3.2" fill="var(${f.col})"/>`;
+      svg += `<text class="fine" x="${x(f.u.t) + 7}" y="${py + 4}" fill="var(${f.col})">${fmt(f.u.v, 0)}</text>`;
+    });
   box.innerHTML = svg + "</svg>";
+}
+
+// Calo massimo (in %): la perdita più grande dal punto più alto precedente
+function maxCalo(valori) {
+  let picco = valori[0], peggio = 0;
+  valori.forEach((v) => { picco = Math.max(picco, v); peggio = Math.max(peggio, (picco - v) / picco * 100); });
+  return peggio;
 }
 
 /* ---------- indice VICIGROW (Leonteq) ---------- */
@@ -513,8 +519,8 @@ function mostraIndice() {
   // per gli anni dall'emissione, performance sulla parte positiva (stima)
   const costi = dati.costi;
   if (costi && rendCert != null) {
-    const scambi0 = (storico.certificato_scambi || [])[0];
-    const dal = new Date((dati.emissione && dati.emissione.data) || (scambi0 && scambi0.data) || dati.data_inizio);
+    const rif0 = (storico.certificato || [])[0];
+    const dal = new Date((dati.emissione && dati.emissione.data) || (rif0 && rif0.data) || dati.data_inizio);
     const anni = Math.max(0, (Date.now() - dal.getTime()) / (365.25 * 86400000));
     const lordo = 1 + rendIndice / 100;
     const dopoGestione = lordo * Math.pow(1 - costi.commissione_gestione / 100, anni);
@@ -544,13 +550,12 @@ function mostraIndice() {
     <tfoot><tr><td>Totale</td>${anni.map((a) => `<td class="forte ${segno(tot[a])}">${tot[a] == null ? "—" : perc(tot[a])}</td>`).join("")}</tr></tfoot>`;
   $("indice-nota").textContent = `Fonte: ${indice.fonte}; dati fino al ${dataIt(indice.aggiornato_al)}. ` +
     "La differenza tra indice e certificato comprende le commissioni del certificato e il fatto che il prezzo del certificato " +
-    "è quello di Borsa Italiana (riferimento o ultimo scambio), non il valore dell'indice.";
+    "è quello di Borsa Italiana, non il valore dell'indice.";
 
   const box = $("indice-grafico");
   if (box.offsetParent === null) return;
-  const scambi = (storico.certificato_scambi || []).map((p) => ({ t: new Date(p.data).getTime(), v: p.prezzo / emis * 100 }));
   const rif = (storico.certificato || []).map((p) => ({ t: new Date(p.data).getTime(), v: p.prezzo / emis * 100 }));
-  const tutti = serie.concat(scambi, rif);
+  const tutti = serie.concat(rif);
   const W = box.clientWidth || 600, H = box.clientHeight || 220, m = { l: 40, r: 8, t: 10, b: 22 };
   const t0 = Math.min(...tutti.map((p) => p.t)), t1 = Math.max(...tutti.map((p) => p.t));
   let v0 = Math.min(100, ...tutti.map((p) => p.v)), v1 = Math.max(100, ...tutti.map((p) => p.v));
@@ -566,11 +571,6 @@ function mostraIndice() {
   for (let i = 0; i <= 4; i++) {
     const t = t0 + (t1 - t0) * i / 4;
     svg += `<text class="asse" x="${x(t)}" y="${H - 4}" text-anchor="${i === 0 ? "start" : i === 4 ? "end" : "middle"}">${new Date(t).toLocaleDateString("it-IT", { month: "short", year: "2-digit" })}</text>`;
-  }
-  if (scambi.length) {
-    let d = `M${x(scambi[0].t).toFixed(1)},${y(scambi[0].v).toFixed(1)}`;
-    for (let i = 1; i < scambi.length; i++) d += `H${x(scambi[i].t).toFixed(1)}V${y(scambi[i].v).toFixed(1)}`;
-    svg += `<path d="${d}" fill="none" stroke="var(--azzurro)" stroke-width="1.4" opacity=".9"/>`;
   }
   // prezzi di riferimento: linea; i punti solo se sono pochi
   if (rif.length > 1) svg += `<path d="${rif.map((p, i) => `${i ? "L" : "M"}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join("")}" fill="none" stroke="var(--linea-cert)" stroke-width="1.6" stroke-linejoin="round"/>`;
