@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.11";
+const VERSIONE = "3.11.1";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -150,6 +150,20 @@ function applicaPrezziLive(p, live) {
   p.prezzi_live = n;
 }
 
+// L'ultimo contratto del certificato può essere di ore fa (scambia poco): se è più
+// vecchio di 45 minuti e c'è il book, il prezzo corrente è il medio tra denaro e lettera
+// e l'ultimo contratto resta indicato a parte.
+function scegliPrezzoCertificato(c) {
+  if (!c || c.tipo_corrente !== "ultimo contratto" || !c.data_ultimo || !c.ora_ultimo || !(c.medio > 0)) return;
+  const adessoRoma = new Date().toLocaleString("sv-SE", { timeZone: "Europe/Rome" }).replace(" ", "T");
+  const eta = (new Date(adessoRoma) - new Date(`${c.data_ultimo}T${c.ora_ultimo}`)) / 60000;
+  if (eta > 45) {
+    c.ultimo = { prezzo: c.corrente, data: c.data_ultimo, ora: c.ora_ultimo };
+    c.corrente = c.medio;
+    c.tipo_corrente = "medio denaro/lettera";
+  }
+}
+
 async function carica(forza) {
   const bottone = $("aggiorna");
   bottone.classList.add("gira");
@@ -167,6 +181,7 @@ async function carica(forza) {
     // dal controllo automatico, se è più recente di quella dentro prezzi.json
     if (p) await prezziLive(p, forza);
     if (p && diretta) p.certificato = { ...diretta, live: true };
+    if (p) scegliPrezzoCertificato(p.certificato);
     else if (p && q && q.ora && (!p.certificato || !p.certificato.ora || q.ora > p.certificato.ora)) p.certificato = q;
     if (!p || !p.posizioni) throw new Error("dati non ancora disponibili");
     dati = p;
@@ -229,8 +244,12 @@ function mostraPortafoglio() {
     const inSeduta = !["Sat", "Sun"].includes(giornoSett) && oraRoma >= 10 && oraRoma < 18;
     const inRitardo = inSeduta && c.ora && (adesso.getTime() - new Date(c.ora).getTime()) > 3 * 3600000;
     const avvisoRitardo = inRitardo ? ` · ⚠ dato delle ${new Date(c.ora).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })} del ${dataIt(c.ora)}: aggiornamento automatico in ritardo` : "";
-    const quando = c.tipo_corrente === "ultimo contratto" ? `Ultimo contratto, ${giornoLettura} ore ${oraDati} circa`
-      : c.tipo_corrente === "medio denaro/lettera" ? `Medio tra denaro e lettera, ${giornoLettura} ore ${oraDati} circa`
+    const hhmm = (o) => o ? o.slice(0, 5) : "";
+    const quando = c.tipo_corrente === "ultimo contratto"
+        ? (c.ora_ultimo ? `Ultimo contratto, ${dataIt(c.data_ultimo)} ore ${hhmm(c.ora_ultimo)}` : `Ultimo contratto, ${giornoLettura} ore ${oraDati} circa`)
+      : c.tipo_corrente === "medio denaro/lettera"
+        ? `Medio tra denaro e lettera, ${giornoLettura} ore ${oraDati} circa` +
+          (c.ultimo ? ` · ultimo contratto ${fmt(c.ultimo.prezzo)} alle ${hhmm(c.ultimo.ora)} del ${dataIt(c.ultimo.data)}` : "")
       : `Prezzo di riferimento del ${dataIt(c.data_riferimento || c.data || c.ora)}`;
     $("cert-fonte").textContent = `${quando}${c.tipo_corrente && c.tipo_corrente !== "prezzo di riferimento" ? rifTesto : ""}${c.denaro ? "" : range} · ${c.fonte}${avvisoRitardo}`;
     $("cert-book").hidden = !(c.denaro && c.lettera);
