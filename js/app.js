@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.14.1";
+const VERSIONE = "3.14.2";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -159,13 +159,19 @@ function applicaPrezziLive(p, live) {
 // vecchio di 45 minuti e c'è il book, il prezzo corrente è il medio tra denaro e lettera
 // e l'ultimo contratto resta indicato a parte.
 function scegliPrezzoCertificato(c) {
-  if (!c || c.tipo_corrente !== "ultimo contratto" || !c.data_ultimo || !c.ora_ultimo || !(c.medio > 0)) return;
+  if (!c || c.tipo_corrente !== "ultimo contratto" || !c.data_ultimo || !c.ora_ultimo) return;
   const adessoRoma = new Date().toLocaleString("sv-SE", { timeZone: "Europe/Rome" }).replace(" ", "T");
   const eta = (new Date(adessoRoma) - new Date(`${c.data_ultimo}T${c.ora_ultimo}`)) / 60000;
-  if (eta > 45) {
+  if (eta <= 45) return;
+  if (c.medio > 0) {
     c.ultimo = { prezzo: c.corrente, data: c.data_ultimo, ora: c.ora_ultimo };
     c.corrente = c.medio;
     c.tipo_corrente = "medio denaro/lettera";
+  } else if (c.riferimento > 0) {
+    // niente book (mercato chiuso): vale il prezzo di riferimento ufficiale
+    c.ultimo = { prezzo: c.corrente, data: c.data_ultimo, ora: c.ora_ultimo };
+    c.corrente = c.riferimento;
+    c.tipo_corrente = "prezzo di riferimento";
   }
 }
 
@@ -285,7 +291,7 @@ function mostraPortafoglio() {
     // ora dei dati: Borsa Italiana li dà con 15 minuti di ritardo
     const oraDati = c.ora ? new Date(new Date(c.ora).getTime() - 15 * 60000).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : "";
     const giornoLettura = c.ora ? dataIt(c.ora) : "";
-    const rifTesto = c.riferimento ? ` · riferimento del ${dataIt(c.data_riferimento || c.data)}: ${fmt(c.riferimento)}` : "";
+    const rifTesto = c.riferimento ? ` · ultimo prezzo di riferimento: ${fmt(c.riferimento)}` : "";
     // in seduta (giorni feriali, 10-18 ora italiana) un dato più vecchio di 3 ore
     // vuol dire che l'aggiornamento automatico è in ritardo: lo si dice
     const adesso = new Date();
@@ -300,6 +306,7 @@ function mostraPortafoglio() {
       : c.tipo_corrente === "medio denaro/lettera"
         ? `Medio tra denaro e lettera, ${giornoLettura} ore ${oraDati} circa` +
           (c.ultimo ? ` · ultimo contratto ${fmt(c.ultimo.prezzo)} alle ${hhmm(c.ultimo.ora)} del ${dataIt(c.ultimo.data)}` : "")
+      : c.ultimo ? `Prezzo di riferimento ufficiale (nessun book disponibile) · ultimo contratto ${fmt(c.ultimo.prezzo)} alle ${hhmm(c.ultimo.ora)} del ${dataIt(c.ultimo.data)}`
       : `Prezzo di riferimento del ${dataIt(c.data_riferimento || c.data || c.ora)}`;
     $("cert-fonte").textContent = `${quando}${c.tipo_corrente && c.tipo_corrente !== "prezzo di riferimento" ? rifTesto : ""}${c.denaro ? "" : range} · ${c.fonte}${avvisoRitardo}`;
     $("cert-book").hidden = !(c.denaro && c.lettera);
