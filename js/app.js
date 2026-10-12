@@ -3,12 +3,12 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.12";
+const VERSIONE = "3.13";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
 const K = { mio: "vici-mio", patrimonio: "vici-patrimonio",
-  scheda: "vici-scheda", ordina: "vici-ordina", versioneVista: "vici-versione-vista", sim: "vici-sim" };
+  scheda: "vici-scheda", ordina: "vici-ordina", stress: "vici-stress", versioneVista: "vici-versione-vista", sim: "vici-sim" };
 const RICARICA_MS = 5 * 60 * 1000;
 
 const $ = (id) => document.getElementById(id);
@@ -52,12 +52,17 @@ let indice = null; // rendimenti mensili dell'indice VICIGROW (data/indice.json)
 // Italiana nel momento della richiesta. L'indirizzo sta in data/config.json
 // (campo quotazione_url); se manca o non risponde si usa l'ultimo dato salvato.
 let configurazione = null;
+async function leggiConfigurazione() {
+  if (configurazione !== null) return;
+  try {
+    const r = await fetch(`data/config.json?t=${Date.now()}`);
+    configurazione = r.ok ? await r.json() : {};
+  } catch { configurazione = {}; }
+}
+
 async function quotazioneDiretta(forza) {
   try {
-    if (configurazione === null) {
-      const r = await fetch(`data/config.json?t=${Date.now()}`);
-      configurazione = r.ok ? await r.json() : {};
-    }
+    await leggiConfigurazione();
     const url = configurazione.quotazione_url;
     if (!url) return null;
     // il dato di borsa ha 15 minuti di ritardo: non serve rileggerlo più spesso
@@ -164,45 +169,58 @@ function scegliPrezzoCertificato(c) {
   }
 }
 
+function aggiornaStato() {
+  $("stato").className = "stato";
+  // data/ora davvero aggiornata: quella delle letture dirette se ci sono (ETF o
+  // certificato), altrimenti quella dell'ultimo calcolo automatico su GitHub
+  const letture = dati.posizioni.map((r) => r.live).concat(dati.certificato && dati.certificato.live ? [dati.certificato.ora] : []).filter(Boolean).sort();
+  $("stato").textContent = (letture.length
+    ? `Prezzi aggiornati il ${oraIt(letture[letture.length - 1])} (ritardo circa 15 minuti)`
+    : `Dati salvati il ${oraIt(dati.aggiornato)} (aggiornamento automatico)`) +
+    (dati.mancanti && dati.mancanti.length ? ` · senza prezzo: ${dati.mancanti.join(", ")}` : "") +
+    ((dati.programmati || []).length ? ` · ribilanciamento del ${dataIt(dati.programmati[0].data)} programmato (vedi Gestione)` : "");
+}
+
 async function carica(forza) {
   const bottone = $("aggiorna");
   bottone.classList.add("gira");
   try {
     const t = Date.now();
-    const [p, s, ind, q, diretta] = await Promise.all([
+    // 1) dati salvati su GitHub: si mostrano subito
+    const [p, s, ind, q] = await Promise.all([
       fetch(`data/prezzi.json?t=${t}`).then((r) => r.ok ? r.json() : null),
       fetch(`data/storico.json?t=${t}`).then((r) => r.ok ? r.json() : null),
       fetch(`data/indice.json?t=${t}`).then((r) => r.ok ? r.json() : null).catch(() => null),
       fetch(`data/certificato.json?t=${t}`).then((r) => r.ok ? r.json() : null).catch(() => null),
-      quotazioneDiretta(forza),
     ]);
     indice = ind;
-    // la quotazione diretta (letta adesso) prevale; altrimenti quella salvata
-    // dal controllo automatico, se è più recente di quella dentro prezzi.json
-    if (p) await prezziLive(p, forza);
-    if (p && diretta) {
-      // Worker non aggiornato: l'ora dell'ultimo contratto la prende dal dato salvato su GitHub,
-      // purché sia lo stesso contratto (stesso prezzo)
-      const salvato = [q, p.certificato].find((x) => x && x.ora_ultimo && x.corrente === diretta.corrente);
-      p.certificato = { ...(salvato && !diretta.ora_ultimo ? { data_ultimo: salvato.data_ultimo, ora_ultimo: salvato.ora_ultimo } : {}), ...diretta, live: true };
-    }
-    if (p) scegliPrezzoCertificato(p.certificato);
-    else if (p && q && q.ora && (!p.certificato || !p.certificato.ora || q.ora > p.certificato.ora)) p.certificato = q;
     if (!p || !p.posizioni) throw new Error("dati non ancora disponibili");
-    dati = p;
+    // quotazione salvata dal controllo ogni 30 minuti: prevale se è più recente di quella in prezzi.json
+    if (q && q.ora && (!p.certificato || !p.certificato.ora || q.ora > p.certificato.ora)) p.certificato = q;
+    scegliPrezzoCertificato(p.certificato);
+    const salvati = { ...p, certificato: p.certificato && { ...p.certificato } };
+    dati = salvati;
     storico = s || { nav: [], benchmark: [], certificato: [] };
     storicoPosizioni = null; // si riscarica alla prossima apertura del dettaglio
     mostra();
     if (dettaglioAperto) aggiornaDettaglio();
-    $("stato").className = "stato";
-    // data/ora davvero aggiornata: quella delle letture dirette se ci sono (ETF o
-    // certificato), altrimenti quella dell'ultimo calcolo automatico su GitHub
-    const letture = dati.posizioni.map((r) => r.live).concat(dati.certificato && dati.certificato.live ? [dati.certificato.ora] : []).filter(Boolean).sort();
-    $("stato").textContent = (letture.length
-      ? `Prezzi aggiornati il ${oraIt(letture[letture.length - 1])} (ritardo circa 15 minuti)`
-      : `Dati salvati il ${oraIt(dati.aggiornato)} (aggiornamento automatico)`) +
-      (dati.mancanti && dati.mancanti.length ? ` · senza prezzo: ${dati.mancanti.join(", ")}` : "") +
-      ((dati.programmati || []).length ? ` · ribilanciamento del ${dataIt(dati.programmati[0].data)} programmato (vedi Gestione)` : "");
+    aggiornaStato();
+
+    // 2) letture dirette (certificato ed ETF): se arrivano si ricalcola; se no restano i dati salvati
+    await leggiConfigurazione();
+    const [diretta] = await Promise.all([quotazioneDiretta(forza), prezziLive(p, forza)]);
+    if (diretta) {
+      // Worker non aggiornato: l'ora dell'ultimo contratto la prende dal dato salvato, purché sia lo stesso contratto
+      const salvato = [q, p.certificato].find((x) => x && x.ora_ultimo && x.corrente === diretta.corrente);
+      p.certificato = { ...(salvato && !diretta.ora_ultimo ? { data_ultimo: salvato.data_ultimo, ora_ultimo: salvato.ora_ultimo } : {}), ...diretta, live: true };
+      scegliPrezzoCertificato(p.certificato);
+    }
+    if (diretta || p.prezzi_live) {
+      dati = p;
+      mostra();
+      if (dettaglioAperto) aggiornaDettaglio();
+      aggiornaStato();
+    }
   } catch (e) {
     $("stato").className = "stato errore";
     $("stato").textContent = navigator.onLine
@@ -677,6 +695,41 @@ function inEuro(v) {
   return pat ? ` · ${v >= 0 ? "+" : "−"}${eur(Math.abs(pat * v / 100), 0)}` : "";
 }
 
+// Portafogli confrontabili nello stress test: ogni ribilanciamento (anche quello
+// programmato) con i suoi pesi, più il portafoglio di oggi con i pesi correnti.
+function opzioniStress() {
+  const st = dati.stress;
+  const programmati = (dati.programmati || []).map((p) => p.data);
+  const breveData = (d) => new Date(d).toLocaleDateString("it-IT", { day: "numeric", month: "short" });
+  let out = (st.portafogli || []).map((pf) => ({
+    id: pf.data, pesi: pf.pesi, programmato: programmati.includes(pf.data),
+    breve: `${programmati.includes(pf.data) ? "Prog. " : "Dal "}${breveData(pf.data)}`,
+    etichetta: `${programmati.includes(pf.data) ? "Programmato dal " : "Portafoglio dal "}${breveData(pf.data)}`,
+  }));
+  if (!out.length) { // dati senza le composizioni: solo attuale e programmato come prima
+    const prog = pesiProgrammati();
+    if (prog) out.push({ id: "prog", pesi: prog, programmato: true, breve: "Dopo il ribil.", etichetta: "Dopo il ribilanciamento" });
+  }
+  out.push({ id: "att", pesi: pesiAttuali(), programmato: false, breve: "Oggi", etichetta: "Attuale (pesi di oggi)" });
+  return out;
+}
+
+// Coppia scelta (primo, secondo). Predefinita: se c'è un ribilanciamento programmato, quello
+// in vigore contro il programmato; altrimenti il mese precedente contro quello in vigore.
+function sceltaStress() {
+  const op = opzioniStress();
+  const trova = (id) => op.find((o) => o.id === id);
+  const salvata = leggi(K.stress);
+  if (salvata && trova(salvata.a) && trova(salvata.b)) return { op, a: trova(salvata.a), b: trova(salvata.b) };
+  const attivi = op.filter((o) => !o.programmato && o.id !== "att");
+  const prog = op.find((o) => o.programmato);
+  let a, b;
+  if (prog && attivi.length) { a = attivi[attivi.length - 1]; b = prog; }
+  else if (attivi.length >= 2) { a = attivi[attivi.length - 2]; b = attivi[attivi.length - 1]; }
+  else { a = attivi[0] || op[0]; b = trova("att"); }
+  return { op, a, b };
+}
+
 function mostraStress() {
   const st = dati.stress;
   if (!st) {
@@ -684,50 +737,67 @@ function mostraStress() {
     $("stress-scenari").innerHTML = "";
     return;
   }
-  const att = pesiAttuali(), prog = pesiProgrammati();
-  const prossimo = (dati.programmati || [])[0];
-  $("stress-col-prog").hidden = !prog;
-  if (prossimo) $("stress-col-prog").textContent = `Dal ${new Date(prossimo.data).toLocaleDateString("it-IT", { day: "numeric", month: "short" })}`;
-  $("stress-nota").textContent = "Perdita o guadagno stimato del portafoglio se succedesse lo scenario. Tocca una riga per vedere le posizioni più colpite." +
+  const { op, a, b } = sceltaStress();
+  ["stress-a", "stress-b"].forEach((id, k) => {
+    const sel = $(id);
+    sel.innerHTML = op.map((o) => `<option value="${esc(o.id)}">${esc(o.etichetta)}</option>`).join("");
+    sel.value = (k ? b : a).id;
+  });
+  $("stress-col-a").textContent = a.breve;
+  $("stress-col-b").textContent = b.breve;
+  $("stress-nota").textContent = "Perdita o guadagno stimato se succedesse lo scenario, per due portafogli a scelta. " +
+    "Per capire se un ribilanciamento è stato utile, confronta il mese precedente con quello attuale: la differenza è positiva (verde) quando il secondo regge meglio lo scenario. " +
+    "Tocca una riga per vedere da quali posizioni nasce." +
     (leggi(K.patrimonio) ? "" : " Inserisci il patrimonio nel simulatore (Gestione) per vedere anche gli importi.");
   $("stress-scenari").innerHTML = st.scenari.map((sc, i) => {
-    const a = impattoPortafoglio(att, sc.shock).totale;
-    const b = prog ? impattoPortafoglio(prog, sc.shock).totale : null;
+    const x = impattoPortafoglio(a.pesi, sc.shock).totale;
+    const y = impattoPortafoglio(b.pesi, sc.shock).totale;
+    const d = y - x;
     return `<tr data-i="${i}"><td>${esc(sc.nome)}<small>${esc(testoShock(sc.shock))}</small></td>
-      <td class="forte ${segno(a)}">${perc(a)}<small>${inEuro(a).replace(/^ · /, "")}</small></td>
-      ${prog ? `<td class="forte ${segno(b)}">${perc(b)}</td>` : ""}</tr>`;
+      <td class="forte ${segno(x)}">${perc(x)}<small>${inEuro(x).replace(/^ · /, "")}</small></td>
+      <td class="forte ${segno(y)}">${perc(y)}<small>${inEuro(y).replace(/^ · /, "")}</small></td>
+      <td class="forte ${segno(d)}">${perc(d)}</td></tr>`;
   }).join("");
+  $("stress-dettaglio").hidden = true;
   $("stress-scenari").querySelectorAll("tr").forEach((tr) => tr.addEventListener("click", () => {
-    $("stress-scenari").querySelectorAll("tr").forEach((x) => x.classList.toggle("scelto", x === tr));
+    $("stress-scenari").querySelectorAll("tr").forEach((r) => r.classList.toggle("scelto", r === tr));
     dettaglioStress(st.scenari[Number(tr.dataset.i)]);
   }));
-  const senza = [...new Set(att.concat(prog || []).filter((p) => !p.liquidita && !st.beta[p.chiave]).map((p) => breve(p.nome)))];
+  const senza = [...new Set(a.pesi.concat(b.pesi).filter((p) => !p.liquidita && !st.beta[p.chiave]).map((p) => breve(p.nome)))];
   $("stress-metodo").textContent = `Metodo: per ogni posizione si stima quanto si muove con azioni (S&P 500 coperto dal cambio), tassi euro, oro e dollaro, ` +
     `sui rendimenti settimanali dell'ultimo anno (${st.settimane} settimane dal ${dataIt(st.dal)}); ` +
-    `+1 punto di tassi corrisponde a −${fmt(st.duration_tassi, 1)}% sull'indice obbligazionario. È una stima lineare: negli shock forti le correlazioni cambiano.` +
+    `+1 punto di tassi corrisponde a −${fmt(st.duration_tassi, 1)}% sull'indice obbligazionario. ` +
+    `Ogni portafoglio è valutato con i pesi del suo ribilanciamento. È una stima lineare: negli shock forti le correlazioni cambiano.` +
     (senza.length ? ` Senza storico sufficiente (impatto 0): ${senza.join(", ")}.` : "");
   calcolaStressLibero();
 }
 
 function dettaglioStress(sc) {
-  const r = impattoPortafoglio(pesiAttuali(), sc.shock);
-  const voci = r.det.filter((p) => !p.liquidita).map((p) => ({ ...p, contr: p.peso / 100 * p.impatto }))
-    .sort((a, b) => a.contr - b.contr);
+  const { a, b } = sceltaStress();
+  const ra = impattoPortafoglio(a.pesi, sc.shock), rb = impattoPortafoglio(b.pesi, sc.shock);
+  const per = new Map();
+  [[ra, "a"], [rb, "b"]].forEach(([r, k]) => r.det.filter((p) => !p.liquidita).forEach((p) => {
+    const v = per.get(p.chiave) || { nome: p.nome, impatto: p.impatto, pa: 0, pb: 0 };
+    v["p" + k] = p.peso;
+    per.set(p.chiave, v);
+  }));
+  const voci = [...per.values()].map((v) => ({ ...v, diff: (v.pb - v.pa) / 100 * v.impatto })).sort((x, y) => x.diff - y.diff);
   $("stress-dettaglio").hidden = false;
-  $("stress-dettaglio").innerHTML = `<h4>${esc(sc.nome)}: ${perc(r.totale)}${inEuro(r.totale)}</h4>
-    <div class="tabella-box"><table class="tabella compatta"><thead><tr><th>Posizione</th><th>Impatto</th><th>Sul portafoglio</th></tr></thead>
-    <tbody>${voci.map((p) => `<tr><td>${esc(breve(p.nome))}</td><td class="${segno(p.impatto)}">${perc(p.impatto, 1)}</td>
-      <td class="forte ${segno(p.contr)}">${perc(p.contr)}</td></tr>`).join("")}</tbody></table></div>`;
+  $("stress-dettaglio").innerHTML = `<h4>${esc(sc.nome)}: ${esc(a.breve)} ${perc(ra.totale)} → ${esc(b.breve)} ${perc(rb.totale)}${inEuro(rb.totale - ra.totale)}</h4>
+    <p class="nota">«Contributo» = quanto il cambio di peso della posizione sposta il risultato dello scenario.</p>
+    <div class="tabella-box"><table class="tabella compatta"><thead><tr><th>Posizione</th><th>Peso</th><th>Impatto</th><th>Contributo</th></tr></thead>
+    <tbody>${voci.map((v) => `<tr><td>${esc(breve(v.nome))}</td><td>${fmt(v.pa, 1)}% → ${fmt(v.pb, 1)}%</td>
+      <td class="${segno(v.impatto)}">${perc(v.impatto, 1)}</td><td class="forte ${segno(v.diff)}">${perc(v.diff)}</td></tr>`).join("")}</tbody></table></div>`;
 }
 
 function calcolaStressLibero() {
   if (!dati || !dati.stress) return;
   const sh = { azioni: numero($("sl-azioni").value), tassi: numero($("sl-tassi").value), oro: numero($("sl-oro").value), dollaro: numero($("sl-dollaro").value) };
-  const a = impattoPortafoglio(pesiAttuali(), sh).totale;
-  const prog = pesiProgrammati();
-  const b = prog ? impattoPortafoglio(prog, sh).totale : null;
-  $("stress-libero-esito").innerHTML = `Portafoglio attuale <b class="${segno(a)}">${perc(a)}</b>${inEuro(a)}` +
-    (prog ? ` · dal ${dataIt(dati.programmati[0].data)} <b class="${segno(b)}">${perc(b)}</b>` : "");
+  const { a, b } = sceltaStress();
+  const x = impattoPortafoglio(a.pesi, sh).totale, y = impattoPortafoglio(b.pesi, sh).totale;
+  $("stress-libero-esito").innerHTML = `${esc(a.etichetta)} <b class="${segno(x)}">${perc(x)}</b>${inEuro(x)}` +
+    ` · ${esc(b.etichetta)} <b class="${segno(y)}">${perc(y)}</b>${inEuro(y)}` +
+    ` · differenza <b class="${segno(y - x)}">${perc(y - x)}</b>`;
 }
 
 function mostraGrafico() {
@@ -1384,6 +1454,10 @@ $("aggiorna").addEventListener("click", () => carica(true));
   const salvato = leggi(K.ordina);
   if (salvato && [...$("ordina").options].some((o) => o.value === salvato)) $("ordina").value = salvato;
 }
+["stress-a", "stress-b"].forEach((id) => $(id).addEventListener("change", () => {
+  scrivi(K.stress, { a: $("stress-a").value, b: $("stress-b").value });
+  if (dati) mostraStress();
+}));
 $("ordina").addEventListener("change", () => { scrivi(K.ordina, $("ordina").value); dati && mostraPosizioni(); });
 $("modifica-mio").addEventListener("click", () => apriFormMio(true));
 $("mio-annulla").addEventListener("click", () => apriFormMio(false));

@@ -992,6 +992,17 @@ def main():
             attrib.append({"id": mese, "etichetta": mese, "mese": True, **a_m})
 
     stress = calcola_stress(dati, dal_storia, oggi)
+    if stress:
+        # composizione (pesi) di ogni ribilanciamento, anche quello programmato: serve per
+        # confrontare nello stress test un portafoglio con un altro
+        stress["portafogli"] = []
+        for r in sorted(port["ribilanciamenti"], key=lambda x: x["data"]):
+            somma = sum(x["peso"] for x in r["posizioni"]) or 100
+            stress["portafogli"].append({
+                "data": r["data"],
+                "pesi": [{"nome": x["nome"], "chiave": chiave(x), "liquidita": bool(x.get("liquidita")),
+                          "peso": round(x["peso"] / somma * 100, 4)} for x in r["posizioni"]],
+            })
 
     bench, serie_bench = calcola_benchmark(port, cache, dal_storia, inizio, base)
     rischio = calcola_rischio(righe, dati, oggi)

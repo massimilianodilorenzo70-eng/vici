@@ -242,9 +242,13 @@
       <div class="riquadro">
         <h2>Stress test</h2>
         <p class="nota" id="stress-nota"></p>
+        <div class="stress-scelta">
+          <label>Confronta <select id="stress-a"></select></label>
+          <label>con <select id="stress-b"></select></label>
+        </div>
         <div class="tabella-box">
           <table class="tabella compatta stress">
-            <thead><tr><th>Scenario</th><th>Attuale</th><th id="stress-col-prog">Dopo il ribil.</th></tr></thead>
+            <thead><tr><th>Scenario</th><th id="stress-col-a"></th><th id="stress-col-b"></th><th>Differenza</th></tr></thead>
             <tbody id="stress-scenari"></tbody>
           </table>
         </div>

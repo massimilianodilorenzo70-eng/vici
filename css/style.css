@@ -677,3 +677,7 @@ nav.menu-voci > button.attiva { border-left-color: var(--oro, #A98A52); backgrou
 @keyframes pulsa { 50% { opacity: .3; } }
 @media (prefers-reduced-motion: reduce) { .live::before { animation: none; } }
 .legenda .l-punto { width: 8px; height: 8px; border-radius: 50%; background: var(--linea-cert); }
+
+.stress-scelta { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 8px 0 10px; }
+.stress-scelta label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--testo-2); }
+.stress-scelta select { font: inherit; font-size: 13px; color: var(--testo); background: var(--carta); border: 1px solid var(--bordo); border-radius: 2px; padding: 6px 8px; max-width: 100%; }
