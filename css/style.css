@@ -667,3 +667,12 @@ nav.menu-voci > button.attiva { border-left-color: var(--oro, #A98A52); backgrou
   .menu-voci .sotto { padding-bottom: 5px; }
   .menu-testa { padding-bottom: 6px; }
 }
+
+/* etichetta «in diretta» accanto ai titoli dei riquadri con dati letti in tempo reale */
+.live {
+  display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; vertical-align: middle;
+  font: 600 10px/1 Inter, system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--su);
+}
+.live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulsa 2s ease-in-out infinite; }
+@keyframes pulsa { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { .live::before { animation: none; } }
