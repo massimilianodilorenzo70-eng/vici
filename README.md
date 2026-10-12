@@ -101,6 +101,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.9.2** — prezzi live: chiusura precedente anche per i titoli con pochi scambi.
 - **3.9.1** — certificato: variazione del giorno accanto a quella dall'emissione.
 - **3.9** — prezzi degli ETF aggiornati all'apertura (Worker /prezzi) e data dei prezzi sotto il titolo delle posizioni.
 - **3.8.2** — sottovoci del menu come semplice testo, senza bottoni.
