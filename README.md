@@ -101,6 +101,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.14** — Portafoglio: al posto del paniere stimato il riquadro Premio/sconto del certificato.
 - **3.13.1** — paniere stimato: variazione dall'inizio coerente con il valore e spiegazione di cosa rappresenta.
 - **3.13** — stress test: confronto a scelta tra due portafogli (es. mese precedente e attuale).
 - **3.12** — certificato: variazione del giorno anche in euro.
