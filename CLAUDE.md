@@ -14,18 +14,19 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
 - **Rispondi e scrivi SEMPRE in italiano**: messaggi all'utente, aggiornamenti
   mentre lavori, commit, pull request, commenti nel codice.
 - L'utente è il **gestore** del certificato VICI Balanced Growth AMC.
-- **Numero di versione** (oggi **3.7**): si scrive sempre con i punti.
+- **Numero di versione** (oggi **3.8.1**): si scrive sempre con i punti.
   - funzioni nuove → sale il secondo numero: 3.0 → 3.1 → 3.2 …
   - correzioni di errori → terzo numero: 3.1 → 3.1.1 → 3.1.2; 3.2 → 3.2.1 …
   - se l'utente dice "non aumentare la versione", non aumentarla.
-  - la versione è in `js/app.js` (`VERSIONE` + voce in `NOVITA`), in
+  - la versione è in `js/app.js` (`VERSIONE`), in
     `versione.json` e in `sw.js` (`CACHE_NAME`): vanno cambiati tutti e tre,
     più la riga nel README (sezione Versioni). All'apertura l'app confronta
     `versione.json` del sito con la sua e si aggiorna da sola.
 - Scritta «Sviluppato da VCIAM» accanto al numero di versione, SOLO in fondo alla
   pagina e in fondo al menu, mai in alto nella fascia blu (richiesta dell'utente).
-- Cronologia «Novità della versione» (`NOVITA`): una riga breve e sintetica per
-  versione (poche parole, niente spiegazioni lunghe). Vale per ogni nuova voce.
+- Cronologia «Novità»: l'utente NON la vuole vedere. Dalla 3.8.1 la finestra, la voce
+  di menu e l'elenco `NOVITA` non esistono più: non reintrodurli. Le versioni si
+  annotano solo nel README (sezione Versioni), in una riga breve.
 - Quotazione del certificato: Cloudflare Worker `vici-quotazione`
   (https://vici-quotazione.massimilianodilorenzo70.workers.dev, codice in
   `cloudflare/quotazione/worker.js`, indirizzo in `data/config.json`) legge Borsa
@@ -40,7 +41,8 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
   «+0,00», «Ricarica» salta la cache di 5 min; 3.5.4/3.6 ordinamento di default
   «Var. dal carico» e ricordato (localStorage `vici-ordina`); 3.6.1 grafico
   Andamento con legenda completa e valori finali; 3.7 spiegazione benchmark 60/40
-  (`<details class="spiega">`).
+  (`<details class="spiega">`); 3.7.1 legende grafici con `.leg`; 3.8 menu compatto
+  (sta in una schermata anche a 320×568, sottovoci a pillole); 3.8.1 tolta la cronologia.
 - PWA: l'`id` del manifest si risolve sull'ORIGINE (github.io), non sulla cartella:
   VICI e cacciaTI con `./index.html` erano la stessa app per Chrome (apriva
   cacciaTI). VICI ora ha `"id": "/vici/"`; cacciaTI non va toccata. Dopo il cambio
@@ -51,7 +53,7 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
   `.legenda span` come campioni: per nuove legende con SVG usare `.leg`.
 - Header + schede sono fissi in alto (`.alto` sticky); menu con sottovoci (`SOTTOVOCI`).
 - Avviso di aggiornamento: solo la riga «App aggiornata alla versione X», senza
-  elenco delle modifiche e senza aprire da sola la finestra Novità.
+  elenco delle modifiche e senza altre finestre.
 - Rilascio: lavora sul ramo indicato dalla sessione, poi apri la pull request
   verso `main` e uniscila tu (l'utente lo vuole). GitHub Pages pubblica da `main`.
 - Prima di pubblicare: prova con dati simulati e nel browser (Playwright, 320/390/
