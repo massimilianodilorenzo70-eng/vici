@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.14.2";
+const VERSIONE = "3.14.3";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -326,9 +326,9 @@ function mostraPortafoglio() {
   if (pm) {
     $("premio").innerHTML = colorato(pm.premio);
     $("premio-testo").textContent = `${Math.abs(pm.premio) < 0.05 ? "In linea" : pm.premio > 0 ? "Premio" : "Sconto"}: il certificato vale ${fmt(pm.att)}, le sue posizioni lo porterebbero a ${fmt(pm.implicito)}`;
-    $("premio-nota").textContent = `Confronto con le posizioni dal ${dataIt(pm.data)}, da quando l'app le segue (prezzo di riferimento di quel giorno: ${fmt(pm.rif)}). ` +
-      (pm.min != null ? `Da allora lo scarto è oscillato tra ${perc(pm.min)} e ${perc(pm.max)} (${pm.giorni} giorni). ` : "") +
-      `Premio = il certificato costa più delle sue posizioni, sconto = costa meno. Scarti entro l'1-2% sono normali: bastano lo spread tra denaro e lettera e i 15 minuti di ritardo dei dati.`;
+    $("premio-nota").textContent = `Dal ${dataIt(pm.data)}` +
+      (pm.min != null ? `: scarto tra ${perc(pm.min)} e ${perc(pm.max)}. ` : ". ") +
+      "Premio = costa più delle posizioni, sconto = costa meno.";
   } else {
     $("premio").textContent = "—";
     $("premio-testo").textContent = "Dati non ancora disponibili";
