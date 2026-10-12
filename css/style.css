@@ -676,3 +676,4 @@ nav.menu-voci > button.attiva { border-left-color: var(--oro, #A98A52); backgrou
 .live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulsa 2s ease-in-out infinite; }
 @keyframes pulsa { 50% { opacity: .3; } }
 @media (prefers-reduced-motion: reduce) { .live::before { animation: none; } }
+.legenda .l-punto { width: 8px; height: 8px; border-radius: 50%; background: var(--linea-cert); }
