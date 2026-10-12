@@ -3,43 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.8";
-const NOVITA = [
-  { v: "3.8", voci: ["Menu compatto in una schermata, con sottovoci a pillole e titoli in carattere elegante."] },
-  { v: "3.7.1", voci: ["Legende dei grafici: testo e colore restano sempre insieme."] },
-  { v: "3.7", voci: ["Spiegazione del benchmark 60/40 sotto il grafico Andamento."] },
-  { v: "3.6.1", voci: ["Grafico più chiaro: legenda con tutte le linee e spiegazione."] },
-  { v: "3.6", voci: ["L'app ricorda l'ultimo ordinamento delle posizioni."] },
-  { v: "3.5.4", voci: ["Posizioni ordinate di default per variazione dal carico."] },
-  { v: "3.5.3", voci: ["Correzioni: niente «+0,00»; «Ricarica» rilegge sempre la quotazione."] },
-  { v: "3.5.2", voci: ["Posizioni: con «Var. oggi» la colonna mostra la variazione di oggi."] },
-  { v: "3.5.1", voci: ["Correzione all'installazione dell'app."] },
-  { v: "3.5", voci: ["Nuovo stile."] },
-  { v: "3.4.1", voci: ["Fascia blu e schede fisse in alto."] },
-  { v: "3.4", voci: ["Sottovoci nel menu: salto diretto a stress test, rischio e altre sezioni."] },
-  { v: "3.3", voci: ["Quotazione letta a ogni apertura (Cloudflare); avviso se i dati automatici sono in ritardo."] },
-  { v: "3.2.2", voci: ["Tolti «Certificato vs paniere» e la nota del simulatore."] },
-  { v: "3.2.1", voci: ["«Da acquisto» con il costo medio effettivo; tolto il commento del gestore dal report."] },
-  { v: "3.2", voci: ["Attribuzione «Da acquisto» con carico originale; carico originale nel dettaglio posizione."] },
-  { v: "3.1.2", voci: ["Menu: tolto il book di Borsa Italiana, aggiunta la scheda Leonteq."] },
-  { v: "3.1.1", voci: ["Link del menu a Euronext e al book di Borsa Italiana."] },
-  { v: "3.1", voci: ["Prezzo corrente del certificato in cima; quotazione ogni 15 minuti."] },
-  { v: "3.0.1", voci: ["✕ per chiudere la finestra delle novità."] },
-  { v: "3.0", voci: ["Book denaro/lettera e performance da Borsa Italiana; costi del KID e scomposizione della differenza con l'indice."] },
-  { v: "2.0", voci: ["Indice VICIGROW: rendimenti mensili e confronto con il certificato."] },
-  { v: "1.9.2", voci: ["Premio/sconto confrontato alla stessa data."] },
-  { v: "1.9.1", voci: ["Correzioni: variazione giornaliera e dettaglio posizione."] },
-  { v: "1.9", voci: ["Dettaglio posizione; storico del certificato dall'emissione."] },
-  { v: "1.8", voci: ["Menu più semplice; corretti scenario libero e attribuzione."] },
-  { v: "1.7", voci: ["Attribuzione della performance e stress test."] },
-  { v: "1.6", voci: ["Avviso del ribilanciamento programmato in Portafoglio."] },
-  { v: "1.5", voci: ["Numero di versione nella fascia blu."] },
-  { v: "1.4", voci: ["Controllo completo e correzioni."] },
-  { v: "1.3", voci: ["Aggiornamento automatico all'apertura."] },
-  { v: "1.2", voci: ["Ribilanciamento di ottobre con carichi automatici; importazione dell'Excel mensile."] },
-  { v: "1.1", voci: ["Menu e sezioni, benchmark, rischio, scostamenti, simulatore, storico ribilanciamenti, report PDF."] },
-  { v: "1", voci: ["Prima versione."] },
-];
+const VERSIONE = "3.8.1";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -1212,12 +1176,6 @@ function chiudiMenu() {
   $("apri-menu").setAttribute("aria-expanded", "false");
 }
 
-function mostraNovita() {
-  $("novita-elenco").innerHTML = NOVITA.map((n) =>
-    `<h3>Versione ${n.v}</h3><ul>${n.voci.map((v) => `<li>${esc(v)}</li>`).join("")}</ul>`).join("");
-  $("novita").hidden = false;
-  chiudiMenu();
-}
 
 /* ================= installazione ================= */
 // Android/Chrome: prompt del browser (beforeinstallprompt). iPhone: Safari non
@@ -1282,12 +1240,8 @@ costruisciSottovoci();
 document.querySelectorAll("[data-scheda]").forEach((b) => b.addEventListener("click", () => mostraScheda(b.dataset.scheda)));
 $("apri-menu").addEventListener("click", apriMenu);
 $("velo").addEventListener("click", chiudiMenu);
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") { chiudiMenu(); chiudiDettaglio(); $("novita").hidden = true; } });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") { chiudiMenu(); chiudiDettaglio(); } });
 $("menu-aggiorna").addEventListener("click", () => { chiudiMenu(); carica(true); });
-$("menu-novita").addEventListener("click", mostraNovita);
-$("novita-chiudi").addEventListener("click", () => { $("novita").hidden = true; });
-$("novita-x").addEventListener("click", () => { $("novita").hidden = true; });
-$("novita").addEventListener("click", (e) => { if (e.target === $("novita")) $("novita").hidden = true; });
 $("aggiorna").addEventListener("click", () => carica(true));
 // ricorda l'ultimo ordinamento scelto (se non è più valido resta quello di default)
 {

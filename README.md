@@ -95,13 +95,13 @@ Le posizioni nuove prendono classe e area dal nome (da controllare in
 
 ## Versioni
 
-Il numero di versione è nel menu e in fondo alla pagina; le novità di ogni
-versione sono nel menu → «Novità della versione». A ogni apertura l'app legge
+Il numero di versione è nel menu e in fondo alla pagina. A ogni apertura l'app legge
 `versione.json` dal sito e, se è cambiata, si aggiorna e si ricarica da sola.
 Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.8.1** — tolta la finestra «Novità» dal menu.
 - **3.8** — menu compatto in una schermata, sottovoci a pillole.
 - **3.7.1** — legende dei grafici: testo e colore restano insieme.
 - **3.7** — spiegazione del benchmark 60/40 sotto il grafico Andamento.
