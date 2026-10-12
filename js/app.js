@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.9.3";
+const VERSIONE = "3.9.4";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -247,7 +247,11 @@ function mostraPortafoglio() {
   const perfPeriodo = d.perf_periodo ?? d.perf_totale;
   $("nav").textContent = fmt(d.nav);
   $("nav-perf").innerHTML = `${colorato(perfPeriodo)} dal ${dataIt(d.data_esecuzione)}`;
-  $("nav-oggi").innerHTML = `Oggi ${colorato(d.perf_giorno)}`;
+  const navLive = (d.prezzi_live || 0) > 0;
+  $("nav-live").hidden = !navLive;
+  $("cert-live").hidden = !(c && c.live);
+  $("nav-oggi").innerHTML = `Oggi ${colorato(d.perf_giorno)}` +
+    (navLive ? " · ETF in diretta (ritardo circa 15 minuti), fondi al NAV dell'ultimo giorno disponibile" : "");
 
   mostraBanner();
   mostraPosizioni();
@@ -380,6 +384,7 @@ function mostraAndamento() {
   const d = dati;
   const b = d.benchmark;
   $("a-paniere").innerHTML = colorato(d.perf_totale);
+  $("a-nav-live").hidden = !((d.prezzi_live || 0) > 0);
   $("a-paniere-dett").innerHTML = `dal ${dataIt(d.data_inizio || d.data_esecuzione)} · oggi ${colorato(d.perf_giorno)}`;
   if (b) {
     $("a-bench-nome").textContent = b.nome;
