@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.14";
+const VERSIONE = "3.14.1";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -244,12 +244,27 @@ function mostra() {
 // Premio/sconto aggiornato al prezzo mostrato: il valore implicito segue il valore stimato
 // delle posizioni (che con le letture dirette si aggiorna) a partire dal giorno di confronto.
 function premioSconto() {
-  const pr = dati.premio, c = dati.certificato;
-  if (!pr || !c || !(pr.prezzo_riferimento > 0)) return null;
-  const att = c.corrente || c.prezzo;
+  const c = dati.certificato;
+  const att = c && (c.corrente || c.prezzo);
+  if (!att) return null;
+  // Confronto dall'inizio dello storico del paniere (la data più lontana possibile): il prezzo di
+  // riferimento del certificato quel giorno, portato avanti con il valore stimato delle posizioni.
+  const inizio = dati.data_inizio || dati.data_esecuzione;
+  const navAl = (d) => { const x = (storico.nav || []).find((p) => p.data === d); return x ? x.nav : null; };
+  const rif = (storico.certificato || []).filter((p) => p.data >= inizio && navAl(p.data));
+  if (rif.length) {
+    const primo = rif[0], nav0 = navAl(primo.data);
+    const implicito = primo.prezzo * dati.nav / nav0;
+    const serie = rif.map((p) => (p.prezzo / (primo.prezzo * navAl(p.data) / nav0) - 1) * 100);
+    return { premio: (att / implicito - 1) * 100, implicito, att, data: primo.data, rif: primo.prezzo,
+      min: Math.min(...serie), max: Math.max(...serie), giorni: serie.length };
+  }
+  // senza storico sufficiente: confronto calcolato dallo script (dal ribilanciamento in vigore)
+  const pr = dati.premio;
+  if (!pr || !(pr.prezzo_riferimento > 0)) return null;
   let implicito = pr.valore_implicito;
   if (pr.data === dati.data_esecuzione && dati.base_periodo > 0) implicito = pr.prezzo_riferimento * dati.nav / dati.base_periodo;
-  if (!(implicito > 0) || !att) return null;
+  if (!(implicito > 0)) return null;
   return { premio: (att / implicito - 1) * 100, implicito, att, data: pr.data, rif: pr.prezzo_riferimento };
 }
 
@@ -304,7 +319,8 @@ function mostraPortafoglio() {
   if (pm) {
     $("premio").innerHTML = colorato(pm.premio);
     $("premio-testo").textContent = `${Math.abs(pm.premio) < 0.05 ? "In linea" : pm.premio > 0 ? "Premio" : "Sconto"}: il certificato vale ${fmt(pm.att)}, le sue posizioni lo porterebbero a ${fmt(pm.implicito)}`;
-    $("premio-nota").textContent = `Confronto con le posizioni dal ${dataIt(pm.data)} (prezzo di riferimento di quel giorno: ${fmt(pm.rif)}). ` +
+    $("premio-nota").textContent = `Confronto con le posizioni dal ${dataIt(pm.data)}, da quando l'app le segue (prezzo di riferimento di quel giorno: ${fmt(pm.rif)}). ` +
+      (pm.min != null ? `Da allora lo scarto è oscillato tra ${perc(pm.min)} e ${perc(pm.max)} (${pm.giorni} giorni). ` : "") +
       `Premio = il certificato costa più delle sue posizioni, sconto = costa meno. Scarti entro l'1-2% sono normali: bastano lo spread tra denaro e lettera e i 15 minuti di ritardo dei dati.`;
   } else {
     $("premio").textContent = "—";
