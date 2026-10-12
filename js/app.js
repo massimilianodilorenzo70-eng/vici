@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.9";
+const VERSIONE = "3.9.1";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -202,7 +202,11 @@ function mostraPortafoglio() {
     const att = c.corrente || c.prezzo;
     $("cert-prezzo").textContent = eur(att);
     const pc = (att / emis - 1) * 100;
-    $("cert-perf").innerHTML = `${colorato(pc)} dall'emissione a ${fmt(emis, 0)}`;
+    // variazione del giorno: prezzo corrente rispetto al prezzo di riferimento
+    // (l'ultimo ufficiale, scritto anche nella riga sotto)
+    const giorno = c.riferimento && c.tipo_corrente && c.tipo_corrente !== "prezzo di riferimento"
+      ? ` · oggi ${colorato((att / c.riferimento - 1) * 100)}` : "";
+    $("cert-perf").innerHTML = `${colorato(pc)} dall'emissione a ${fmt(emis, 0)}${giorno}`;
     const range = c.min_oggi && c.max_oggi ? ` · oggi ${fmt(c.min_oggi)}–${fmt(c.max_oggi)}` : "";
     // ora dei dati: Borsa Italiana li dà con 15 minuti di ritardo
     const oraDati = c.ora ? new Date(new Date(c.ora).getTime() - 15 * 60000).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : "";
