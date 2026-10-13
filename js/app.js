@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.14.3";
+const VERSIONE = "3.14.4";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -402,7 +402,7 @@ function notaDate() {
   }
   if (fondi.length) {
     const d = date(fondi);
-    parti.push(`fondi: NAV del ${d.length > 1 ? nomeGiorno(d[0]) + "–" + nomeGiorno(d[d.length - 1]) : nomeGiorno(d[0])}`);
+    parti.push(`fondi non quotati: NAV del ${d.length > 1 ? nomeGiorno(d[0]) + "–" + nomeGiorno(d[d.length - 1]) : nomeGiorno(d[0])} (escono con 1-2 giorni di ritardo)`);
   }
   return parti.join(" · ") + ". «Var. oggi» = rispetto alla chiusura precedente.";
 }
@@ -412,7 +412,9 @@ function notaDate() {
 function etichettaGiorno(r) {
   if (!r.data_prezzo || r.liquidita) return "oggi";
   const oggi = new Date().toISOString().slice(0, 10);
-  return r.data_prezzo >= oggi ? "oggi" : new Date(r.data_prezzo).toLocaleDateString("it-IT", { day: "numeric", month: "short" });
+  const fondo = /^(0P|FT:)/.test(r.simbolo || "");
+  const data = r.data_prezzo >= oggi && !fondo ? "oggi" : new Date(r.data_prezzo).toLocaleDateString("it-IT", { day: "numeric", month: "short" });
+  return fondo ? `NAV ${data}` : data;
 }
 
 function barraAllocazione(id, valori, colore) {
