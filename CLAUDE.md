@@ -14,7 +14,7 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
 - **Rispondi e scrivi SEMPRE in italiano**: messaggi all'utente, aggiornamenti
   mentre lavori, commit, pull request, commenti nel codice.
 - L'utente è il **gestore** del certificato VICI Balanced Growth AMC.
-- **Numero di versione** (oggi **3.9.2**): si scrive sempre con i punti.
+- **Numero di versione** (oggi **3.14.5**): si scrive sempre con i punti.
   - funzioni nuove → sale il secondo numero: 3.0 → 3.1 → 3.2 …
   - correzioni di errori → terzo numero: 3.1 → 3.1.1 → 3.1.2; 3.2 → 3.2.1 …
   - se l'utente dice "non aumentare la versione", non aumentarla.
@@ -56,6 +56,31 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
   3.9 prezzi ETF live all'apertura + riga con le date sotto «Posizioni investite»;
   3.9.1 variazione del giorno del certificato («oggi +x%» = corrente / riferimento);
   3.9.2 chiusura precedente anche per titoli con una sola barra (es. oro PHAU.MI).
+  3.9.3 riga di stato con ora delle letture dirette; 3.9.4 etichetta «in diretta»;
+  3.9.5 punti rossi in legenda; 3.10 storico completo dei prezzi di riferimento del
+  certificato (colonna 1 del servizio grafici di Borsa Italiana, 299 giorni, date BI);
+  3.11 tolti i prezzi degli scambi da tutti i grafici (l'utente li trova fuorvianti, NIENTE
+  benchmark nel grafico del certificato); 3.11.1/2 ora reale dell'ultimo contratto e, se
+  vecchio (>45 min), prezzo = medio denaro/lettera, senza book (mercato chiuso) = prezzo di
+  riferimento ufficiale; 3.12 variazione del giorno del certificato anche in euro;
+  3.13 stress test con due menu per confrontare due portafogli (ogni ribilanciamento coi suoi
+  pesi, `stress.portafogli`); `carica()` mostra subito i dati salvati e applica dopo le
+  letture dirette; 3.13.1 paniere stimato spiegato; 3.14 nel Portafoglio il riquadro
+  Premio/sconto sostituisce il Paniere stimato (che resta in Andamento); 3.14.1 premio/sconto
+  dall'inizio dello storico (2 set); 3.14.3 nota breve; 3.14.4 fondi con etichetta «NAV <data>»;
+  3.14.5 chiusura precedente corretta quando Yahoo salta una seduta.
+- Yahoo salta a volte sedute nella serie giornaliera (14/10/2026 mancava per IUHE.AS, IUSE.L,
+  PHAU.MI...): `yahoo_grafico` le integra con l'ultima barra oraria (`chiusura_da_barre_orarie_tutte`),
+  il Worker (`leggiPrezzoYahoo`) fa lo stesso e restituisce `prec_data`; l'app usa la chiusura
+  precedente dei dati salvati se già di oggi. Verifica periodica utile: confrontare `var_giorno`
+  con Yahoo per tutte le posizioni (fatta il 15/10: coerente).
+- Borsa Italiana: la data accanto al prezzo di riferimento («Data Pr Rif e Uff») resta indietro
+  rispetto al valore dopo la chiusura: non mostrarla. «Performance 1 giorno» di BI ha una base
+  non chiara: non usarla. Euronext mostra il valore indicativo in tempo reale, BI è ritardata
+  di 15 minuti: differenze di pochi decimi sono normali.
+- Regole di stile e comunicazione: testi brevi e compatti; prima di cambiare lo stile mostrare
+  immagini di prova; niente bottoni/pillole nel menu; l'utente non vuole la cronologia delle
+  novità nell'app (solo README).
 - PWA: l'`id` del manifest si risolve sull'ORIGINE (github.io), non sulla cartella:
   VICI e cacciaTI con `./index.html` erano la stessa app per Chrome (apriva
   cacciaTI). VICI ora ha `"id": "/vici/"`; cacciaTI non va toccata. Dopo il cambio
