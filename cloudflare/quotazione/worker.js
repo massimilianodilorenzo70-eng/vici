@@ -70,17 +70,29 @@ export function leggiDatiMercato(html) {
   };
 }
 
-// Prezzo attuale e chiusura precedente di un titolo dal grafico giornaliero di Yahoo Finance
-export function leggiPrezzoYahoo(j) {
+// Prezzo attuale e chiusura precedente di un titolo da Yahoo Finance. La serie giornaliera
+// a volte salta una seduta in cui il titolo ha scambiato (ETF poco liquidi): con le barre
+// orarie si trova l'ultima seduta precedente e si usa la sua ultima barra.
+export function leggiPrezzoYahoo(j, orario) {
   const r = j && j.chart && j.chart.result && j.chart.result[0];
   if (!r || !r.meta || !r.timestamp) return null;
   const prezzo = r.meta.regularMarketPrice, tempo = r.meta.regularMarketTime;
   if (!(prezzo > 0) || !tempo) return null;
   const giorno = (t) => new Date(t * 1000).toISOString().slice(0, 10);
+  const oggi = giorno(tempo);
   const chiusure = r.indicators.quote[0].close;
-  let prec = null;
-  r.timestamp.forEach((t, i) => { if (chiusure[i] != null && giorno(t) < giorno(tempo)) prec = chiusure[i]; });
-  return { prezzo, prec, ora: new Date(tempo * 1000).toISOString(), valuta: r.meta.currency || null };
+  const perGiorno = {}; // giorno -> chiusura giornaliera
+  r.timestamp.forEach((t, i) => { if (chiusure[i] != null && giorno(t) < oggi) perGiorno[giorno(t)] = chiusure[i]; });
+  const orarie = {}; // giorno -> ultima barra oraria
+  const ro = orario && orario.chart && orario.chart.result && orario.chart.result[0];
+  if (ro && ro.timestamp) {
+    const c = ro.indicators.quote[0].close;
+    ro.timestamp.forEach((t, i) => { if (c[i] != null && giorno(t) < oggi) orarie[giorno(t)] = c[i]; });
+  }
+  const giorni = [...new Set(Object.keys(perGiorno).concat(Object.keys(orarie)))].sort();
+  const prevGiorno = giorni.length ? giorni[giorni.length - 1] : null;
+  const prec = prevGiorno ? (perGiorno[prevGiorno] ?? orarie[prevGiorno]) : null;
+  return { prezzo, prec, prec_data: prevGiorno, ora: new Date(tempo * 1000).toISOString(), valuta: r.meta.currency || null };
 }
 
 const SIMBOLO = /^[A-Za-z0-9.=^-]{1,20}$/;
@@ -90,12 +102,14 @@ async function prezzi(url, cors) {
   const out = {};
   await Promise.all(simboli.map(async (sim) => {
     try {
-      const r = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sim)}?range=5d&interval=1d&includePrePost=false`, {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; vici-quotazione)" },
-        cf: { cacheTtl: 60, cacheEverything: true },
-      });
+      const opzioni = { headers: { "User-Agent": "Mozilla/5.0 (compatible; vici-quotazione)" }, cf: { cacheTtl: 60, cacheEverything: true } };
+      const base = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sim)}`;
+      const [r, ro] = await Promise.all([
+        fetch(`${base}?range=5d&interval=1d&includePrePost=false`, opzioni),
+        fetch(`${base}?range=5d&interval=1h&includePrePost=false`, opzioni).catch(() => null),
+      ]);
       if (!r.ok) return;
-      const v = leggiPrezzoYahoo(await r.json());
+      const v = leggiPrezzoYahoo(await r.json(), ro && ro.ok ? await ro.json().catch(() => null) : null);
       if (v) out[sim] = v;
     } catch { /* il simbolo manca dalla risposta */ }
   }));

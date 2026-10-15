@@ -83,6 +83,23 @@ def numero(s):
 
 # ---------------------------------------------------------------- Yahoo
 
+def chiusura_da_barre_orarie_tutte(simbolo, presenti, fino_a):
+    """[(giorno, ultimo prezzo)] dalle barre orarie di Yahoo per i giorni (prima di fino_a)
+    che mancano da `presenti`, negli ultimi 30 giorni."""
+    try:
+        j = json.loads(scarica(f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(simbolo)}"
+                               "?range=1mo&interval=1h&includePrePost=false"))
+        r = j["chart"]["result"][0]
+        q = r["indicators"]["quote"][0]["close"]
+        ultimo = {}
+        for t, c in zip(r["timestamp"], q):
+            if c is not None:
+                ultimo[datetime.fromtimestamp(t, timezone.utc).date().isoformat()] = float(c)
+        return [(d, c) for d, c in sorted(ultimo.items()) if d not in presenti and d < fino_a]
+    except Exception:
+        return []
+
+
 def yahoo_grafico(simbolo, dal):
     p1 = int(datetime.combine(dal, datetime.min.time(), timezone.utc).timestamp()) - 10 * 86400
     p2 = int(time.time()) + 86400
@@ -115,6 +132,14 @@ def yahoo_grafico(simbolo, dal):
             chiusure.append((datetime.fromtimestamp(t, timezone.utc).date().isoformat(), float(c)))
     prezzo = meta.get("regularMarketPrice")
     ora = meta.get("regularMarketTime")
+    # Yahoo a volte salta nella serie giornaliera una seduta in cui il titolo ha scambiato
+    # (visto con ETF poco liquidi): la chiusura precedente sarebbe quella di due sedute fa.
+    # Le giornate mancanti si recuperano dall'ultima barra oraria del giorno.
+    if chiusure and ora:
+        oggi_g = datetime.fromtimestamp(ora, timezone.utc).date().isoformat()
+        mancanti = chiusura_da_barre_orarie_tutte(simbolo, {d for d, _ in chiusure}, oggi_g)
+        if mancanti:
+            chiusure = sorted(chiusure + mancanti)
     return {
         "simbolo": simbolo,
         "valuta": meta.get("currency"),

@@ -101,6 +101,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.14.5** — variazione del giorno: chiusura precedente corretta quando Yahoo salta una seduta (ETF poco liquidi).
 - **3.14.4** — fondi non quotati: etichetta «NAV» con la data e spiegazione del ritardo.
 - **3.14.3** — premio/sconto: nota più breve.
 - **3.14.2** — certificato a mercato chiuso: prezzo di riferimento ufficiale al posto di un ultimo contratto vecchio.
