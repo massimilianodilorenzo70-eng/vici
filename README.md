@@ -17,7 +17,7 @@ L'app ha un menu (☰) e quattro sezioni.
 - Allocazione per classe e per area; "Il mio investimento" (salvato sul dispositivo).
 
 **Andamento**
-- Paniere contro un benchmark bilanciato 50/50 (MSCI World + Euro Aggregate Bond).
+- Paniere contro un benchmark 50/40/10 (MSCI World, Euro Aggregate Bond, oro, liquidità).
 - Certificato dall'emissione: prezzi degli scambi da Borsa Italiana, prezzo di
   riferimento registrato ogni giorno, date dei ribilanciamenti.
 - Indice VICIGROW: rendimenti mensili da Leonteq (inseriti a mano in
@@ -101,6 +101,7 @@ Per un rilascio aumenta la versione in `js/app.js`, `versione.json` e `sw.js`:
 funzioni nuove → sale il secondo numero (3.0 → 3.1 → 3.2), correzioni di errori →
 terzo numero (3.1 → 3.1.1 → 3.1.2).
 
+- **3.16** — benchmark 50/40/10: 50% azioni, 40% obbligazioni, 7,5% oro, 2,5% liquidità.
 - **3.15** — benchmark 50/50 (il paniere ha circa metà in azioni) al posto del 60/40.
 - **3.14.5** — variazione del giorno: chiusura precedente corretta quando Yahoo salta una seduta (ETF poco liquidi).
 - **3.14.4** — fondi non quotati: etichetta «NAV» con la data e spiegazione del ritardo.

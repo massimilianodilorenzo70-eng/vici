@@ -17,7 +17,7 @@
  "certificato_al_ribilanciamento": null,
  "soglia_scostamento": 2.0,
  "benchmark": {
-  "nome": "Bilanciato globale 50/50",
+  "nome": "Bilanciato 50/40/10",
   "componenti": [
    {
     "nome": "MSCI World (iShares Core)",
@@ -29,7 +29,18 @@
     "nome": "Euro Aggregate Bond (iShares Core)",
     "isin": "IE00B3DKXQ41",
     "yahoo": "IEAG.AS",
-    "peso": 50
+    "peso": 40
+   },
+   {
+    "nome": "Oro fisico (WisdomTree Physical Gold)",
+    "isin": "JE00B1VS3770",
+    "yahoo": "PHAU.MI",
+    "peso": 7.5
+   },
+   {
+    "nome": "Liquidità",
+    "liquidita": true,
+    "peso": 2.5
    }
   ]
  },
