@@ -17,19 +17,19 @@
  "certificato_al_ribilanciamento": null,
  "soglia_scostamento": 2.0,
  "benchmark": {
-  "nome": "Bilanciato globale 60/40",
+  "nome": "Bilanciato globale 50/50",
   "componenti": [
    {
     "nome": "MSCI World (iShares Core)",
     "isin": "IE00B4L5Y983",
     "yahoo": "IWDA.AS",
-    "peso": 60
+    "peso": 50
    },
    {
     "nome": "Euro Aggregate Bond (iShares Core)",
     "isin": "IE00B3DKXQ41",
     "yahoo": "IEAG.AS",
-    "peso": 40
+    "peso": 50
    }
   ]
  },

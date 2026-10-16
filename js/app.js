@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.14.5";
+const VERSIONE = "3.15";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -474,6 +474,12 @@ function mostraAndamento() {
   $("a-paniere-dett").innerHTML = `dal ${dataIt(d.data_inizio || d.data_esecuzione)} · oggi ${colorato(d.perf_giorno)}`;
   if (b) {
     $("a-bench-nome").textContent = b.nome;
+    const sigla = (b.nome.match(/\d+\/\d+/) || ["50/50"])[0];
+    const comp = (b.componenti || []).map((k) => `${k.peso}% ${k.nome.replace(/ \(.*\)/, "")}`).join(" e ");
+    $("leg-bench-a").textContent = `Benchmark ${sigla}`;
+    $("spiega-bench-titolo").textContent = `Cos'è il benchmark ${sigla}?`;
+    $("spiega-bench-testo").textContent = `È un termine di paragone semplice, scelto perché il paniere ha circa metà del valore in azioni: ${comp} ` +
+      "(ETF iShares, azioni mondiali e obbligazioni europee), senza ribilanciamenti né costi di gestione. Parte da 1000 come il paniere.";
     $("a-bench").innerHTML = colorato(b.perf);
     const diff = d.perf_totale - b.perf;
     $("a-bench-dett").innerHTML = `Paniere ${diff >= 0 ? "meglio" : "peggio"} di ${fmt(Math.abs(diff))} punti · oggi ${colorato(b.perf_giorno)}`;
