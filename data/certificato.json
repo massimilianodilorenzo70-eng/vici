@@ -1,5 +1,5 @@
 {
- "corrente": 1009.01,
+ "corrente": 1008.9549999999999,
  "tipo_corrente": "medio denaro/lettera",
  "prezzo": 1009.71,
  "tipo": "prezzo di riferimento",
@@ -8,12 +8,12 @@
  "riferimento": 1009.71,
  "data_riferimento": "2026-10-15",
  "ufficiale": 1023.99,
- "denaro": 1001.44,
- "lettera": 1016.58,
+ "denaro": 1001.39,
+ "lettera": 1016.52,
  "volume_denaro": 20,
  "volume_lettera": 20,
- "medio": 1009.01,
- "spread": 1.5118229749161216,
+ "medio": 1008.9549999999999,
+ "spread": 1.5108998492096015,
  "min_oggi": 1008.95,
  "max_oggi": 1009.8,
  "max_anno": 1034.93,
@@ -28,6 +28,6 @@
  },
  "fonte": "Borsa Italiana",
  "url": "https://www.borsaitaliana.it/borsa/cw-e-certificates/dati-mercato.html?isin=CH1453363652&mic=SEDX&lang=it",
- "ora": "2026-10-16T11:35:25+00:00",
+ "ora": "2026-10-16T12:03:16+00:00",
  "data": "2026-10-15"
 }
