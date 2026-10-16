@@ -3,12 +3,14 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.16";
+const VERSIONE = "3.17";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
 const K = { mio: "vici-mio", patrimonio: "vici-patrimonio",
   scheda: "vici-scheda", ordina: "vici-ordina", stress: "vici-stress", versioneVista: "vici-versione-vista", sim: "vici-sim" };
+// Il confronto con un benchmark è nascosto (da rivedere): con true torna ovunque nell'app
+const MOSTRA_BENCHMARK = false;
 const RICARICA_MS = 5 * 60 * 1000;
 
 const $ = (id) => document.getElementById(id);
@@ -206,6 +208,11 @@ async function carica(forza) {
     // quotazione salvata dal controllo ogni 30 minuti: prevale se è più recente di quella in prezzi.json
     if (q && q.ora && (!p.certificato || !p.certificato.ora || q.ora > p.certificato.ora)) p.certificato = q;
     scegliPrezzoCertificato(p.certificato);
+    if (!MOSTRA_BENCHMARK) {  // benchmark nascosto: niente dati di confronto
+      p.benchmark = null;
+      if (p.mensili) p.mensili = { ...p.mensili, benchmark: [] };
+      if (s) s.benchmark = [];
+    }
     const salvati = { ...p, certificato: p.certificato && { ...p.certificato } };
     dati = salvati;
     storico = s || { nav: [], benchmark: [], certificato: [] };
@@ -472,6 +479,12 @@ function mostraAndamento() {
   $("a-paniere").innerHTML = colorato(d.perf_totale);
   $("a-nav-live").hidden = !((d.prezzi_live || 0) > 0);
   $("a-paniere-dett").innerHTML = `dal ${dataIt(d.data_inizio || d.data_esecuzione)} · oggi ${colorato(d.perf_giorno)}`;
+  // senza benchmark: nascondi scheda, voce di legenda e spiegazione
+  const schedaBench = $("a-bench-nome").closest(".riquadro");
+  schedaBench.hidden = !b;
+  schedaBench.previousElementSibling && (schedaBench.previousElementSibling.style.gridColumn = b ? "" : "1 / -1");
+  $("leg-bench-voce").hidden = !b;
+  $("spiega-bench").hidden = !b;
   if (b) {
     $("a-bench-nome").textContent = b.nome;
     const sigla = (b.nome.match(/\d+(\/\d+)+/) || ["50/50"])[0];
@@ -1182,7 +1195,7 @@ function mostraReport() {
       <div><span>Certificato</span><b>${c ? eur(c.corrente || c.prezzo) : "—"}</b><span>${c ? perc(((c.corrente || c.prezzo) / emis - 1) * 100) + " dall'emissione" : ""}</span></div>
       <div><span>Paniere dal ${dataIt(d.data_esecuzione)}</span><b class="${segno(d.perf_periodo ?? d.perf_totale)}">${perc(d.perf_periodo ?? d.perf_totale)}</b><span>valore ${fmt(d.nav)}</span></div>
       <div><span>Mese in corso</span><b class="${segno(ultimo && ultimo.paniere)}">${ultimo ? perc(ultimo.paniere) : "—"}</b><span>${ultimo && ultimo.bench != null ? "benchmark " + perc(ultimo.bench) : ""}</span></div>
-      <div><span>${b ? esc(b.nome) : "Benchmark"}</span><b class="${segno(b && b.perf)}">${b ? perc(b.perf) : "—"}</b><span>dal ${dataIt(d.data_inizio)}</span></div>
+      ${b ? `<div><span>${esc(b.nome)}</span><b class="${segno(b.perf)}">${perc(b.perf)}</b><span>dal ${dataIt(d.data_inizio)}</span></div>` : ""}
     </div>
     <h2>Posizioni</h2>
     <table>
