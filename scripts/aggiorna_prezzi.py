@@ -644,6 +644,9 @@ def calcola_benchmark(port, cache, dal_storia, inizio, base):
     somma = sum(c["peso"] for c in b["componenti"])
     for c in b["componenti"]:
         log(f"Benchmark: {c['nome']}")
+        if c.get("liquidita"):  # liquidità: valore costante, senza rendimento
+            comp.append((c["peso"] / somma, 1.0, {"chiusure": [], "prezzo": 1.0, "simbolo": "liquidità"}))
+            continue
         g = trova_prezzi(c, cache, dal_storia)
         if not g:
             log("  benchmark incompleto, salto")
