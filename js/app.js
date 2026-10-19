@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.18";
+const VERSIONE = "3.18.1";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -424,16 +424,14 @@ function giornoPrecedente(g) {
   return d.toISOString().slice(0, 10);
 }
 
-// Quotazione ferma: un ETF con data più vecchia dell'ultima seduta delle altre
-// posizioni; un fondo non quotato con NAV più vecchio del giorno lavorativo
-// precedente a quella seduta (di solito esce con 1-2 giorni di ritardo)
+// Quotazione ferma: la data del prezzo è precedente all'ultimo giorno
+// lavorativo (oggi, o il venerdì nel weekend). Vale anche per i fondi non
+// quotati, il cui NAV esce con 1-2 giorni di ritardo
 function quotazioneFerma(r) {
   if (!r.data_prezzo || r.liquidita) return false;
-  const fondo = /^(0P|FT:)/.test(r.simbolo || "");
-  const etf = dati.posizioni.filter((x) => !x.liquidita && x.data_prezzo && !/^(0P|FT:)/.test(x.simbolo || ""));
-  const ultima = etf.reduce((m, x) => x.data_prezzo > m ? x.data_prezzo : m, "");
-  if (!ultima) return false;
-  return r.data_prezzo < (fondo ? giornoPrecedente(ultima) : ultima);
+  let atteso = new Date().toISOString().slice(0, 10);
+  if ([0, 6].includes(new Date(atteso + "T12:00:00Z").getUTCDay())) atteso = giornoPrecedente(atteso);
+  return r.data_prezzo < atteso;
 }
 
 // "oggi" se il prezzo è di oggi; per i fondi (NAV con qualche giorno di
