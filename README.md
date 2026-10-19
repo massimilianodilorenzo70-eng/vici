@@ -103,6 +103,7 @@ terzo numero (3.1 → 3.1.1 → 3.1.2).
 
 - **3.17** — nascosto il confronto con il benchmark in tutta l'app (da rivedere).
 - **3.18** — le quotazioni non aggiornate al giorno (data precedente all'ultimo giorno lavorativo, NAV dei fondi compresi) sono segnate in ambra con ⚠.
+- **3.18.2** — con «Var. oggi» anche il contributo delle posizioni è quello di oggi (prima restava quello dal carico, in contrasto con la variazione mostrata).
 - **3.16** — benchmark 50/40/10: 50% azioni, 40% obbligazioni, 7,5% oro, 2,5% liquidità.
 - **3.15** — benchmark 50/50 (il paniere ha circa metà in azioni) al posto del 60/40.
 - **3.14.5** — variazione del giorno: chiusura precedente corretta quando Yahoo salta una seduta (ETF poco liquidi).

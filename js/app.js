@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.18.1";
+const VERSIONE = "3.18.2";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -370,6 +370,9 @@ function mostraPosizioni() {
   const oggiModo = chiave === "var_giorno";
   $("pos-nota").textContent = notaDate();
   document.querySelector("#posizioni").closest("table").querySelector("thead th:nth-child(5)").textContent = oggiModo ? "Var. oggi" : "Var. dal carico";
+  // il contributo segue la colonna scelta: di oggi (somma = variazione del giorno) o dal carico
+  const contr = (r) => oggiModo ? r.quote * (r.prezzo - (r.prezzo_prec ?? r.prezzo)) / dati.nav_prec * 100 : r.contributo;
+  document.querySelector("#posizioni").closest("table").querySelector("thead th:nth-child(6)").textContent = oggiModo ? "Contrib. oggi" : "Contrib.";
   $("posizioni").innerHTML = righe.map((r) => `<tr data-k="${esc(r.chiave || r.nome)}">
       <td>
         <div class="pos-nome">${esc(r.nome)}${r.mancante ? ' <span class="etichetta">senza prezzo</span>' : ""}</div>
@@ -379,10 +382,10 @@ function mostraPosizioni() {
       <td data-l="Carico">${fmt(r.prezzo_carico, decPrezzo(r.prezzo_carico))}</td>
       <td data-l="Attuale">${fmt(r.prezzo, decPrezzo(r.prezzo))}</td>
       <td data-l="${oggiModo ? "Var. oggi" : "Var. %"}" class="var forte ${segno(oggiModo ? r.var_giorno : r.var_carico)}">${perc(oggiModo ? r.var_giorno : r.var_carico)}</td>
-      <td data-l="Contributo" class="forte ${segno(r.contributo)}">${perc(r.contributo)}</td>
+      <td data-l="${oggiModo ? "Contrib. oggi" : "Contributo"}" class="forte ${segno(contr(r))}">${perc(contr(r))}</td>
     </tr>`).join("");
   const pesoTot = righe.reduce((a, r) => a + r.peso_iniziale, 0);
-  const contrTot = righe.reduce((a, r) => a + r.contributo, 0);
+  const contrTot = righe.reduce((a, r) => a + contr(r), 0);
   const perf = oggiModo ? dati.perf_giorno : (dati.perf_periodo ?? dati.perf_totale);
   $("totale").innerHTML = `<tr>
       <td>Totale portafoglio<div class="pos-codice">${oggiModo ? "dal ribilanciamento " + colorato(dati.perf_periodo ?? dati.perf_totale) : "oggi " + colorato(dati.perf_giorno)}</div></td>
