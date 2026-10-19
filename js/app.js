@@ -3,7 +3,7 @@
  * investimento, patrimonio del simulatore) restano nel
  * localStorage del dispositivo. */
 
-const VERSIONE = "3.17";
+const VERSIONE = "3.18";
 
 const COLORI_CLASSI = { "Azioni": "#2C8FE0", "Obbligazioni": "#5BB65A", "Oro": "#E0B81C", "Liquidità": "#9AA3C7" };
 const COLORI_AREE = ["#0A2283", "#2C8FE0", "#7FCBF2", "#5BB65A", "#E0B81C", "#9AA3C7"];
@@ -413,17 +413,38 @@ function notaDate() {
     const d = date(fondi);
     parti.push(`fondi non quotati: NAV del ${d.length > 1 ? nomeGiorno(d[0]) + "–" + nomeGiorno(d[d.length - 1]) : nomeGiorno(d[0])} (escono con 1-2 giorni di ritardo)`);
   }
-  return parti.join(" · ") + ". «Var. oggi» = rispetto alla chiusura precedente.";
+  const ferme = dati.posizioni.some(quotazioneFerma);
+  return parti.join(" · ") + ". «Var. oggi» = rispetto alla chiusura precedente." + (ferme ? " ⚠ = quotazione non aggiornata." : "");
+}
+
+// Giorno lavorativo precedente a una data (AAAA-MM-GG)
+function giornoPrecedente(g) {
+  const d = new Date(g + "T12:00:00Z");
+  do d.setUTCDate(d.getUTCDate() - 1); while ([0, 6].includes(d.getUTCDay()));
+  return d.toISOString().slice(0, 10);
+}
+
+// Quotazione ferma: un ETF con data più vecchia dell'ultima seduta delle altre
+// posizioni; un fondo non quotato con NAV più vecchio del giorno lavorativo
+// precedente a quella seduta (di solito esce con 1-2 giorni di ritardo)
+function quotazioneFerma(r) {
+  if (!r.data_prezzo || r.liquidita) return false;
+  const fondo = /^(0P|FT:)/.test(r.simbolo || "");
+  const etf = dati.posizioni.filter((x) => !x.liquidita && x.data_prezzo && !/^(0P|FT:)/.test(x.simbolo || ""));
+  const ultima = etf.reduce((m, x) => x.data_prezzo > m ? x.data_prezzo : m, "");
+  if (!ultima) return false;
+  return r.data_prezzo < (fondo ? giornoPrecedente(ultima) : ultima);
 }
 
 // "oggi" se il prezzo è di oggi; per i fondi (NAV con qualche giorno di
-// ritardo) la data dell'ultimo prezzo
+// ritardo) la data dell'ultimo prezzo; in ambra se la quotazione è ferma
 function etichettaGiorno(r) {
   if (!r.data_prezzo || r.liquidita) return "oggi";
   const oggi = new Date().toISOString().slice(0, 10);
   const fondo = /^(0P|FT:)/.test(r.simbolo || "");
   const data = r.data_prezzo >= oggi && !fondo ? "oggi" : new Date(r.data_prezzo).toLocaleDateString("it-IT", { day: "numeric", month: "short" });
-  return fondo ? `NAV ${data}` : data;
+  const testo = fondo ? `NAV ${data}` : data;
+  return quotazioneFerma(r) ? `<span class="ferma" title="Quotazione non aggiornata">⚠ ${testo}</span>` : testo;
 }
 
 function barraAllocazione(id, valori, colore) {
