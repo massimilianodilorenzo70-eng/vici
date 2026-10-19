@@ -14,6 +14,7 @@
   --testo-2: #5A6185;
   --bordo: #DDE2F0;
   --su: #0F8A4B;
+  --ambra: #A85F00;
   --giu: #C42032;
   --linea-nav: #0A2283;
   --linea-cert: #E0102B;
@@ -28,6 +29,7 @@
     --testo-2: #A7B0DA;
     --bordo: #22306F;
     --su: #4ED08A;
+    --ambra: #FFB454;
     --giu: #FF6B7A;
     --linea-nav: #7FCBF2;
     --linea-cert: #FF6B7A;
@@ -42,6 +44,7 @@
   --testo-2: #A7B0DA;
   --bordo: #22306F;
   --su: #4ED08A;
+  --ambra: #FFB454;
   --giu: #FF6B7A;
   --linea-nav: #7FCBF2;
   --linea-cert: #FF6B7A;
@@ -682,3 +685,6 @@ nav.menu-voci > button.attiva { border-left-color: var(--oro, #A98A52); backgrou
 .stress-scelta label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--testo-2); }
 .stress-scelta select { font: inherit; font-size: 13px; color: var(--testo); background: var(--carta); border: 1px solid var(--bordo); border-radius: 2px; padding: 6px 8px; max-width: 100%; }
 .legenda .leg-testo { display: inline; width: auto; height: auto; border-radius: 0; }
+
+/* quotazione non aggiornata al giorno */
+.ferma { color: var(--ambra); font-weight: 600; }
