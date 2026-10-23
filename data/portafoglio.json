@@ -188,7 +188,7 @@
   },
   {
    "data": "2026-10-07",
-   "nota": "Da 2026-10-07_Composizione_10.26.xlsx; prezzi di carico = chiusure del 2026-10-07",
+   "nota": "Da 2026-10-07_Composizione_10.26.xlsx; prezzi di carico: eseguiti reali per Nasdaq 100, S&P 500 Hdg, EURO STOXX 50, Amundi EM e S&P 500 Health Care, chiusure del 2026-10-07 per le altre posizioni",
    "file": "2026-10-07_Composizione_10.26.xlsx",
    "posizioni": [
     {
@@ -198,7 +198,7 @@
      "classe": "Azioni",
      "area": "USA",
      "peso": 15.0,
-     "prezzo_carico": 159.710007
+     "prezzo_carico": 158.37
     },
     {
      "nome": "iShares EUR Floating Rate Bond Advanced",
@@ -234,7 +234,7 @@
      "classe": "Azioni",
      "area": "Europa",
      "peso": 8.0,
-     "prezzo_carico": 241.25
+     "prezzo_carico": 243.45
     },
     {
      "nome": "Muzinich Enhancedyield Short-Term H EUR R Acc",
@@ -278,7 +278,7 @@
      "classe": "Azioni",
      "area": "USA",
      "peso": 7.0,
-     "prezzo_carico": 1595.72998
+     "prezzo_carico": 1572.55
     },
     {
      "nome": "Amundi Euro Government Bond 3-5Y",
@@ -296,7 +296,7 @@
      "classe": "Azioni",
      "area": "Emergenti",
      "peso": 5.0,
-     "prezzo_carico": 105.489998
+     "prezzo_carico": 105.02
     },
     {
      "nome": "iShares S&P 500 Health Care EUR Hdg",
@@ -305,7 +305,7 @@
      "classe": "Azioni",
      "area": "USA",
      "peso": 5.0,
-     "prezzo_carico": 7.685
+     "prezzo_carico": 7.502
     },
     {
      "nome": "Liquidità EUR",
