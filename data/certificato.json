@@ -15,7 +15,7 @@
  "medio": 998.64,
  "spread": 1.5113756747212825,
  "min_oggi": 996.77,
- "max_oggi": 998.87,
+ "max_oggi": 999.42,
  "max_anno": 1034.93,
  "min_anno": 1013.76,
  "performance": {
@@ -28,6 +28,6 @@
  },
  "fonte": "Borsa Italiana",
  "url": "https://www.borsaitaliana.it/borsa/cw-e-certificates/dati-mercato.html?isin=CH1453363652&mic=SEDX&lang=it",
- "ora": "2026-11-02T16:06:06+00:00",
+ "ora": "2026-11-02T16:28:46+00:00",
  "data": "2026-10-30"
 }
