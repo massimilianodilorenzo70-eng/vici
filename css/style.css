@@ -688,3 +688,7 @@ nav.menu-voci > button.attiva { border-left-color: var(--oro, #A98A52); backgrou
 
 /* quotazione non aggiornata al giorno */
 .ferma { color: var(--ambra); font-weight: 600; }
+
+/* barra di scorrimento nascosta come in cacciaTI (si scorre comunque) */
+html { scrollbar-width: none; }
+::-webkit-scrollbar { width: 0; height: 0; }
