@@ -188,7 +188,7 @@
   },
   {
    "data": "2026-10-07",
-   "nota": "Da 2026-10-07_Composizione_10.26.xlsx; prezzi di carico: eseguiti reali per Nasdaq 100, S&P 500 Hdg, EURO STOXX 50, Amundi EM e S&P 500 Health Care, chiusure del 2026-10-07 per le altre posizioni",
+   "nota": "Da 2026-10-07_Composizione_10.26.xlsx corretto con Composizione_10.26_bis.xlsx (aggiornamento del 23/10/2026: Emerging Markets 3%, Health Care 8%, T. Rowe 10%, MSCI China uscito); prezzi di carico: eseguiti reali per Nasdaq 100, S&P 500 Hdg, EURO STOXX 50, Amundi EM e S&P 500 Health Care, chiusure del 2026-10-07 per le altre posizioni",
    "file": "2026-10-07_Composizione_10.26.xlsx",
    "posizioni": [
     {
@@ -224,7 +224,7 @@
      "bloomberg": "TRPGVAE LX",
      "classe": "Azioni",
      "area": "Globale",
-     "peso": 9.0,
+     "peso": 10.0,
      "prezzo_carico": 28.75
     },
     {
@@ -295,7 +295,7 @@
      "bloomberg": "AEME IM",
      "classe": "Azioni",
      "area": "Emergenti",
-     "peso": 5.0,
+     "peso": 3.0,
      "prezzo_carico": 105.02
     },
     {
@@ -304,7 +304,7 @@
      "bloomberg": "IUHE NA",
      "classe": "Azioni",
      "area": "USA",
-     "peso": 5.0,
+     "peso": 8.0,
      "prezzo_carico": 7.502
     },
     {
@@ -316,15 +316,6 @@
      "peso": 3.0,
      "prezzo_carico": 1,
      "liquidita": true
-    },
-    {
-     "nome": "iShares MSCI China EUR Hdg Acc",
-     "isin": "IE00099GAJC6",
-     "bloomberg": "CNYE IM",
-     "classe": "Azioni",
-     "area": "Emergenti",
-     "peso": 2.0,
-     "prezzo_carico": 4.9315
     }
    ],
    "prezzi_carico_da": "chiusure del 2026-10-07 (automatico)"
