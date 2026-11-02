@@ -188,7 +188,7 @@
   },
   {
    "data": "2026-10-07",
-   "nota": "Da 2026-10-07_Composizione_10.26.xlsx corretto con Composizione_10.26_bis.xlsx (aggiornamento del 23/10/2026: Emerging Markets 3%, Health Care 8%, T. Rowe 10%, MSCI China uscito); prezzi di carico: eseguiti reali per Nasdaq 100, S&P 500 Hdg, EURO STOXX 50, Amundi EM e S&P 500 Health Care, chiusure del 2026-10-07 per le altre posizioni",
+   "nota": "Da 2026-10-07_Composizione_10.26.xlsx; prezzi di carico: eseguiti reali per Nasdaq 100, S&P 500 Hdg, EURO STOXX 50, Amundi EM e S&P 500 Health Care, chiusure del 2026-10-07 per le altre posizioni",
    "file": "2026-10-07_Composizione_10.26.xlsx",
    "posizioni": [
     {
@@ -224,7 +224,7 @@
      "bloomberg": "TRPGVAE LX",
      "classe": "Azioni",
      "area": "Globale",
-     "peso": 10.0,
+     "peso": 9.0,
      "prezzo_carico": 28.75
     },
     {
@@ -295,7 +295,7 @@
      "bloomberg": "AEME IM",
      "classe": "Azioni",
      "area": "Emergenti",
-     "peso": 3.0,
+     "peso": 5.0,
      "prezzo_carico": 105.02
     },
     {
@@ -304,8 +304,150 @@
      "bloomberg": "IUHE NA",
      "classe": "Azioni",
      "area": "USA",
-     "peso": 8.0,
+     "peso": 5.0,
      "prezzo_carico": 7.502
+    },
+    {
+     "nome": "Liquidità EUR",
+     "isin": "",
+     "bloomberg": "CASH_EUR",
+     "classe": "Liquidità",
+     "area": "Europa",
+     "peso": 3.0,
+     "prezzo_carico": 1,
+     "liquidita": true
+    },
+    {
+     "nome": "iShares MSCI China EUR Hdg Acc",
+     "isin": "IE00099GAJC6",
+     "bloomberg": "CNYE IM",
+     "classe": "Azioni",
+     "area": "Emergenti",
+     "peso": 2.0,
+     "prezzo_carico": 4.9315
+    }
+   ],
+   "prezzi_carico_da": "chiusure del 2026-10-07 (automatico)"
+  },
+  {
+   "data": "2026-10-28",
+   "nota": "Da Composizione_10.26_bis.xlsx (aggiornamento del 23/10/2026): Emerging Markets 3%, Health Care 8%, T. Rowe 10%, MSCI China uscito; prezzi di carico = eseguiti reali del 28/10",
+   "posizioni": [
+    {
+     "nome": "iShares S&P 500 EUR Hedged",
+     "isin": "IE00B3ZW0K18",
+     "bloomberg": "IUSE LN",
+     "classe": "Azioni",
+     "area": "USA",
+     "peso": 15,
+     "prezzo_carico": 158.68
+    },
+    {
+     "nome": "iShares EUR Floating Rate Bond Advanced",
+     "isin": "IE000NVM56L3",
+     "bloomberg": "EFRB GY",
+     "classe": "Obbligazioni",
+     "area": "Europa",
+     "peso": 9,
+     "prezzo_carico": 5.2194
+    },
+    {
+     "nome": "PIMCO GIS Capital Securities EUR Hdg Acc",
+     "isin": "IE00BFRSV973",
+     "bloomberg": "PIMEEHA ID",
+     "classe": "Obbligazioni",
+     "area": "Globale",
+     "peso": 9,
+     "prezzo_carico": 14.12
+    },
+    {
+     "nome": "T. Rowe Price Global Value Equity A EUR",
+     "isin": "LU1493953001",
+     "bloomberg": "TRPGVAE LX",
+     "classe": "Azioni",
+     "area": "Globale",
+     "peso": 10,
+     "prezzo_carico": 28.56
+    },
+    {
+     "nome": "iShares Core EURO STOXX 50",
+     "isin": "IE00B53L3W79",
+     "bloomberg": "CSSX5E IM",
+     "classe": "Azioni",
+     "area": "Europa",
+     "peso": 8,
+     "prezzo_carico": 240.85
+    },
+    {
+     "nome": "Muzinich Enhancedyield Short-Term H EUR R Acc",
+     "isin": "IE00B65YMK29",
+     "bloomberg": "MUZHEAR ID",
+     "classe": "Obbligazioni",
+     "area": "Globale",
+     "peso": 8,
+     "prezzo_carico": 157.3
+    },
+    {
+     "nome": "WisdomTree Physical Gold",
+     "isin": "JE00B1VS3770",
+     "bloomberg": "PHAU IM",
+     "classe": "Oro",
+     "area": "Globale",
+     "storico_proxy": {
+      "yahoo": "4GLD.DE",
+      "nome": "Xetra-Gold"
+     },
+     "peso": 7.5,
+     "prezzo_carico": 335.83
+    },
+    {
+     "nome": "Schroder ISF EURO Corporate Bond A Acc",
+     "isin": "LU0113257694",
+     "bloomberg": "SCHEHIA LX",
+     "classe": "Obbligazioni",
+     "area": "Europa",
+     "storico_proxy": {
+      "yahoo": "IEAC.AS",
+      "nome": "iShares Core EUR Corp Bond"
+     },
+     "peso": 7.5,
+     "prezzo_carico": 24.3168
+    },
+    {
+     "nome": "iShares Nasdaq 100 (Acc)",
+     "isin": "IE00B53SZB19",
+     "bloomberg": "CSNDX IM",
+     "classe": "Azioni",
+     "area": "USA",
+     "peso": 7,
+     "prezzo_carico": 1531.21
+    },
+    {
+     "nome": "Amundi Euro Government Bond 3-5Y",
+     "isin": "LU1650488494",
+     "bloomberg": "EM35 IM",
+     "classe": "Obbligazioni",
+     "area": "Europa",
+     "peso": 5,
+     "prezzo_carico": 149.8
+    },
+    {
+     "nome": "Amundi MSCI Emerging Markets",
+     "isin": "LU1437017350",
+     "bloomberg": "AEME IM",
+     "classe": "Azioni",
+     "area": "Emergenti",
+     "peso": 3,
+     "prezzo_carico": 99.37
+    },
+    {
+     "nome": "iShares S&P 500 Health Care EUR Hdg",
+     "isin": "IE00BMBKBZ46",
+     "bloomberg": "IUHE NA",
+     "classe": "Azioni",
+     "area": "USA",
+     "peso": 8,
+     "prezzo_carico": 8.122
     },
     {
      "nome": "Liquidità EUR",
@@ -318,7 +460,7 @@
      "liquidita": true
     }
    ],
-   "prezzi_carico_da": "chiusure del 2026-10-07 (automatico)"
+   "prezzi_carico_da": "eseguiti reali del 2026-10-28"
   }
  ],
  "_istruzioni": {
