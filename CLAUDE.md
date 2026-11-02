@@ -14,7 +14,7 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
 - **Rispondi e scrivi SEMPRE in italiano**: messaggi all'utente, aggiornamenti
   mentre lavori, commit, pull request, commenti nel codice.
 - L'utente è il **gestore** del certificato VICI Balanced Growth AMC.
-- **Numero di versione** (oggi **3.14.5**): si scrive sempre con i punti.
+- **Numero di versione** (oggi **3.18.2**): si scrive sempre con i punti.
   - funzioni nuove → sale il secondo numero: 3.0 → 3.1 → 3.2 …
   - correzioni di errori → terzo numero: 3.1 → 3.1.1 → 3.1.2; 3.2 → 3.2.1 …
   - se l'utente dice "non aumentare la versione", non aumentarla.
@@ -69,6 +69,18 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
   Premio/sconto sostituisce il Paniere stimato (che resta in Andamento); 3.14.1 premio/sconto
   dall'inizio dello storico (2 set); 3.14.3 nota breve; 3.14.4 fondi con etichetta «NAV <data>»;
   3.14.5 chiusura precedente corretta quando Yahoo salta una seduta.
+  3.15–3.16 benchmark 50/50 poi 50/40/10 (MSCI World, Euro Agg, oro, 2,5% liquidità; supporto
+  «liquidità» in `calcola_benchmark`), legenda senza overflow (`.leg-testo`); 3.17 benchmark
+  NASCOSTO in tutta l'app tramite `MOSTRA_BENCHMARK = false` in `js/app.js` (lo script lo calcola
+  ancora; rimettere `true` per riattivarlo); 3.18/3.18.1 quotazioni non aggiornate segnate in
+  ambra con ⚠ (`quotazioneFerma`: data < ultimo giorno lavorativo, NAV dei fondi compresi);
+  3.18.2 con «Var. oggi» anche il contributo è quello di oggi («Contrib. oggi», somma = perf. giorno).
+- **Benchmark**: l'utente ha chiesto un benchmark «che sia andato peggio del vici»: rifiutato
+  (scegliere un confronto perché faccia sfigurare/figurare il VICI è cherry-picking). Offerto
+  il confronto con ETF bilanciati di categoria (Vanguard LifeStrategy 20/40/60), l'utente ha
+  detto «vedremo dopo». Non riproporre senza che lo chieda.
+- Richiesta lasciata in sospeso: barra di scorrimento verticale visibile a destra su PC in VICI
+  ma non in cacciaTI (l'utente vuole il comportamento di cacciaTI) — mai affrontata.
 - Yahoo salta a volte sedute nella serie giornaliera (14/10/2026 mancava per IUHE.AS, IUSE.L,
   PHAU.MI...): `yahoo_grafico` le integra con l'ultima barra oraria (`chiusura_da_barre_orarie_tutte`),
   il Worker (`leggiPrezzoYahoo`) fa lo stesso e restituisce `prec_data`; l'app usa la chiusura
@@ -210,14 +222,23 @@ lavora sul ramo `memoria` (con il permesso dell'utente già dato il 5/10/2026).
   `main` sia sul ramo di lavoro: porta `main` nel ramo (`git merge origin/main`),
   per quei file tieni la versione del ramo (`git checkout --ours`), verifica che
   i JSON siano validi, committa e riprova; il workflow li rigenera comunque.
+- Il ramo di lavoro riceve anche i commit del bot dati: se il push è respinto, `git fetch origin
+  <ramo>`, `git merge FETCH_HEAD`, nei file generati `git checkout origin/main -- data/...`.
+  Se il PR ha conflitti perché i commit del ramo sono già stati «schiacciati» in main, unire
+  `origin/main` tenendo la versione del ramo (`checkout --ours`) per app, README, sw, versione.
 - Il ramo `memoria` si scarica con `git fetch origin memoria` e poi
   `git checkout memoria` (se manca in locale: `git checkout -b memoria FETCH_HEAD`).
 
-## Stato e cose in sospeso (all'11 ottobre 2026)
+## Stato e cose in sospeso (al 2 novembre 2026)
 
 - Ribilanciamento del **7 ottobre 2026** (file Composizione_10.26.xlsx) inserito
   e **ATTIVO dal 9 ottobre** (controllo fatto: 14 prezzi di carico compilati, curva
   continua, nessun mancante). Entra Nasdaq 100 (7%), esce USA Small Cap, liquidità 3%.
+- Ottobre corretto con `Composizione_10.26_bis.xlsx` (23/10): pesi Emerging 3%, Health Care 8%,
+  T. Rowe 10%, China uscito, registrato SUL ribilanciamento del 7 ottobre (scelta dell'utente,
+  non un nuovo ribilanciamento). Prezzi di carico = eseguiti reali dell'utente per Nasdaq 1572,55,
+  S&P 500 Hdg 158,37, EURO STOXX 243,45, Amundi EM 105,02, Health Care 7,502; le altre posizioni
+  restano alle chiusure del 7. Pesi confermati da Bloomberg al 30/10.
 - Prossimo ribilanciamento mensile: caricare l'Excel in `ribilanciamenti/AAAA-MM-GG.xlsx`.
 - Premio/sconto: il primo confronto vero arriva con la seconda quotazione di
   riferimento registrata (dopo il 2 ottobre).
