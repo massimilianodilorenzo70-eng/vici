@@ -1,11 +1,11 @@
 {
- "corrente": 998.18,
+ "corrente": 999.42,
  "tipo_corrente": "prezzo di riferimento",
- "prezzo": 998.18,
+ "prezzo": 999.42,
  "tipo": "prezzo di riferimento",
  "data_ultimo": null,
  "ora_ultimo": null,
- "riferimento": 998.18,
+ "riferimento": 999.42,
  "data_riferimento": "2026-10-30",
  "ufficiale": 1023.99,
  "denaro": null,
@@ -19,15 +19,15 @@
  "max_anno": 1034.93,
  "min_anno": 1013.76,
  "performance": {
-  "giorno": -0.79,
-  "settimana": -0.02,
-  "mese": -0.64,
-  "sei_mesi": -1.01,
-  "anno": -0.45,
-  "inizio": -0.18
+  "giorno": -0.66,
+  "settimana": 0.11,
+  "mese": -0.51,
+  "sei_mesi": -0.88,
+  "anno": -0.33,
+  "inizio": -0.06
  },
  "fonte": "Borsa Italiana",
  "url": "https://www.borsaitaliana.it/borsa/cw-e-certificates/dati-mercato.html?isin=CH1453363652&mic=SEDX&lang=it",
- "ora": "2026-11-02T16:44:59+00:00",
+ "ora": "2026-11-02T23:37:39+00:00",
  "data": "2026-10-30"
 }
