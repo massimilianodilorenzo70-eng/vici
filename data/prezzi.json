@@ -1,5 +1,5 @@
 {
- "aggiornato": "2026-11-26T17:04:37+00:00",
+ "aggiornato": "2026-11-27T01:02:46+00:00",
  "nome": "VICI Balanced Growth AMC",
  "indice": "VICIGROW Index",
  "isin_certificato": "CH1453363652",
@@ -15,23 +15,23 @@
  "data_inizio": "2026-09-02",
  "data_esecuzione": "2026-10-28",
  "base": 1000.0,
- "base_periodo": 990.5028240758056,
- "nav": 958.8566512024457,
- "nav_prec": 947.1696924303722,
- "perf_totale": -4.114334879755422,
- "perf_periodo": -3.1949603882136857,
- "perf_giorno": 1.2338822563130902,
+ "base_periodo": 990.4711468445227,
+ "nav": 960.6766056869319,
+ "nav_prec": 945.9255870313355,
+ "perf_totale": -3.9323394313068083,
+ "perf_periodo": -3.008118030748419,
+ "perf_giorno": 1.5594269631600266,
  "classi": {
-  "Azioni": 50.05661935109946,
-  "Obbligazioni": 39.88674781570119,
-  "Oro": 6.9576206205802755,
-  "Liquidità": 3.099012212619084
+  "Azioni": 50.15513137153779,
+  "Obbligazioni": 39.80991113780406,
+  "Oro": 6.941915125575409,
+  "Liquidità": 3.0930423650827414
  },
  "aree": {
-  "USA": 29.40069657270639,
-  "Europa": 33.43090645670807,
-  "Globale": 34.34445054960679,
-  "Emergenti": 2.823946420978747
+  "USA": 29.344059920780133,
+  "Europa": 33.36650612497151,
+  "Globale": 34.47092750201688,
+  "Emergenti": 2.8185064522314804
  },
  "soglia_scostamento": 2.0,
  "certificato": {
@@ -64,7 +64,7 @@
   },
   "fonte": "Borsa Italiana",
   "url": "https://www.borsaitaliana.it/borsa/cw-e-certificates/dati-mercato.html?isin=CH1453363652&mic=SEDX&lang=it",
-  "ora": "2026-11-26T17:04:14+00:00",
+  "ora": "2026-11-27T01:02:24+00:00",
   "data": "2026-11-25"
  },
  "premio": {
@@ -72,8 +72,8 @@
   "prezzo_riferimento": 1005.68,
   "da_configurazione": false,
   "data_confronto": "2026-11-25",
-  "valore_implicito": 960.8025735215778,
-  "premio": 1.3610940310547104
+  "valore_implicito": 960.802575952327,
+  "premio": 1.361093774619726
  },
  "benchmark": {
   "nome": "Bilanciato 50/40/10",
@@ -99,94 +99,94 @@
     "simbolo": "liquidità"
    }
   ],
-  "valore": 986.4241079861375,
-  "perf": -1.3575892013862445,
-  "perf_giorno": 1.548410436912917,
-  "vol": 7.792537144697056,
+  "valore": 986.6318673434995,
+  "perf": -1.3368132656500498,
+  "perf_giorno": 1.5697984304977153,
+  "vol": 7.670790522327997,
   "max_drawdown": -4.943002156750154,
-  "rend_1a": 3.6000136707356134
+  "rend_1a": 2.0767278789910693
  },
  "rischio": {
-  "dal": "2025-11-26",
-  "giorni": 256,
-  "vol": 7.480278255062512,
-  "max_drawdown": -5.705784729042551,
-  "var95": 0.6622142718786759,
-  "rend_1a": 5.115056132196405,
-  "peggior_giorno": -1.5854529737919696,
-  "miglior_giorno": 2.0750527889185673,
+  "dal": "2025-11-27",
+  "giorni": 255,
+  "vol": 7.376528983162572,
+  "max_drawdown": -5.710283457478004,
+  "var95": 0.6612108822866304,
+  "rend_1a": 3.931231036525129,
+  "peggior_giorno": -1.5858973894812551,
+  "miglior_giorno": 2.0773030803957813,
   "posizioni": [
    {
     "nome": "iShares S&P 500 EUR Hedged",
-    "vol": 13.614971832033815,
-    "rend_1a": 4.5432120328050996,
-    "contributo_rischio": 23.33141168067608
+    "vol": 13.226153769230356,
+    "rend_1a": 1.244868047850689,
+    "contributo_rischio": 22.83663836930737
    },
    {
     "nome": "iShares EUR Floating Rate Bond Advanced",
-    "vol": 1.0523520806643567,
-    "rend_1a": 2.454801585094102,
-    "contributo_rischio": 0.0651977012768775
+    "vol": 1.0538164839818656,
+    "rend_1a": 2.450211616577458,
+    "contributo_rischio": 0.07422354061023487
    },
    {
     "nome": "PIMCO GIS Capital Securities EUR Hdg Acc",
-    "vol": 2.8979925592736366,
-    "rend_1a": -1.3879240078408461,
-    "contributo_rischio": 2.3258971138713482
+    "vol": 2.9027346962721214,
+    "rend_1a": -1.4563109364484572,
+    "contributo_rischio": 2.3980057357445883
    },
    {
     "nome": "T. Rowe Price Global Value Equity A EUR",
-    "vol": 12.906643247143846,
-    "rend_1a": 20.18715985510604,
-    "contributo_rischio": 12.645003535405705
+    "vol": 13.069038008128922,
+    "rend_1a": 22.10385881252175,
+    "contributo_rischio": 13.414677585238833
    },
    {
     "nome": "iShares Core EURO STOXX 50",
-    "vol": 16.65429707812929,
-    "rend_1a": 9.234335914841886,
-    "contributo_rischio": 15.28389903529682
+    "vol": 16.564815218823664,
+    "rend_1a": 6.930921260897982,
+    "contributo_rischio": 15.347707756447884
    },
    {
     "nome": "Muzinich Enhancedyield Short-Term H EUR R Acc",
-    "vol": 1.4105011466142154,
-    "rend_1a": 0.006352290973965502,
-    "contributo_rischio": 1.069736796605264
+    "vol": 1.4132749100855575,
+    "rend_1a": 0.006355003475433385,
+    "contributo_rischio": 1.1031873983720286
    },
    {
     "nome": "WisdomTree Physical Gold",
-    "vol": 26.461340351993567,
-    "rend_1a": -9.627833143139508,
-    "contributo_rischio": 15.665020054186577
+    "vol": 26.317023711437127,
+    "rend_1a": -12.287653322942882,
+    "contributo_rischio": 15.579454250380978
    },
    {
     "nome": "Schroder ISF EURO Corporate Bond A Acc",
-    "vol": 4.117518171376233,
-    "rend_1a": -3.6320196268698646,
-    "contributo_rischio": 2.214843629257757
+    "vol": 4.12823455976977,
+    "rend_1a": -3.6070158732316004,
+    "contributo_rischio": 2.2355891904677847
    },
    {
     "nome": "iShares Nasdaq 100 (Acc)",
-    "vol": 20.51489133202877,
-    "rend_1a": 9.920024783668268,
-    "contributo_rischio": 13.180477978737407
+    "vol": 20.100015581359802,
+    "rend_1a": 5.429705710713373,
+    "contributo_rischio": 12.884619820938495
    },
    {
     "nome": "Amundi Euro Government Bond 3-5Y",
-    "vol": 2.890625505615748,
-    "rend_1a": -1.04159607039932,
-    "contributo_rischio": 1.1230033225725637
+    "vol": 2.893717431132808,
+    "rend_1a": -0.930109508073762,
+    "contributo_rischio": 1.1735840434324842
    },
    {
     "nome": "Amundi MSCI Emerging Markets",
-    "vol": 25.07532705455391,
-    "rend_1a": 13.415757439541597,
-    "contributo_rischio": 7.3940004228300005
+    "vol": 24.806761112942382,
+    "rend_1a": 9.253194885119065,
+    "contributo_rischio": 7.340631833372151
    },
    {
     "nome": "iShares S&P 500 Health Care EUR Hdg",
-    "vol": 17.25375118561323,
-    "rend_1a": 14.605564870779109,
-    "contributo_rischio": 5.701508729283615
+    "vol": 17.244079683087048,
+    "rend_1a": 13.388977164048722,
+    "contributo_rischio": 5.611680475687156
    }
   ],
   "correlazioni": {
@@ -207,170 +207,170 @@
    "matrice": [
     [
      1.0,
-     0.049,
-     0.503,
-     0.586,
-     0.738,
-     0.54,
-     0.393,
-     0.371,
-     0.851,
-     0.385,
-     0.729,
-     0.128
+     0.058,
+     0.519,
+     0.6,
+     0.736,
+     0.557,
+     0.378,
+     0.364,
+     0.843,
+     0.408,
+     0.721,
+     0.114
     ],
     [
-     0.049,
+     0.058,
      1.0,
-     0.016,
-     -0.02,
-     0.082,
+     0.015,
+     -0.022,
+     0.086,
      -0.021,
-     -0.0,
-     -0.066,
+     0.004,
+     -0.064,
+     0.041,
      0.033,
-     0.034,
-     -0.03,
+     -0.026,
+     0.06
+    ],
+    [
+     0.519,
+     0.015,
+     1.0,
+     0.548,
+     0.601,
+     0.905,
+     0.303,
+     0.561,
+     0.299,
+     0.702,
+     0.427,
+     0.279
+    ],
+    [
+     0.6,
+     -0.022,
+     0.548,
+     1.0,
+     0.624,
+     0.562,
+     0.432,
+     0.374,
+     0.488,
+     0.393,
+     0.576,
+     0.091
+    ],
+    [
+     0.736,
+     0.086,
+     0.601,
+     0.624,
+     1.0,
+     0.627,
+     0.385,
+     0.485,
+     0.576,
+     0.582,
+     0.682,
+     0.199
+    ],
+    [
+     0.557,
+     -0.021,
+     0.905,
+     0.562,
+     0.627,
+     1.0,
+     0.361,
+     0.641,
+     0.347,
+     0.743,
+     0.479,
+     0.269
+    ],
+    [
+     0.378,
+     0.004,
+     0.303,
+     0.432,
+     0.385,
+     0.361,
+     1.0,
+     0.252,
+     0.296,
+     0.308,
+     0.425,
      0.058
     ],
     [
-     0.503,
-     0.016,
-     1.0,
-     0.554,
-     0.597,
-     0.904,
-     0.301,
+     0.364,
+     -0.064,
      0.561,
-     0.293,
-     0.701,
-     0.421,
-     0.278
-    ],
-    [
-     0.586,
-     -0.02,
-     0.554,
-     1.0,
-     0.625,
-     0.568,
-     0.432,
-     0.366,
-     0.481,
-     0.397,
-     0.574,
-     0.092
-    ],
-    [
-     0.738,
-     0.082,
-     0.597,
-     0.625,
-     1.0,
-     0.623,
-     0.394,
-     0.49,
-     0.584,
-     0.572,
-     0.688,
-     0.205
-    ],
-    [
-     0.54,
-     -0.021,
-     0.904,
-     0.568,
-     0.623,
-     1.0,
-     0.358,
+     0.374,
+     0.485,
      0.641,
-     0.34,
-     0.742,
-     0.473,
-     0.268
-    ],
-    [
-     0.393,
-     -0.0,
-     0.301,
-     0.432,
-     0.394,
-     0.358,
+     0.252,
      1.0,
-     0.259,
-     0.313,
-     0.3,
-     0.436,
-     0.066
+     0.22,
+     0.692,
+     0.335,
+     0.249
     ],
     [
-     0.371,
-     -0.066,
-     0.561,
-     0.366,
-     0.49,
-     0.641,
-     0.259,
+     0.843,
+     0.041,
+     0.299,
+     0.488,
+     0.576,
+     0.347,
+     0.296,
+     0.22,
      1.0,
-     0.23,
-     0.688,
-     0.342,
-     0.254
+     0.201,
+     0.805,
+     -0.172
     ],
     [
-     0.851,
+     0.408,
      0.033,
-     0.293,
-     0.481,
-     0.584,
-     0.34,
-     0.313,
-     0.23,
+     0.702,
+     0.393,
+     0.582,
+     0.743,
+     0.308,
+     0.692,
+     0.201,
      1.0,
-     0.188,
-     0.81,
-     -0.153
+     0.383,
+     0.299
     ],
     [
-     0.385,
-     0.034,
-     0.701,
-     0.397,
-     0.572,
-     0.742,
-     0.3,
-     0.688,
-     0.188,
+     0.721,
+     -0.026,
+     0.427,
+     0.576,
+     0.682,
+     0.479,
+     0.425,
+     0.335,
+     0.805,
+     0.383,
      1.0,
-     0.371,
-     0.295
+     -0.121
     ],
     [
-     0.729,
-     -0.03,
-     0.421,
-     0.574,
-     0.688,
-     0.473,
-     0.436,
-     0.342,
-     0.81,
-     0.371,
-     1.0,
-     -0.108
-    ],
-    [
-     0.128,
+     0.114,
+     0.06,
+     0.279,
+     0.091,
+     0.199,
+     0.269,
      0.058,
-     0.278,
-     0.092,
-     0.205,
-     0.268,
-     0.066,
-     0.254,
-     -0.153,
-     0.295,
-     -0.108,
+     0.249,
+     -0.172,
+     0.299,
+     -0.121,
      1.0
     ]
    ]
@@ -381,17 +381,17 @@
   {
    "id": "ribilanciamento",
    "etichetta": "Dal ribilanciamento del 2026-10-28",
-   "rend": -3.1949603882136928,
+   "rend": -3.008118030748417,
    "classi": {
-    "Azioni": -2.5426698088470894,
+    "Azioni": -2.353594178594988,
     "Obbligazioni": 0.11238202284284818,
-    "Oro": -0.7646726022094514,
+    "Oro": -0.7669058749962775,
     "Liquidità": 0.0
    },
    "aree": {
     "USA": -1.5386440366504754,
-    "Europa": -0.13719776200453004,
-    "Globale": -1.252841041002785,
+    "Europa": -0.13719776200453007,
+    "Globale": -1.0659986835375093,
     "Emergenti": -0.2662775485559024
    },
    "posizioni": [
@@ -408,12 +408,12 @@
     {
      "nome": "Amundi Euro Government Bond 3-5Y",
      "classe": "Obbligazioni",
-     "contributo": 0.04205607476635483
+     "contributo": 0.04205607476635484
     },
     {
      "nome": "Muzinich Enhancedyield Short-Term H EUR R Acc",
      "classe": "Obbligazioni",
-     "contributo": 0.01118881118881113
+     "contributo": 0.011188811188811128
     },
     {
      "nome": "iShares EUR Floating Rate Bond Advanced",
@@ -428,12 +428,12 @@
     {
      "nome": "Schroder ISF EURO Corporate Bond A Acc",
      "classe": "Obbligazioni",
-     "contributo": -0.008574318989340442
+     "contributo": -0.008574318989340444
     },
     {
      "nome": "iShares Core EURO STOXX 50",
      "classe": "Azioni",
-     "contributo": -0.18102553456508164
+     "contributo": -0.18102553456508166
     },
     {
      "nome": "Amundi MSCI Emerging Markets",
@@ -443,7 +443,7 @@
     {
      "nome": "T. Rowe Price Global Value Equity A EUR",
      "classe": "Azioni",
-     "contributo": -0.5567226890756303
+     "contributo": -0.36764705882352844
     },
     {
      "nome": "iShares Nasdaq 100 (Acc)",
@@ -453,7 +453,7 @@
     {
      "nome": "WisdomTree Physical Gold",
      "classe": "Oro",
-     "contributo": -0.7646726022094514
+     "contributo": -0.7669058749962775
     },
     {
      "nome": "iShares S&P 500 EUR Hedged",
@@ -465,34 +465,34 @@
   {
    "id": "acquisto",
    "etichetta": "Da acquisto (costo medio effettivo)",
-   "rend": -3.8136588654541534,
+   "rend": -3.6280203968366362,
    "classi": {
-    "Azioni": -2.50594952848494,
-    "Obbligazioni": -0.250888925656509,
-    "Oro": -1.0568204113127042,
+    "Azioni": -2.318084362317691,
+    "Obbligazioni": -0.25089063773325815,
+    "Oro": -1.059045396785687,
     "Liquidità": 0.0
    },
    "aree": {
-    "USA": -1.3640568133110849,
-    "Europa": -0.46001847418222164,
-    "Globale": -1.6513987891189656,
-    "Emergenti": -0.3381847888418811
+    "USA": -1.3640620236834147,
+    "Europa": -0.46001802479875165,
+    "Globale": -1.4657586599959642,
+    "Emergenti": -0.33818168835850543
    },
    "posizioni": [
     {
      "nome": "iShares S&P 500 Health Care EUR Hdg",
      "classe": "Azioni",
-     "contributo": 0.4417371488631562
+     "contributo": 0.44173175587978314
     },
     {
      "nome": "iShares EUR Floating Rate Bond Advanced",
      "classe": "Obbligazioni",
-     "contributo": 0.030757740951256194
+     "contributo": 0.030758140704945508
     },
     {
      "nome": "Amundi Euro Government Bond 3-5Y",
      "classe": "Obbligazioni",
-     "contributo": 0.003648096466949865
+     "contributo": 0.00364809609803585
     },
     {
      "nome": "Liquidità EUR",
@@ -502,76 +502,76 @@
     {
      "nome": "Muzinich Enhancedyield Short-Term H EUR R Acc",
      "classe": "Obbligazioni",
-     "contributo": -0.06439582678328999
+     "contributo": -0.06439796058323512
     },
     {
      "nome": "Schroder ISF EURO Corporate Bond A Acc",
      "classe": "Obbligazioni",
-     "contributo": -0.07523532039515038
+     "contributo": -0.07523531278697325
     },
     {
      "nome": "PIMCO GIS Capital Securities EUR Hdg Acc",
      "classe": "Obbligazioni",
-     "contributo": -0.1456636158962747
-    },
-    {
-     "nome": "Amundi MSCI Emerging Markets",
-     "classe": "Azioni",
-     "contributo": -0.3381847888418811
+     "contributo": -0.14566360116603114
     },
     {
      "nome": "T. Rowe Price Global Value Equity A EUR",
      "classe": "Azioni",
-     "contributo": -0.38451893512669677
+     "contributo": -0.1966517014610111
+    },
+    {
+     "nome": "Amundi MSCI Emerging Markets",
+     "classe": "Azioni",
+     "contributo": -0.33818168835850543
     },
     {
      "nome": "iShares Core EURO STOXX 50",
      "classe": "Azioni",
-     "contributo": -0.41918899120527736
+     "contributo": -0.41918894881475977
     },
     {
      "nome": "iShares Nasdaq 100 (Acc)",
      "classe": "Azioni",
-     "contributo": -0.9022285937588607
+     "contributo": -0.9022285025209296
     },
     {
      "nome": "iShares S&P 500 EUR Hedged",
      "classe": "Azioni",
-     "contributo": -0.9035653684153804
+     "contributo": -0.9035652770422682
     },
     {
      "nome": "WisdomTree Physical Gold",
      "classe": "Oro",
-     "contributo": -1.0568204113127042
+     "contributo": -1.059045396785687
     }
    ]
   },
   {
    "id": "inizio",
    "etichetta": "Dall'inizio (2026-09-02)",
-   "rend": -4.1143348797554316,
+   "rend": -3.932339431306804,
    "classi": {
-    "Azioni": -2.6253866899163323,
-    "Obbligazioni": -0.41885282403890994,
-    "Oro": -1.0700953658001886,
+    "Azioni": -2.438023041030295,
+    "Obbligazioni": -0.4220366509159598,
+    "Oro": -1.0722797393605492,
     "Liquidità": 0.0
    },
    "aree": {
-    "USA": -1.136594314894389,
-    "Europa": -0.7051734007086208,
-    "Globale": -1.6688569345991375,
-    "Emergenti": -0.6037102295532839
+    "USA": -1.1365537987912429,
+    "Europa": -0.7083466759629415,
+    "Globale": -1.4837499244100845,
+    "Emergenti": -0.6036890321425353
    },
    "posizioni": [
     {
      "nome": "iShares S&P 500 Health Care EUR Hdg",
      "classe": "Azioni",
-     "contributo": 0.5333659450417705
+     "contributo": 0.5333465306063218
     },
     {
      "nome": "iShares EUR Floating Rate Bond Advanced",
      "classe": "Obbligazioni",
-     "contributo": 0.030762391291477967
+     "contributo": 0.030761811056523574
     },
     {
      "nome": "Liquidità EUR",
@@ -586,57 +586,57 @@
     {
      "nome": "Amundi Euro Government Bond 3-5Y",
      "classe": "Obbligazioni",
-     "contributo": -0.035354469137219326
+     "contributo": -0.03535583321102021
     },
     {
      "nome": "Muzinich Enhancedyield Short-Term H EUR R Acc",
      "classe": "Obbligazioni",
-     "contributo": -0.0644186659384303
+     "contributo": -0.06441874567806707
     },
     {
      "nome": "PIMCO GIS Capital Securities EUR Hdg Acc",
      "classe": "Obbligazioni",
-     "contributo": -0.16237451429614758
-    },
-    {
-     "nome": "Schroder ISF EURO Corporate Bond A Acc",
-     "classe": "Obbligazioni",
-     "contributo": -0.1874675659585907
-    },
-    {
-     "nome": "iShares MSCI China EUR Hdg Acc",
-     "classe": "Azioni",
-     "contributo": -0.24520897757460686
-    },
-    {
-     "nome": "Amundi MSCI Emerging Markets",
-     "classe": "Azioni",
-     "contributo": -0.35850125197867705
+     "contributo": -0.16237653434497526
     },
     {
      "nome": "T. Rowe Price Global Value Equity A EUR",
      "classe": "Azioni",
-     "contributo": -0.3719683885643711
+     "contributo": -0.1846749050264929
+    },
+    {
+     "nome": "Schroder ISF EURO Corporate Bond A Acc",
+     "classe": "Obbligazioni",
+     "contributo": -0.19064734873842087
+    },
+    {
+     "nome": "iShares MSCI China EUR Hdg Acc",
+     "classe": "Azioni",
+     "contributo": -0.24520469507551476
+    },
+    {
+     "nome": "Amundi MSCI Emerging Markets",
+     "classe": "Azioni",
+     "contributo": -0.3584843370670206
     },
     {
      "nome": "iShares Core EURO STOXX 50",
      "classe": "Azioni",
-     "contributo": -0.5131137569042887
+     "contributo": -0.5131053050700239
     },
     {
      "nome": "iShares S&P 500 EUR Hedged",
      "classe": "Azioni",
-     "contributo": -0.7419318242028312
+     "contributo": -0.7419006576091287
     },
     {
      "nome": "iShares Nasdaq 100 (Acc)",
      "classe": "Azioni",
-     "contributo": -0.8994084234431269
+     "contributo": -0.8993796594982346
     },
     {
      "nome": "WisdomTree Physical Gold",
      "classe": "Oro",
-     "contributo": -1.0700953658001886
+     "contributo": -1.0722797393605492
     }
    ]
   },
@@ -644,16 +644,16 @@
    "id": "2026-09",
    "etichetta": "2026-09",
    "mese": true,
-   "rend": -0.9096129717385445,
+   "rend": -0.9127785092557067,
    "classi": {
     "Azioni": -0.11031218847664556,
-    "Obbligazioni": -0.5789530488981389,
+    "Obbligazioni": -0.582118586415301,
     "Oro": -0.22034773436376004,
     "Liquidità": 0.0
    },
    "aree": {
     "USA": -0.0511380790923591,
-    "Europa": -0.4218657492525127,
+    "Europa": -0.4250312867696749,
     "Globale": -0.4219374492206095,
     "Emergenti": -0.014671694173063257
    },
@@ -716,7 +716,7 @@
     {
      "nome": "Schroder ISF EURO Corporate Bond A Acc",
      "classe": "Obbligazioni",
-     "contributo": -0.2061107055087275
+     "contributo": -0.20927624302588968
     },
     {
      "nome": "PIMCO GIS Capital Securities EUR Hdg Acc",
@@ -734,54 +734,54 @@
    "id": "2026-10",
    "etichetta": "2026-10",
    "mese": true,
-   "rend": -0.8588081211595455,
+   "rend": -0.8588115912439942,
    "classi": {
-    "Azioni": -0.5931486827552204,
-    "Obbligazioni": 0.09741906319624702,
-    "Oro": -0.36307850160057215,
+    "Azioni": -0.5931393186575534,
+    "Obbligazioni": 0.097405769272498,
+    "Oro": -0.36307804185893866,
     "Liquidità": 0.0
    },
    "aree": {
-    "USA": 0.13497293499330476,
-    "Europa": -0.18335972084571378,
-    "Globale": -0.37078868855619895,
-    "Emergenti": -0.4396326467509375
+    "USA": 0.13497878588848555,
+    "Europa": -0.1833766673584183,
+    "Globale": -0.3707834595381763,
+    "Emergenti": -0.439630250235885
    },
    "posizioni": [
     {
      "nome": "iShares S&P 500 Health Care EUR Hdg",
      "classe": "Azioni",
-     "contributo": 0.679214676737644
+     "contributo": 0.6792143576887485
     },
     {
      "nome": "Amundi Euro Government Bond 3-5Y",
      "classe": "Obbligazioni",
-     "contributo": 0.03536592767874553
+     "contributo": 0.035366630556854725
     },
     {
      "nome": "iShares MSCI USA Small Cap ESG Enhanced",
      "classe": "Azioni",
-     "contributo": 0.03142240984670439
+     "contributo": 0.03142341369781408
     },
     {
      "nome": "Schroder ISF EURO Corporate Bond A Acc",
      "classe": "Obbligazioni",
-     "contributo": 0.026521620391014883
+     "contributo": 0.026507844692410798
     },
     {
      "nome": "PIMCO GIS Capital Securities EUR Hdg Acc",
      "classe": "Obbligazioni",
-     "contributo": 0.01809225912014235
+     "contributo": 0.018091817302317452
     },
     {
      "nome": "iShares EUR Floating Rate Bond Advanced",
      "classe": "Obbligazioni",
-     "contributo": 0.012387480867559456
+     "contributo": 0.012387555624859999
     },
     {
      "nome": "Muzinich Enhancedyield Short-Term H EUR R Acc",
      "classe": "Obbligazioni",
-     "contributo": 0.005051775138784802
+     "contributo": 0.005051921096055032
     },
     {
      "nome": "Liquidità EUR",
@@ -791,37 +791,37 @@
     {
      "nome": "T. Rowe Price Global Value Equity A EUR",
      "classe": "Azioni",
-     "contributo": -0.030854221214553976
+     "contributo": -0.03084915607761015
     },
     {
      "nome": "iShares S&P 500 EUR Hedged",
      "classe": "Azioni",
-     "contributo": -0.08932540296909271
+     "contributo": -0.08932025389868253
     },
     {
      "nome": "iShares MSCI China EUR Hdg Acc",
      "classe": "Azioni",
-     "contributo": -0.1556771072747851
+     "contributo": -0.155677758739358
     },
     {
      "nome": "iShares Core EURO STOXX 50",
      "classe": "Azioni",
-     "contributo": -0.25763474978303363
+     "contributo": -0.2576386982325438
     },
     {
      "nome": "Amundi MSCI Emerging Markets",
      "classe": "Azioni",
-     "contributo": -0.28395553947615243
+     "contributo": -0.283952491496527
     },
     {
      "nome": "WisdomTree Physical Gold",
      "classe": "Oro",
-     "contributo": -0.36307850160057215
+     "contributo": -0.36307804185893866
     },
     {
      "nome": "iShares Nasdaq 100 (Acc)",
      "classe": "Azioni",
-     "contributo": -0.4863387486219509
+     "contributo": -0.48633873159939456
     }
    ]
   },
@@ -829,18 +829,18 @@
    "id": "2026-11",
    "etichetta": "2026-11",
    "mese": true,
-   "rend": -2.395908198603159,
+   "rend": -2.207523599169456,
    "classi": {
-    "Azioni": -1.9618618983507143,
+    "Azioni": -1.7712255921569389,
     "Obbligazioni": 0.06470652721048166,
-    "Oro": -0.49875282746292654,
+    "Oro": -0.5010045342229988,
     "Liquidità": 0.0
    },
    "aree": {
-    "USA": -1.2410515072636195,
-    "Europa": -0.10343691431068568,
-    "Globale": -0.8952656691287548,
-    "Emergenti": -0.15615410790009912
+    "USA": -1.24105150726362,
+    "Europa": -0.10343691431068566,
+    "Globale": -0.706881069695051,
+    "Emergenti": -0.15615410790009915
    },
    "posizioni": [
     {
@@ -851,7 +851,7 @@
     {
      "nome": "Amundi Euro Government Bond 3-5Y",
      "classe": "Obbligazioni",
-     "contributo": 0.029951539427054603
+     "contributo": 0.02995153942705461
     },
     {
      "nome": "iShares EUR Floating Rate Bond Advanced",
@@ -861,7 +861,7 @@
     {
      "nome": "Muzinich Enhancedyield Short-Term H EUR R Acc",
      "classe": "Obbligazioni",
-     "contributo": 0.002051340236122359
+     "contributo": 0.0020513402361223595
     },
     {
      "nome": "Liquidità EUR",
@@ -871,12 +871,12 @@
     {
      "nome": "Schroder ISF EURO Corporate Bond A Acc",
      "classe": "Obbligazioni",
-     "contributo": -0.0077741084143309915
+     "contributo": -0.007774108414330996
     },
     {
      "nome": "iShares S&P 500 Health Care EUR Hdg",
      "classe": "Azioni",
-     "contributo": -0.07646903914144759
+     "contributo": -0.07646903914144758
     },
     {
      "nome": "iShares Core EURO STOXX 50",
@@ -886,35 +886,35 @@
     {
      "nome": "Amundi MSCI Emerging Markets",
      "classe": "Azioni",
-     "contributo": -0.15615410790009912
-    },
-    {
-     "nome": "iShares Nasdaq 100 (Acc)",
-     "classe": "Azioni",
-     "contributo": -0.4249756355698267
+     "contributo": -0.15615410790009915
     },
     {
      "nome": "T. Rowe Price Global Value Equity A EUR",
      "classe": "Azioni",
-     "contributo": -0.4306970284577356
+     "contributo": -0.24006072226395955
+    },
+    {
+     "nome": "iShares Nasdaq 100 (Acc)",
+     "classe": "Azioni",
+     "contributo": -0.4249756355698268
     },
     {
      "nome": "WisdomTree Physical Gold",
      "classe": "Oro",
-     "contributo": -0.49875282746292654
+     "contributo": -0.5010045342229988
     },
     {
      "nome": "iShares S&P 500 EUR Hedged",
      "classe": "Azioni",
-     "contributo": -0.7396068325523453
+     "contributo": -0.7396068325523456
     }
    ]
   }
  ],
- "perf_acquisto": -3.8136588654541503,
+ "perf_acquisto": -3.62802039683664,
  "stress": {
   "dal": "2025-11-28",
-  "settimane": 51,
+  "settimane": 52,
   "duration_tassi": 6.5,
   "fattori": [
    {
@@ -946,100 +946,100 @@
    "IE00B3ZW0K18": {
     "azioni": 1.0,
     "obbligazioni": 0.0,
-    "oro": -0.0,
+    "oro": 0.0,
     "dollaro": 0.0,
     "r2": 1.0
    },
    "LU1650488494": {
-    "azioni": -0.0061,
-    "obbligazioni": 0.5593,
-    "oro": 0.0109,
-    "dollaro": -0.0492,
-    "r2": 0.819
+    "azioni": -0.0067,
+    "obbligazioni": 0.5636,
+    "oro": 0.0104,
+    "dollaro": -0.0495,
+    "r2": 0.821
    },
    "IE00BFRSV973": {
-    "azioni": 0.051,
-    "obbligazioni": 0.4623,
-    "oro": 0.0131,
-    "dollaro": -0.1006,
+    "azioni": 0.0514,
+    "obbligazioni": 0.4595,
+    "oro": 0.0135,
+    "dollaro": -0.1003,
     "r2": 0.542
    },
    "LU0113257694": {
-    "azioni": 0.074,
-    "obbligazioni": 0.8368,
-    "oro": -0.019,
-    "dollaro": 0.0148,
+    "azioni": 0.0732,
+    "obbligazioni": 0.843,
+    "oro": -0.0197,
+    "dollaro": 0.0147,
     "r2": 0.844
    },
    "LU1493953001": {
-    "azioni": 0.656,
-    "obbligazioni": 0.5084,
-    "oro": 0.1072,
-    "dollaro": 0.3168,
-    "r2": 0.647
+    "azioni": 0.6488,
+    "obbligazioni": 0.5624,
+    "oro": 0.1004,
+    "dollaro": 0.3123,
+    "r2": 0.636
    },
    "IE00B53L3W79": {
-    "azioni": 0.7483,
-    "obbligazioni": 0.8183,
-    "oro": 0.0692,
-    "dollaro": 0.0689,
-    "r2": 0.535
+    "azioni": 0.75,
+    "obbligazioni": 0.806,
+    "oro": 0.0708,
+    "dollaro": 0.0699,
+    "r2": 0.536
    },
    "IE00B65YMK29": {
-    "azioni": 0.0318,
-    "obbligazioni": 0.221,
-    "oro": 0.0066,
-    "dollaro": -0.0552,
-    "r2": 0.647
+    "azioni": 0.0325,
+    "obbligazioni": 0.2158,
+    "oro": 0.0072,
+    "dollaro": -0.0547,
+    "r2": 0.641
    },
    "JE00B1VS3770": {
-    "azioni": -0.0085,
-    "obbligazioni": -0.0276,
-    "oro": 0.9964,
+    "azioni": -0.0083,
+    "obbligazioni": -0.0283,
+    "oro": 0.9965,
     "dollaro": -0.0392,
     "r2": 0.991
    },
    "IE000NVM56L3": {
-    "azioni": 0.0075,
-    "obbligazioni": -0.0015,
-    "oro": -0.0062,
-    "dollaro": 0.0199,
-    "r2": 0.152
+    "azioni": 0.0078,
+    "obbligazioni": -0.0037,
+    "oro": -0.0059,
+    "dollaro": 0.0201,
+    "r2": 0.149
    },
    "LU1437017350": {
-    "azioni": 1.1213,
-    "obbligazioni": 0.8147,
-    "oro": 0.0772,
-    "dollaro": 0.2876,
+    "azioni": 1.1198,
+    "obbligazioni": 0.8264,
+    "oro": 0.0757,
+    "dollaro": 0.2866,
     "r2": 0.564
    },
    "IE00BMBKBZ46": {
-    "azioni": 0.0407,
-    "obbligazioni": 0.8202,
-    "oro": 0.1757,
-    "dollaro": 0.1035,
+    "azioni": 0.0338,
+    "obbligazioni": 0.8713,
+    "oro": 0.1693,
+    "dollaro": 0.0993,
     "r2": 0.127
    },
    "IE00B3VWM098": {
-    "azioni": 0.6491,
-    "obbligazioni": 0.8333,
-    "oro": 0.038,
-    "dollaro": 1.1624,
-    "r2": 0.582
+    "azioni": 0.646,
+    "obbligazioni": 0.8566,
+    "oro": 0.0351,
+    "dollaro": 1.1605,
+    "r2": 0.58
    },
    "IE00099GAJC6": {
-    "azioni": 0.359,
-    "obbligazioni": 0.9443,
-    "oro": 0.2553,
-    "dollaro": 0.2053,
+    "azioni": 0.365,
+    "obbligazioni": 0.8995,
+    "oro": 0.2609,
+    "dollaro": 0.209,
     "r2": 0.506
    },
    "IE00B53SZB19": {
-    "azioni": 1.4159,
-    "obbligazioni": -0.2728,
-    "oro": -0.0283,
-    "dollaro": 1.1373,
-    "r2": 0.792
+    "azioni": 1.4198,
+    "obbligazioni": -0.3017,
+    "oro": -0.0247,
+    "dollaro": 1.1397,
+    "r2": 0.793
    }
   },
   "scenari": [
@@ -1362,23 +1362,23 @@
   ]
  },
  "realizzato": {
-  "vol": 8.923260535085332,
-  "max_drawdown": -5.820995803184859,
-  "giorni": 61
+  "vol": 8.851084077291768,
+  "max_drawdown": -5.821001251460666,
+  "giorni": 62
  },
  "mensili": {
   "paniere": [
    {
     "mese": "2026-09",
-    "rend": -0.9096129717385604
+    "rend": -0.9127785092557184
    },
    {
     "mese": "2026-10",
-    "rend": -0.8588081211595266
+    "rend": -0.8588115912439909
    },
    {
     "mese": "2026-11",
-    "rend": -2.3959081986031583
+    "rend": -2.2075235991694586
    }
   ],
   "benchmark": [
@@ -1392,7 +1392,7 @@
    },
    {
     "mese": "2026-11",
-    "rend": -1.7348506638423467
+    "rend": -1.7141541864226673
    }
   ]
  },
@@ -1401,26 +1401,26 @@
    "data": "2026-09-02",
    "fino_al": "2026-10-07",
    "base": 1000.0,
-   "fine": 994.5279084654844,
-   "perf": -0.5472091534515555,
+   "fine": 994.4961025081383,
+   "perf": -0.5503897491861753,
    "posizioni": 14,
    "nota": "Composizione dal file VICIGROW_Execution_2ndSep.xlsx"
   },
   {
    "data": "2026-10-07",
    "fino_al": "2026-10-28",
-   "base": 994.5279084654844,
-   "fine": 990.5028240758056,
-   "perf": -0.4047231209317492,
+   "base": 994.4961025081383,
+   "fine": 990.4711468445227,
+   "perf": -0.4047231209317603,
    "posizioni": 14,
    "nota": "Da 2026-10-07_Composizione_10.26.xlsx; prezzi di carico: eseguiti reali per Nasdaq 100, S&P 500 Hdg, EURO STOXX 50, Amundi EM e S&P 500 Health Care, chiusure del 2026-10-07 per le altre posizioni"
   },
   {
    "data": "2026-10-28",
    "fino_al": null,
-   "base": 990.5028240758056,
-   "fine": 958.8566512024457,
-   "perf": -3.1949603882136857,
+   "base": 990.4711468445227,
+   "fine": 960.6766056869319,
+   "perf": -3.008118030748419,
    "posizioni": 13,
    "nota": "Da Composizione_10.26_bis.xlsx (aggiornamento del 23/10/2026): Emerging Markets 3%, Health Care 8%, T. Rowe 10%, MSCI China uscito; prezzi di carico = eseguiti reali del 28/10"
   }
@@ -1439,7 +1439,7 @@
    "peso_iniziale": 15,
    "peso_obiettivo": 15.0,
    "prezzo_carico": 158.68,
-   "quote": 0.9363210462022361,
+   "quote": 0.9362911017562289,
    "prezzo": 147.96,
    "prezzo_prec": 143.13999938964844,
    "data_acquisto": "2026-09-02",
@@ -1449,17 +1449,17 @@
    "var_giorno": 3.3673331220512415,
    "data_prezzo": "2026-11-26",
    "var_carico": -6.755734812200654,
-   "valore": 138.53806199608286,
+   "valore": 138.53363141585163,
    "simbolo": "IUSE.L",
    "fonte": "Yahoo Finance",
-   "aggiornato": "2026-11-26T16:36:00+00:00",
-   "storia": 265,
+   "aggiornato": "2026-11-26T17:16:40+00:00",
+   "storia": 263,
    "storico_da": null,
    "mancante": false,
-   "peso_attuale": 14.448255828684134,
+   "peso_attuale": 14.420423126343662,
    "contributo": -1.013360221830098,
-   "contributo_acquisto": -0.9035653684153804,
-   "scostamento": -0.5517441713158657,
+   "contributo_acquisto": -0.9035652770422682,
+   "scostamento": -0.5795768736563378,
    "oltre_soglia": false
   },
   {
@@ -1473,27 +1473,27 @@
    "peso_iniziale": 9,
    "peso_obiettivo": 9.0,
    "prezzo_carico": 5.2194,
-   "quote": 17.07959807005068,
+   "quote": 17.079051848106495,
    "prezzo": 5.2254,
    "prezzo_prec": 5.226600170135498,
    "data_acquisto": "2026-09-02",
    "prezzo_carico_originale": 5.2018,
-   "costo_medio": 5.207447825175447,
-   "var_acquisto": 0.34474036854987844,
+   "costo_medio": 5.207447590038318,
+   "var_acquisto": 0.3447448995170799,
    "var_giorno": -0.02296273096143997,
    "data_prezzo": "2026-11-26",
    "var_carico": 0.11495574203930214,
-   "valore": 89.24773175524281,
+   "valore": 89.24487752709567,
    "simbolo": "EFRB.DE",
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-11-26T16:36:03+00:00",
-   "storia": 265,
+   "storia": 263,
    "storico_da": null,
    "mancante": false,
-   "peso_attuale": 9.307724115311968,
+   "peso_attuale": 9.289793984655336,
    "contributo": 0.010346016783537198,
-   "contributo_acquisto": 0.030757740951256194,
-   "scostamento": 0.3077241153119683,
+   "contributo_acquisto": 0.030758140704945508,
+   "scostamento": 0.28979398465533635,
    "oltre_soglia": false
   },
   {
@@ -1507,7 +1507,7 @@
    "peso_iniziale": 9,
    "peso_obiettivo": 9.0,
    "prezzo_carico": 14.12,
-   "quote": 6.313403269604994,
+   "quote": 6.313201360907015,
    "prezzo": 14.21,
    "prezzo_prec": 14.210000038146973,
    "data_acquisto": "2026-09-02",
@@ -1517,17 +1517,17 @@
    "var_giorno": -2.6845159428745546e-07,
    "data_prezzo": "2026-11-25",
    "var_carico": 0.6373937677053965,
-   "valore": 89.71346046108698,
+   "valore": 89.71059133848868,
    "simbolo": "0P0000ZSUI.F",
-   "fonte": "Yahoo Finance + Financial Times",
-   "aggiornato": "2026-11-25T20:00:00+00:00",
-   "storia": 261,
+   "fonte": "Yahoo Finance",
+   "aggiornato": "2026-11-25T21:00:00+00:00",
+   "storia": 260,
    "storico_da": null,
    "mancante": false,
-   "peso_attuale": 9.356295369968244,
+   "peso_attuale": 9.3382716730508,
    "contributo": 0.05736543909348546,
-   "contributo_acquisto": -0.1456636158962747,
-   "scostamento": 0.35629536996824385,
+   "contributo_acquisto": -0.14566360116603114,
+   "scostamento": 0.33827167305079975,
    "oltre_soglia": false
   },
   {
@@ -1541,27 +1541,27 @@
    "peso_iniziale": 10,
    "peso_obiettivo": 10.0,
    "prezzo_carico": 28.56,
-   "quote": 3.468147143122569,
-   "prezzo": 26.97,
-   "prezzo_prec": 27.31999969482422,
+   "quote": 3.4680362284472084,
+   "prezzo": 27.51,
+   "prezzo_prec": 26.969999313354492,
    "data_acquisto": "2026-09-02",
    "prezzo_carico_originale": 28.02,
-   "costo_medio": 28.07524993047686,
-   "var_acquisto": -3.936741198079474,
-   "var_giorno": -1.2811116351898355,
-   "data_prezzo": "2026-11-25",
-   "var_carico": -5.567226890756305,
-   "valore": 93.53592845001569,
+   "costo_medio": 28.075249930476865,
+   "var_acquisto": -2.0133389083858533,
+   "var_giorno": 2.0022272910408256,
+   "data_prezzo": "2026-11-26",
+   "var_carico": -3.676470588235281,
+   "valore": 95.40567664458271,
    "simbolo": "0P00018QAE.F",
    "fonte": "Yahoo Finance",
-   "aggiornato": "2026-11-25T21:00:00+00:00",
+   "aggiornato": "2026-11-26T21:00:00+00:00",
    "storia": 261,
    "storico_da": null,
    "mancante": false,
-   "peso_attuale": 9.754943904567776,
-   "contributo": -0.5567226890756303,
-   "contributo_acquisto": -0.38451893512669677,
-   "scostamento": -0.24505609543222384,
+   "peso_attuale": 9.931091907496057,
+   "contributo": -0.36764705882352844,
+   "contributo_acquisto": -0.1966517014610111,
+   "scostamento": -0.0689080925039427,
    "oltre_soglia": false
   },
   {
@@ -1575,27 +1575,27 @@
    "peso_iniziale": 8,
    "peso_obiettivo": 8.0,
    "prezzo_carico": 240.85,
-   "quote": 0.3290023912230204,
+   "quote": 0.3289918694106781,
    "prezzo": 235.4,
    "prezzo_prec": 230.64999389648438,
    "data_acquisto": "2026-09-02",
    "prezzo_carico_originale": 248.15,
-   "costo_medio": 248.1013854126917,
-   "var_acquisto": -5.119433489484237,
+   "costo_medio": 248.10138541269168,
+   "var_acquisto": -5.119433489484226,
    "var_giorno": 2.059400056020566,
    "data_prezzo": "2026-11-26",
    "var_carico": -2.2628191820635246,
-   "valore": 77.447162893899,
+   "valore": 77.44468605927362,
    "simbolo": "CSSX5E.MI",
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-11-26T16:35:10+00:00",
-   "storia": 264,
+   "storia": 262,
    "storico_da": null,
    "mancante": false,
-   "peso_attuale": 8.077032452846531,
-   "contributo": -0.18102553456508164,
-   "contributo_acquisto": -0.41918899120527736,
-   "scostamento": 0.07703245284653093,
+   "peso_attuale": 8.061473091030127,
+   "contributo": -0.18102553456508166,
+   "contributo_acquisto": -0.41918894881475977,
+   "scostamento": 0.06147309103012688,
    "oltre_soglia": false
   },
   {
@@ -1609,27 +1609,27 @@
    "peso_iniziale": 8,
    "peso_obiettivo": 8.0,
    "prezzo_carico": 157.3,
-   "quote": 0.5037522309349297,
+   "quote": 0.5037361204549383,
    "prezzo": 157.52,
    "prezzo_prec": 157.58999633789062,
    "data_acquisto": "2026-09-02",
    "prezzo_carico_originale": 158.8,
-   "costo_medio": 158.7943274005035,
-   "var_acquisto": -0.8025018408179374,
+   "costo_medio": 158.7943697550878,
+   "var_acquisto": -0.8025282993680993,
    "var_giorno": -0.0444167393344741,
    "data_prezzo": "2026-11-25",
    "var_carico": 0.13986013986013734,
-   "valore": 79.35105141687013,
+   "valore": 79.3485136940619,
    "simbolo": "0P0000KOCM.F",
-   "fonte": "Yahoo Finance + Financial Times",
-   "aggiornato": "2026-11-25T20:00:00+00:00",
+   "fonte": "Yahoo Finance",
+   "aggiornato": "2026-11-25T21:00:00+00:00",
    "storia": 252,
    "storico_da": null,
    "mancante": false,
-   "peso_attuale": 8.275590654490497,
-   "contributo": 0.01118881118881113,
-   "contributo_acquisto": -0.06439582678328999,
-   "scostamento": 0.2755906544904967,
+   "peso_attuale": 8.259648795894611,
+   "contributo": 0.011188811188811128,
+   "contributo_acquisto": -0.06439796058323512,
+   "scostamento": 0.259648795894611,
    "oltre_soglia": false
   },
   {
@@ -1643,27 +1643,27 @@
    "peso_iniziale": 7.5,
    "peso_obiettivo": 7.5,
    "prezzo_carico": 335.83,
-   "quote": 0.22120630022834595,
-   "prezzo": 301.59,
+   "quote": 0.22119922583848736,
+   "prezzo": 301.49,
    "prezzo_prec": 292.239990234375,
    "data_acquisto": "2026-09-02",
    "prezzo_carico_originale": 349.73,
-   "costo_medio": 349.2159861024102,
-   "var_acquisto": -13.637974204435066,
-   "var_giorno": 3.1994285785892362,
+   "costo_medio": 349.216260687037,
+   "var_acquisto": -13.666677660754356,
+   "var_giorno": 3.165210126857221,
    "data_prezzo": "2026-11-26",
-   "var_carico": -10.195634696126021,
-   "valore": 66.71360808586685,
+   "var_carico": -10.225411666617035,
+   "valore": 66.68935459804555,
    "simbolo": "PHAU.MI",
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-11-26T16:26:18+00:00",
-   "storia": 265,
+   "storia": 263,
    "storico_da": null,
    "mancante": false,
-   "peso_attuale": 6.9576206205802755,
-   "contributo": -0.7646726022094514,
-   "contributo_acquisto": -1.0568204113127042,
-   "scostamento": -0.5423793794197245,
+   "peso_attuale": 6.941915125575409,
+   "contributo": -0.7669058749962775,
+   "contributo_acquisto": -1.059045396785687,
+   "scostamento": -0.5580848744245914,
    "oltre_soglia": false
   },
   {
@@ -1677,7 +1677,7 @@
    "peso_iniziale": 7.5,
    "peso_obiettivo": 7.5,
    "prezzo_carico": 24.3168,
-   "quote": 3.0549953861398462,
+   "quote": 3.0548976844543363,
    "prezzo": 24.289,
    "prezzo_prec": 24.2189998626709,
    "data_acquisto": "2026-09-02",
@@ -1687,17 +1687,17 @@
    "var_giorno": 0.2890298432058458,
    "data_prezzo": "2026-11-26",
    "var_carico": -0.11432425319121142,
-   "valore": 74.20278293395073,
+   "valore": 74.20040985771138,
    "simbolo": "ZPJS.F",
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-11-26T08:52:35+00:00",
-   "storia": 266,
+   "storia": 265,
    "storico_da": "iShares Core EUR Corp Bond",
    "mancante": false,
-   "peso_attuale": 7.738673225126758,
-   "contributo": -0.008574318989340442,
-   "contributo_acquisto": -0.07523532039515038,
-   "scostamento": 0.2386732251267576,
+   "peso_attuale": 7.723765668744933,
+   "contributo": -0.008574318989340444,
+   "contributo_acquisto": -0.07523531278697325,
+   "scostamento": 0.22376566874493342,
    "oltre_soglia": false
   },
   {
@@ -1711,7 +1711,7 @@
    "peso_iniziale": 7,
    "peso_obiettivo": 7.000000000000001,
    "prezzo_carico": 1531.21,
-   "quote": 0.045281311959369644,
+   "quote": 0.045279863819539176,
    "prezzo": 1373.0,
    "prezzo_prec": 1315.7099609375,
    "data_acquisto": "2026-10-07",
@@ -1721,17 +1721,17 @@
    "var_giorno": 4.354306098106786,
    "data_prezzo": "2026-11-26",
    "var_carico": -10.33235153897898,
-   "valore": 62.17124132021452,
+   "valore": 62.16925302422729,
    "simbolo": "CSNDX.MI",
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-11-26T16:35:05+00:00",
-   "storia": 260,
+   "storia": 258,
    "storico_da": null,
    "mancante": false,
-   "peso_attuale": 6.483893212009242,
+   "peso_attuale": 6.471402827569967,
    "contributo": -0.7232646077285285,
-   "contributo_acquisto": -0.9022285937588607,
-   "scostamento": -0.5161067879907586,
+   "contributo_acquisto": -0.9022285025209296,
+   "scostamento": -0.5285971724300342,
    "oltre_soglia": false
   },
   {
@@ -1745,7 +1745,7 @@
    "peso_iniziale": 5,
    "peso_obiettivo": 5.0,
    "prezzo_carico": 149.8,
-   "quote": 0.3306084192509364,
+   "quote": 0.3305978460762759,
    "prezzo": 151.06,
    "prezzo_prec": 151.25,
    "data_acquisto": "2026-09-02",
@@ -1755,17 +1755,17 @@
    "var_giorno": -0.125619834710744,
    "data_prezzo": "2026-11-26",
    "var_carico": 0.8411214953270907,
-   "valore": 49.94170781204646,
+   "valore": 49.94011062828224,
    "simbolo": "EM35.MI",
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-11-26T16:35:28+00:00",
-   "storia": 265,
+   "storia": 263,
    "storico_da": null,
    "mancante": false,
-   "peso_attuale": 5.208464450803726,
-   "contributo": 0.04205607476635483,
-   "contributo_acquisto": 0.003648096466949865,
-   "scostamento": 0.2084644508037261,
+   "peso_attuale": 5.198431015458377,
+   "contributo": 0.04205607476635484,
+   "contributo_acquisto": 0.00364809609803585,
+   "scostamento": 0.19843101545837705,
    "oltre_soglia": false
   },
   {
@@ -1779,27 +1779,27 @@
    "peso_iniziale": 3,
    "peso_obiettivo": 3.0,
    "prezzo_carico": 99.37,
-   "quote": 0.29903476625011743,
+   "quote": 0.2990252028311933,
    "prezzo": 90.55,
    "prezzo_prec": 87.02999877929688,
    "data_acquisto": "2026-09-02",
    "prezzo_carico_originale": 101.29,
-   "costo_medio": 101.82386076767827,
-   "var_acquisto": -11.07192428442756,
+   "costo_medio": 101.82375854880799,
+   "var_acquisto": -11.071835011279862,
    "var_giorno": 4.044583787286538,
    "data_prezzo": "2026-11-26",
    "var_carico": -8.875918285196748,
-   "valore": 27.077598083948132,
+   "valore": 27.076732116364553,
    "simbolo": "AEME.PA",
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-11-26T16:35:27+00:00",
-   "storia": 267,
+   "storia": 265,
    "storico_da": null,
    "mancante": false,
-   "peso_attuale": 2.823946420978747,
+   "peso_attuale": 2.8185064522314804,
    "contributo": -0.2662775485559024,
-   "contributo_acquisto": -0.3381847888418811,
-   "scostamento": -0.17605357902125318,
+   "contributo_acquisto": -0.33818168835850543,
+   "scostamento": -0.18149354776851956,
    "oltre_soglia": false
   },
   {
@@ -1813,27 +1813,27 @@
    "peso_iniziale": 8,
    "peso_obiettivo": 8.0,
    "prezzo_carico": 8.122,
-   "quote": 9.756245496929877,
+   "quote": 9.755933482832038,
    "prezzo": 8.323,
    "prezzo_prec": 8.218999862670898,
    "data_acquisto": "2026-09-02",
    "prezzo_carico_originale": 7.83,
-   "costo_medio": 7.871641646931753,
-   "var_acquisto": 5.733979941073408,
+   "costo_medio": 7.871647111733275,
+   "var_acquisto": 5.733906536459821,
    "var_giorno": 1.2653624414991294,
    "data_prezzo": "2026-11-26",
    "var_carico": 2.474759911351887,
-   "valore": 81.20123127094736,
+   "valore": 81.19863437761106,
    "simbolo": "IUHE.AS",
    "fonte": "Yahoo Finance",
    "aggiornato": "2026-11-26T16:35:25+00:00",
-   "storia": 267,
+   "storia": 265,
    "storico_da": null,
    "mancante": false,
-   "peso_attuale": 8.468547532013016,
+   "peso_attuale": 8.452233966866505,
    "contributo": 0.19798079290815124,
-   "contributo_acquisto": 0.4417371488631562,
-   "scostamento": 0.4685475320130159,
+   "contributo_acquisto": 0.44173175587978314,
+   "scostamento": 0.45223396686650474,
    "oltre_soglia": false
   },
   {
@@ -1847,7 +1847,7 @@
    "peso_iniziale": 3.0,
    "peso_obiettivo": 3.0,
    "prezzo_carico": 1.0,
-   "quote": 29.71508472227417,
+   "quote": 29.71413440533568,
    "prezzo": 1.0,
    "prezzo_prec": 1.0,
    "data_acquisto": "2026-09-02",
@@ -1857,17 +1857,17 @@
    "var_giorno": 0.0,
    "data_prezzo": null,
    "var_carico": 0.0,
-   "valore": 29.71508472227417,
+   "valore": 29.71413440533568,
    "simbolo": null,
    "fonte": "liquidità",
    "aggiornato": null,
    "storia": 0,
    "storico_da": null,
    "mancante": false,
-   "peso_attuale": 3.099012212619084,
+   "peso_attuale": 3.0930423650827414,
    "contributo": 0.0,
    "contributo_acquisto": 0.0,
-   "scostamento": 0.09901221261908422,
+   "scostamento": 0.09304236508274144,
    "oltre_soglia": false
   }
  ]
