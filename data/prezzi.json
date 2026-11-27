@@ -1,5 +1,5 @@
 {
- "aggiornato": "2026-11-27T01:02:46+00:00",
+ "aggiornato": "2026-11-27T03:47:11+00:00",
  "nome": "VICI Balanced Growth AMC",
  "indice": "VICIGROW Index",
  "isin_certificato": "CH1453363652",
@@ -64,7 +64,7 @@
   },
   "fonte": "Borsa Italiana",
   "url": "https://www.borsaitaliana.it/borsa/cw-e-certificates/dati-mercato.html?isin=CH1453363652&mic=SEDX&lang=it",
-  "ora": "2026-11-27T01:02:24+00:00",
+  "ora": "2026-11-27T03:46:48+00:00",
   "data": "2026-11-25"
  },
  "premio": {
@@ -952,94 +952,94 @@
    },
    "LU1650488494": {
     "azioni": -0.0067,
-    "obbligazioni": 0.5636,
+    "obbligazioni": 0.5632,
     "oro": 0.0104,
-    "dollaro": -0.0495,
-    "r2": 0.821
+    "dollaro": -0.05,
+    "r2": 0.822
    },
    "IE00BFRSV973": {
-    "azioni": 0.0514,
-    "obbligazioni": 0.4595,
-    "oro": 0.0135,
-    "dollaro": -0.1003,
+    "azioni": 0.0515,
+    "obbligazioni": 0.459,
+    "oro": 0.0136,
+    "dollaro": -0.0998,
     "r2": 0.542
    },
    "LU0113257694": {
     "azioni": 0.0732,
     "obbligazioni": 0.843,
     "oro": -0.0197,
-    "dollaro": 0.0147,
-    "r2": 0.844
+    "dollaro": 0.014,
+    "r2": 0.843
    },
    "LU1493953001": {
-    "azioni": 0.6488,
-    "obbligazioni": 0.5624,
-    "oro": 0.1004,
-    "dollaro": 0.3123,
+    "azioni": 0.6482,
+    "obbligazioni": 0.563,
+    "oro": 0.1,
+    "dollaro": 0.3049,
     "r2": 0.636
    },
    "IE00B53L3W79": {
     "azioni": 0.75,
-    "obbligazioni": 0.806,
-    "oro": 0.0708,
-    "dollaro": 0.0699,
+    "obbligazioni": 0.8067,
+    "oro": 0.0707,
+    "dollaro": 0.0714,
     "r2": 0.536
    },
    "IE00B65YMK29": {
     "azioni": 0.0325,
-    "obbligazioni": 0.2158,
-    "oro": 0.0072,
-    "dollaro": -0.0547,
-    "r2": 0.641
+    "obbligazioni": 0.2156,
+    "oro": 0.0073,
+    "dollaro": -0.054,
+    "r2": 0.64
    },
    "JE00B1VS3770": {
     "azioni": -0.0083,
-    "obbligazioni": -0.0283,
+    "obbligazioni": -0.0286,
     "oro": 0.9965,
-    "dollaro": -0.0392,
+    "dollaro": -0.039,
     "r2": 0.991
    },
    "IE000NVM56L3": {
     "azioni": 0.0078,
-    "obbligazioni": -0.0037,
+    "obbligazioni": -0.0036,
     "oro": -0.0059,
-    "dollaro": 0.0201,
-    "r2": 0.149
+    "dollaro": 0.0204,
+    "r2": 0.15
    },
    "LU1437017350": {
-    "azioni": 1.1198,
-    "obbligazioni": 0.8264,
-    "oro": 0.0757,
-    "dollaro": 0.2866,
+    "azioni": 1.1195,
+    "obbligazioni": 0.8278,
+    "oro": 0.0754,
+    "dollaro": 0.2847,
     "r2": 0.564
    },
    "IE00BMBKBZ46": {
-    "azioni": 0.0338,
-    "obbligazioni": 0.8713,
-    "oro": 0.1693,
-    "dollaro": 0.0993,
+    "azioni": 0.0334,
+    "obbligazioni": 0.8707,
+    "oro": 0.169,
+    "dollaro": 0.0925,
     "r2": 0.127
    },
    "IE00B3VWM098": {
-    "azioni": 0.646,
-    "obbligazioni": 0.8566,
-    "oro": 0.0351,
-    "dollaro": 1.1605,
-    "r2": 0.58
+    "azioni": 0.6448,
+    "obbligazioni": 0.863,
+    "oro": 0.0341,
+    "dollaro": 1.156,
+    "r2": 0.579
    },
    "IE00099GAJC6": {
-    "azioni": 0.365,
-    "obbligazioni": 0.8995,
+    "azioni": 0.3651,
+    "obbligazioni": 0.9018,
     "oro": 0.2609,
-    "dollaro": 0.209,
+    "dollaro": 0.2146,
     "r2": 0.506
    },
    "IE00B53SZB19": {
-    "azioni": 1.4198,
-    "obbligazioni": -0.3017,
-    "oro": -0.0247,
-    "dollaro": 1.1397,
-    "r2": 0.793
+    "azioni": 1.419,
+    "obbligazioni": -0.2942,
+    "oro": -0.0255,
+    "dollaro": 1.142,
+    "r2": 0.794
    }
   },
   "scenari": [
